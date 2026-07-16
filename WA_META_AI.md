@@ -224,7 +224,7 @@ const META_AI_WIRE_JID = '1807055946647698$1@s.whatsapp.net'
 ### 9.2 Build the message with required proto fields
 
 ```ts
-import { proto } from '@whiskeysockets/baileys'
+import { proto } from 'baron-baileys-v2'
 
 function buildMetaAiMessage(text: string, yourJid: string, conversationContext?: Uint8Array) {
   return {
@@ -344,21 +344,3 @@ const msg2 = buildMetaAiMessage('Follow-up question', sock.user.id, conversation
 [Done] AI response available
 ```
 
----
-
-## 11. Key classes (APK)
-
-| Class | Role |
-|-------|------|
-| `AbstractC30021Yn` | JID constants for all Meta AI bots |
-| `AnonymousClass110` | isMetaAI feature-flag check |
-| `C1A2` | JID routing conversion (adds `$1` suffix) |
-| `C26654Bv8` | HatchMetadataRequestManager — request/response matching |
-| `B2Y` | BotMetadata proto |
-| `B2C` | PluginMetadata proto |
-| `C134135x5` | ContextInfo proto (fields 58, 70, 72, 73) |
-| `C24761B2g` | WebMessageInfo (fields 67, 77, 100, 104) |
-| `MetaAiMemoryStore` | AI conversation storage |
-| `BotProfileSyncManagerImpl` | Bot profile sync (separate from roster) |
-| `MetaAiIncognitoSessionManager` | Incognito session management |
-| `AiRichResponseFooterView` | Rich response UI renderer |
