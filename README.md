@@ -9,6 +9,7 @@ All findings are based on static analysis of WhatsApp Android APK (JADX decompil
 |--------|---------|-------------|
 | [WA Ban System](./WA_BAN_SYSTEM_DEEP_EN.md) | 2.26.26.4 | Full ban lifecycle, WFAC, suspicious marking, GraphQL protocol, spam signals, prevention |
 | [WA TCToken & CSToken](./WA_TCTOKEN_CSTOKEN.md) | 2.26.26.4 | TCToken and CSToken internals, NctSalt sync, proto fields, Baileys implementation |
+| [WA Meta AI](./WA_META_AI.md) | 2.26.26.4 | Meta AI JIDs, proto fields, request/response protocol, why Baileys fails, fix |
 
 ## Scope
 
