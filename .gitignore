@@ -1,0 +1,5 @@
+.venv
+.site-src
+site
+.mkdocs.build.yml
+.playwright-mcp

@@ -1,0 +1,86 @@
+site_name: WhatsApp Docs
+site_description: Reverse-engineered documentation of WhatsApp Android internals
+site_url: https://docs.baron0.com/
+repo_url: https://github.com/7ucg/whatsapp-docs
+repo_name: 7ucg/whatsapp-docs
+edit_uri: edit/main/
+docs_dir: .site-src
+site_dir: site
+use_directory_urls: true
+theme:
+  name: material
+  language: en
+  font: false
+  icon:
+    logo: material/book-open-page-variant
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: cyan
+      toggle: {icon: material/weather-sunny, name: Light mode}
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: cyan
+      toggle: {icon: material/weather-night, name: Dark mode}
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.tabs.link
+plugins:
+  - search
+markdown_extensions:
+  - tables
+  - admonition
+  - attr_list
+  - md_in_html
+  - def_list
+  - footnotes
+  - toc: {permalink: true, toc_depth: 3}
+  - pymdownx.highlight: {anchor_linenums: true}
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tabbed: {alternate_style: true}
+  - pymdownx.tasklist: {custom_checkbox: true}
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/7ucg
+      name: GitHub profile
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/7ucg/whatsapp-docs
+      name: Repository
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/R77JyK2Fu6
+      name: Discord
+    - icon: fontawesome/brands/telegram
+      link: https://t.me/wegschleifen
+      name: Telegram
+extra_css:
+  - stylesheets/extra.css
+extra_javascript:
+  - javascripts/extra.js
+nav:
+  - Home: index.md
+  - Changelog: CHANGELOG.md
+  - Reports:
+    - Ban System: WA_BAN_SYSTEM_DEEP_EN.md
+    - TCToken & CSToken: WA_TCTOKEN_CSTOKEN.md
+    - Meta AI: WA_META_AI.md
+    - Reporting: WA_REPORTING.md
+    - Client Integrity: WA_CLIENT_INTEGRITY.md
+    - Linked-Device Pairing: WA_LINKED_DEVICE_PAIRING.md
+    - Username: WA_USERNAME.md

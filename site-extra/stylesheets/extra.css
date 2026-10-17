@@ -1,0 +1,14 @@
+:root { --md-text-font: "Inter", system-ui, sans-serif; }
+.md-grid { max-width: 72rem; }
+.md-typeset table:not([class]) { font-size: .74rem; width: 100%; display: table; }
+.md-typeset table:not([class]) th { position: sticky; top: 0; background: var(--md-default-bg-color); z-index: 1; }
+.md-typeset table:not([class]) tbody tr:nth-child(even) { background: var(--md-code-bg-color); }
+.md-typeset pre > code { font-size: .72rem; }
+.md-typeset h2 { border-bottom: 1px solid var(--md-default-fg-color--lightest); padding-bottom: .2rem; }
+.badge { display: inline-block; padding: 0 .45em; border-radius: .6em; font-size: .72em; font-weight: 600; white-space: nowrap; vertical-align: baseline; }
+.badge-unverified { background: #b3261e22; color: #e5534b; border: 1px solid #e5534b66; }
+.badge-inferred { background: #d9a50022; color: #c58b00; border: 1px solid #d9a50066; }
+.md-typeset .grid.cards > ul > li { transition: transform .15s, box-shadow .15s; }
+.md-typeset .grid.cards > ul > li:hover { transform: translateY(-2px); }
+.reading-meta { font-size: .7rem; color: var(--md-default-fg-color--light); margin: -.4rem 0 1rem; }
+.md-typeset h1 { font-weight: 600; color: var(--md-default-fg-color); }
