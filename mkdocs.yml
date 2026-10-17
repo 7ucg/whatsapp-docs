@@ -1,9 +1,6 @@
 site_name: WhatsApp Docs
 site_description: Reverse-engineered documentation of WhatsApp Android internals
 site_url: https://docs.baron0.com/
-repo_url: https://github.com/7ucg/whatsapp-docs
-repo_name: 7ucg/whatsapp-docs
-edit_uri: edit/main/
 docs_dir: .site-src
 site_dir: site
 use_directory_urls: true
@@ -25,8 +22,6 @@ theme:
       accent: cyan
       toggle: {icon: material/weather-night, name: Dark mode}
   features:
-    - navigation.instant
-    - navigation.instant.progress
     - navigation.tracking
     - navigation.top
     - navigation.footer
@@ -38,6 +33,100 @@ theme:
     - content.tabs.link
 plugins:
   - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          name: English
+          build: true
+          default: true
+        - locale: de
+          name: Deutsch
+          build: true
+          nav_translations:
+            Home: "Startseite"
+            Changelog: "Changelog"
+            Reports: "Berichte"
+            Ban System: "Ban-System"
+            TCToken & CSToken: "TCToken & CSToken"
+            Meta AI: "Meta AI"
+            Reporting: "Meldesystem"
+            Client Integrity: "Client-Integrität"
+            Linked-Device Pairing: "Geräte-Kopplung"
+            Username: "Benutzername"
+        - locale: es
+          name: Español
+          build: true
+          nav_translations:
+            Home: "Inicio"
+            Changelog: "Registro de cambios"
+            Reports: "Informes"
+            Ban System: "Sistema de baneos"
+            TCToken & CSToken: "TCToken y CSToken"
+            Meta AI: "Meta AI"
+            Reporting: "Reportes"
+            Client Integrity: "Integridad del cliente"
+            Linked-Device Pairing: "Vinculación de dispositivos"
+            Username: "Nombre de usuario"
+        - locale: pt-BR
+          name: Português (BR)
+          build: true
+          nav_translations:
+            Home: "Início"
+            Changelog: "Changelog"
+            Reports: "Relatórios"
+            Ban System: "Sistema de banimento"
+            TCToken & CSToken: "TCToken e CSToken"
+            Meta AI: "Meta AI"
+            Reporting: "Denúncias"
+            Client Integrity: "Integridade do cliente"
+            Linked-Device Pairing: "Vínculo de dispositivos"
+            Username: "Nome de usuário"
+        - locale: ru
+          name: Русский
+          build: true
+          nav_translations:
+            Home: "Главная"
+            Changelog: "Журнал изменений"
+            Reports: "Отчёты"
+            Ban System: "Система банов"
+            TCToken & CSToken: "TCToken и CSToken"
+            Meta AI: "Meta AI"
+            Reporting: "Жалобы"
+            Client Integrity: "Целостность клиента"
+            Linked-Device Pairing: "Привязка устройств"
+            Username: "Имя пользователя"
+        - locale: ar
+          name: العربية
+          build: true
+          nav_translations:
+            Home: "الرئيسية"
+            Changelog: "سجل التغييرات"
+            Reports: "التقارير"
+            Ban System: "نظام الحظر"
+            TCToken & CSToken: "TCToken و CSToken"
+            Meta AI: "Meta AI"
+            Reporting: "نظام البلاغات"
+            Client Integrity: "سلامة العميل"
+            Linked-Device Pairing: "ربط الأجهزة"
+            Username: "اسم المستخدم"
+        - locale: tr
+          name: Türkçe
+          build: true
+          nav_translations:
+            Home: "Ana sayfa"
+            Changelog: "Değişiklik günlüğü"
+            Reports: "Raporlar"
+            Ban System: "Yasaklama sistemi"
+            TCToken & CSToken: "TCToken ve CSToken"
+            Meta AI: "Meta AI"
+            Reporting: "Raporlama"
+            Client Integrity: "İstemci bütünlüğü"
+            Linked-Device Pairing: "Cihaz eşleştirme"
+            Username: "Kullanıcı adı"
 markdown_extensions:
   - tables
   - admonition

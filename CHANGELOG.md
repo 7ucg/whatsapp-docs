@@ -3,6 +3,7 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- Multilingual website: full translations of all reports and the landing page in German, Spanish, Brazilian Portuguese, Russian, Arabic (right-to-left) and Turkish, with a language switcher. Outdated translations are flagged automatically (`translations/check.py`, `build.py`).
 - New reports (APK 2.26.41.6): `WA_REPORTING.md`, `WA_CLIENT_INTEGRITY.md`, `WA_LINKED_DEVICE_PAIRING.md`, `WA_USERNAME.md`.
   - Reporting: reason and jid are one merged `spam_list`; call reports are type 20; error 548 treated as success.
   - Client Integrity: attestation data is produced and sent but never blocks the client; install-source and root checks exist only as telemetry.

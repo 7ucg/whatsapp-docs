@@ -12,6 +12,10 @@ All findings are based on static analysis of WhatsApp Android APK (JADX decompil
 - Telegram: https://t.me/wegschleifen
 - [Changelog](./CHANGELOG.md)
 
+## Languages
+
+English is the original. Full translations: Deutsch, Español, Português (BR), Русский, العربية, Türkçe, available on https://docs.baron0.com (language switcher in the header) and in [`translations/`](./translations). Translated files carry the SHA-1 of their English source; the site build warns when a translation is outdated.
+
 ## Reports
 
 | Report | Version | Description |

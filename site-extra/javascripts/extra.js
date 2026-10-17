@@ -32,7 +32,9 @@ document$.subscribe(function () {
     var words = (art.innerText || "").split(/\s+/).length;
     var p = document.createElement("div");
     p.className = "reading-meta";
-    p.textContent = "~" + Math.max(1, Math.round(words / 220)) + " min read";
+    var L = {de: "Min. Lesezeit", es: "min de lectura", "pt-BR": "min de leitura", ru: "мин. чтения", ar: "دقيقة للقراءة", tr: "dk okuma"}[document.documentElement.lang];
+    var n = Math.max(1, Math.round(words / 220));
+    p.textContent = L ? n + " " + L : "~" + n + " min read";
     h1.insertAdjacentElement("afterend", p);
   }
 });
