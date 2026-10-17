@@ -1,0 +1,96 @@
+<!-- src-sha1: 83c22cc525834c6b8aefb1ae89eee88e92c59f08 -->
+---
+hide:
+  - navigation
+  - toc
+---
+
+# WhatsApp Docs
+
+Reverse-engineerte Dokumentation der **WhatsApp-Android**-Interna. Statische Analyse der APK, kein Abfangen von Traffic.
+
+<div class="grid cards" markdown>
+
+-   :material-shield-lock: **[Ban System](WA_BAN_SYSTEM_DEEP_EN.md)**
+
+    ---
+
+    WFAC-Lebenszyklus, BizIntegrityQuery, Suspicious-Markierung, Spam-Signale, Prävention.
+
+    `APK 2.26.41.6`
+
+-   :material-key-chain: **[TCToken & CSToken](WA_TCTOKEN_CSTOKEN.md)**
+
+    ---
+
+    Anti-Spam-Attestation-Tokens, NctSalt-Sync, Stanzas, Proto-Felder, Baileys.
+
+    `APK 2.26.41.6`
+
+-   :material-robot-outline: **[Meta AI](WA_META_AI.md)**
+
+    ---
+
+    Bot-JIDs, Proto-Felder, Request/Response-Protokoll, warum Baileys scheitert.
+
+    `APK 2.26.41.6`
+
+-   :material-shield-alert: **[Reporting](WA_REPORTING.md)**
+
+    ---
+
+    Report-Typen, SMAX-spam_list-Stanza, 97 spam_flow-Werte, Reporting-Tokens, Block-Flow.
+
+    `APK 2.26.41.6`
+
+-   :material-fingerprint: **[Client Integrity](WA_CLIENT_INTEGRITY.md)**
+
+    ---
+
+    Keystore-Attestation, Play Integrity, WASafe, Telemetrie-Flags, was gesendet wird.
+
+    `APK 2.26.41.6`
+
+-   :material-link-variant: **[Linked-Device Pairing](WA_LINKED_DEVICE_PAIRING.md)**
+
+    ---
+
+    QR- und Pair-Code-Flows, ADV-signierte Identität, Geräteliste, Unlink.
+
+    `APK 2.26.41.6`
+
+-   :material-at: **[Username](WA_USERNAME.md)**
+
+    ---
+
+    Username-Operationen, Username-Key, LID-Bezug, w:mex-doc_ids.
+
+    `APK 2.26.41.6`
+
+</div>
+
+## Links
+
+[:fontawesome-brands-github: GitHub](https://github.com/7ucg){ .md-button } [:material-source-repository: Repository](https://github.com/7ucg/whatsapp-docs){ .md-button } [:fontawesome-brands-discord: Discord](https://discord.gg/R77JyK2Fu6){ .md-button } [:fontawesome-brands-telegram: Telegram](https://t.me/wegschleifen){ .md-button } [:material-history: Changelog](CHANGELOG.md){ .md-button }
+
+## So werden die Reports gelesen
+
+!!! success "found"
+    Direkt im dekompilierten APK-Code gelesen.
+
+!!! warning "inferred"
+    Aus Code-Kontext oder Benennung abgeleitet. Nicht zur Laufzeit bestätigt.
+
+!!! failure "(2.26.26.4, not re-verified)"
+    Aus einer älteren APK übernommen. Kann veraltet sein.
+
+Jeder Report endet mit einer Tabelle **Changes vs 2.26.26.4**. Obfuskierte Klassennamen (z. B. `C51530MtC`) ändern sich mit jedem Build.
+
+## Umfang
+
+- Ban System: WFAC-Lebenszyklus, GraphQL BizIntegrityQuery, Trust-Tiers
+- Suspicious-Markierung: wann, warum, Signale, Prävention
+- Report-System: SMAX-Stanzas, spam_list, Report-Typen
+- XMPP-Details: Stanza-Strukturen, binäres Token-Wörterbuch
+- Client-seitige Signale: dhash, Message Velocity, Broadcast-Limits, WaFA
+- Reporting, Client Integrity, Linked-Device Pairing, Usernames
