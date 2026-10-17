@@ -3,6 +3,8 @@
 Reverse-engineered documentation of WhatsApp Android internals.
 All findings are based on static analysis of WhatsApp Android APK (JADX decompile + Kotlin decompile).
 
+> More reports are coming soon: new topics and updates for every new APK version.
+
 ## Links
 
 - Website: https://docs.baron0.com

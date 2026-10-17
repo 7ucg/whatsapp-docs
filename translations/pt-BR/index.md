@@ -1,4 +1,4 @@
-<!-- src-sha1: 83c22cc525834c6b8aefb1ae89eee88e92c59f08 -->
+<!-- src-sha1: 4d9d5b315c46409ac06e2eb825a231a35f91cbba -->
 ---
 hide:
   - navigation
@@ -68,6 +68,9 @@ Documentação por engenharia reversa dos componentes internos do **WhatsApp And
     `APK 2.26.41.6`
 
 </div>
+
+!!! info "Em breve"
+    Em breve haverá mais relatórios: novos temas e atualizações a cada nova versão do APK.
 
 ## Links
 

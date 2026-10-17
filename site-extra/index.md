@@ -68,6 +68,9 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
 </div>
 
+!!! info "Coming soon"
+    More reports are coming soon: new topics and updates for every new APK version.
+
 ## Links
 
 [:fontawesome-brands-github: GitHub](https://github.com/7ucg){ .md-button } [:material-source-repository: Repository](https://github.com/7ucg/whatsapp-docs){ .md-button } [:fontawesome-brands-discord: Discord](https://discord.gg/R77JyK2Fu6){ .md-button } [:fontawesome-brands-telegram: Telegram](https://t.me/wegschleifen){ .md-button } [:material-history: Changelog](CHANGELOG.md){ .md-button }
