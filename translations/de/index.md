@@ -1,4 +1,4 @@
-<!-- src-sha1: b5b29d7338bcf36ff30ce7d2307049331d1ad7f3 -->
+<!-- src-sha1: 88bbd6b33e55d23c843463f312088f2fbb3765b9 -->
 ---
 hide:
   - navigation
@@ -72,6 +72,14 @@ Reverse-engineerte Dokumentation der **WhatsApp-Android**-Interna. Statische Ana
     ---
 
     Passwort-Login (#PWD_WA-Envelope), PIN, Recovery-E-Mail, Passkeys, vertrauenswürdige Geräte, natives OPAQUE.
+
+    `APK 2.26.41.6`
+
+-   :material-sync: **[App-State-Sync](WA_APPSTATE_SYNC.md)**
+
+    ---
+
+    syncd-Collections, Patches und Snapshots, MACs und LTHash, Key-Sharing, 96 Sync-Actions.
 
     `APK 2.26.41.6`
 

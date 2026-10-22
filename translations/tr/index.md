@@ -1,4 +1,4 @@
-<!-- src-sha1: b5b29d7338bcf36ff30ce7d2307049331d1ad7f3 -->
+<!-- src-sha1: 88bbd6b33e55d23c843463f312088f2fbb3765b9 -->
 ---
 hide:
   - navigation
@@ -72,6 +72,14 @@ hide:
     ---
 
     Parola ile giriş (#PWD_WA zarfı), PIN, kurtarma e-postası, passkey'ler, güvenilen cihazlar, yerel OPAQUE.
+
+    `APK 2.26.41.6`
+
+-   :material-sync: **[Durum eşitleme](WA_APPSTATE_SYNC.md)**
+
+    ---
+
+    syncd koleksiyonları, yamalar ve anlık görüntüler, MAC'ler ve LTHash, anahtar paylaşımı, 96 sync action.
 
     `APK 2.26.41.6`
 

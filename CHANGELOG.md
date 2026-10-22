@@ -3,6 +3,10 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- New report (APK 2.26.41.6): `WA_APPSTATE_SYNC.md`.
+  - `critical_block` holds profile/locale/security-notification settings, not a block list; `contact` and `lid_contact` are in `critical_unblock_low`.
+  - ProtocolMessage field numbers from the proto extractor are off by one: key share 7, key request 8, fatal notification 10.
+  - A snapshot-MAC mismatch inside a patch is non-fatal on the new (KMP) path; two engines coexist, all KMP flags default to false.
 - New report (APK 2.26.41.6): `WA_ACCOUNT_SECURITY.md`.
   - The native OPAQUE code serves the encrypted-backup password; the account password uses an RSA/AES `#PWD_WA:11` envelope.
   - `SetPassword` / `CheckPassword` have no call site in this build; `libvoprf-*` belongs to ACS tokens.

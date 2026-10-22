@@ -1,4 +1,4 @@
-<!-- src-sha1: b5b29d7338bcf36ff30ce7d2307049331d1ad7f3 -->
+<!-- src-sha1: 88bbd6b33e55d23c843463f312088f2fbb3765b9 -->
 ---
 hide:
   - navigation
@@ -72,6 +72,14 @@ Documentação por engenharia reversa dos componentes internos do **WhatsApp And
     ---
 
     Login com senha (envelope #PWD_WA), PIN, e-mail de recuperação, passkeys, dispositivos confiáveis, OPAQUE nativo.
+
+    `APK 2.26.41.6`
+
+-   :material-sync: **[Sincronização de estado](WA_APPSTATE_SYNC.md)**
+
+    ---
+
+    Coleções syncd, patches e snapshots, MACs e LTHash, compartilhamento de chaves, 96 sync actions.
 
     `APK 2.26.41.6`
 

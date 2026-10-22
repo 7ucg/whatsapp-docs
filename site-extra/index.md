@@ -74,6 +74,14 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
     `APK 2.26.41.6`
 
+-   :material-sync: **[App-State Sync](WA_APPSTATE_SYNC.md)**
+
+    ---
+
+    syncd collections, patches and snapshots, MACs and LTHash, key sharing, 96 sync actions.
+
+    `APK 2.26.41.6`
+
 </div>
 
 !!! info "Coming soon"

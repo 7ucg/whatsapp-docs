@@ -58,6 +58,7 @@ plugins:
             Linked-Device Pairing: "Geräte-Kopplung"
             Username: "Benutzername"
             Account Security: "Kontosicherheit"
+            App-State Sync: "App-State-Sync"
         - locale: es
           name: Español
           build: true
@@ -73,6 +74,7 @@ plugins:
             Linked-Device Pairing: "Vinculación de dispositivos"
             Username: "Nombre de usuario"
             Account Security: "Seguridad de la cuenta"
+            App-State Sync: "Sincronización de estado"
         - locale: pt-BR
           name: Português (BR)
           build: true
@@ -88,6 +90,7 @@ plugins:
             Linked-Device Pairing: "Vínculo de dispositivos"
             Username: "Nome de usuário"
             Account Security: "Segurança da conta"
+            App-State Sync: "Sincronização de estado"
         - locale: ru
           name: Русский
           build: true
@@ -103,6 +106,7 @@ plugins:
             Linked-Device Pairing: "Привязка устройств"
             Username: "Имя пользователя"
             Account Security: "Безопасность аккаунта"
+            App-State Sync: "Синхронизация состояния"
         - locale: ar
           name: العربية
           build: true
@@ -118,6 +122,7 @@ plugins:
             Linked-Device Pairing: "ربط الأجهزة"
             Username: "اسم المستخدم"
             Account Security: "أمان الحساب"
+            App-State Sync: "مزامنة الحالة"
         - locale: tr
           name: Türkçe
           build: true
@@ -133,6 +138,7 @@ plugins:
             Linked-Device Pairing: "Cihaz eşleştirme"
             Username: "Kullanıcı adı"
             Account Security: "Hesap güvenliği"
+            App-State Sync: "Durum eşitleme"
 markdown_extensions:
   - tables
   - admonition
@@ -180,3 +186,4 @@ nav:
     - Linked-Device Pairing: WA_LINKED_DEVICE_PAIRING.md
     - Username: WA_USERNAME.md
     - Account Security: WA_ACCOUNT_SECURITY.md
+    - App-State Sync: WA_APPSTATE_SYNC.md

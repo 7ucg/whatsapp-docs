@@ -1,4 +1,4 @@
-<!-- src-sha1: b5b29d7338bcf36ff30ce7d2307049331d1ad7f3 -->
+<!-- src-sha1: 88bbd6b33e55d23c843463f312088f2fbb3765b9 -->
 ---
 hide:
   - navigation
@@ -72,6 +72,14 @@ hide:
     ---
 
     Вход по паролю (конверт #PWD_WA), PIN, резервная почта, passkeys, доверенные устройства, нативный OPAQUE.
+
+    `APK 2.26.41.6`
+
+-   :material-sync: **[Синхронизация состояния](WA_APPSTATE_SYNC.md)**
+
+    ---
+
+    Коллекции syncd, патчи и снапшоты, MAC и LTHash, обмен ключами, 96 sync actions.
 
     `APK 2.26.41.6`
 

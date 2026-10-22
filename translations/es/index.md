@@ -1,4 +1,4 @@
-<!-- src-sha1: b5b29d7338bcf36ff30ce7d2307049331d1ad7f3 -->
+<!-- src-sha1: 88bbd6b33e55d23c843463f312088f2fbb3765b9 -->
 ---
 hide:
   - navigation
@@ -72,6 +72,14 @@ Documentación de ingeniería inversa de los componentes internos de **WhatsApp 
     ---
 
     Inicio de sesión con contraseña (envelope #PWD_WA), PIN, correo de recuperación, passkeys, dispositivos de confianza, OPAQUE nativo.
+
+    `APK 2.26.41.6`
+
+-   :material-sync: **[Sincronización de estado](WA_APPSTATE_SYNC.md)**
+
+    ---
+
+    Colecciones syncd, parches y snapshots, MAC y LTHash, compartición de claves, 96 sync actions.
 
     `APK 2.26.41.6`
 
