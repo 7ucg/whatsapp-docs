@@ -3,6 +3,10 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- New report (APK 2.26.41.6): `WA_ACCOUNT_SECURITY.md`.
+  - The native OPAQUE code serves the encrypted-backup password; the account password uses an RSA/AES `#PWD_WA:11` envelope.
+  - `SetPassword` / `CheckPassword` have no call site in this build; `libvoprf-*` belongs to ACS tokens.
+  - "Account recovery" means Meta canonical-user credentials; several passkey variables differ from third-party notes.
 - Multilingual website: full translations of all reports and the landing page in German, Spanish, Brazilian Portuguese, Russian, Arabic (right-to-left) and Turkish, with a language switcher. Outdated translations are flagged automatically (`translations/check.py`, `build.py`).
 - New reports (APK 2.26.41.6): `WA_REPORTING.md`, `WA_CLIENT_INTEGRITY.md`, `WA_LINKED_DEVICE_PAIRING.md`, `WA_USERNAME.md`.
   - Reporting: reason and jid are one merged `spam_list`; call reports are type 20; error 548 treated as success.

@@ -66,6 +66,14 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
     `APK 2.26.41.6`
 
+-   :material-lock-check: **[Account Security](WA_ACCOUNT_SECURITY.md)**
+
+    ---
+
+    Password login (#PWD_WA envelope), PIN, recovery email, passkeys, trusted devices, native OPAQUE.
+
+    `APK 2.26.41.6`
+
 </div>
 
 !!! info "Coming soon"

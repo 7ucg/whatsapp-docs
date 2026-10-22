@@ -1,4 +1,4 @@
-<!-- src-sha1: 4d9d5b315c46409ac06e2eb825a231a35f91cbba -->
+<!-- src-sha1: b5b29d7338bcf36ff30ce7d2307049331d1ad7f3 -->
 ---
 hide:
   - navigation
@@ -64,6 +64,14 @@ hide:
     ---
 
     Kullanıcı adı işlemleri, kullanıcı adı anahtarı, LID ilişkisi, w:mex doc_id'leri.
+
+    `APK 2.26.41.6`
+
+-   :material-lock-check: **[Hesap güvenliği](WA_ACCOUNT_SECURITY.md)**
+
+    ---
+
+    Parola ile giriş (#PWD_WA zarfı), PIN, kurtarma e-postası, passkey'ler, güvenilen cihazlar, yerel OPAQUE.
 
     `APK 2.26.41.6`
 

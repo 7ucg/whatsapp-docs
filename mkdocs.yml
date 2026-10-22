@@ -57,6 +57,7 @@ plugins:
             Client Integrity: "Client-Integrität"
             Linked-Device Pairing: "Geräte-Kopplung"
             Username: "Benutzername"
+            Account Security: "Kontosicherheit"
         - locale: es
           name: Español
           build: true
@@ -71,6 +72,7 @@ plugins:
             Client Integrity: "Integridad del cliente"
             Linked-Device Pairing: "Vinculación de dispositivos"
             Username: "Nombre de usuario"
+            Account Security: "Seguridad de la cuenta"
         - locale: pt-BR
           name: Português (BR)
           build: true
@@ -85,6 +87,7 @@ plugins:
             Client Integrity: "Integridade do cliente"
             Linked-Device Pairing: "Vínculo de dispositivos"
             Username: "Nome de usuário"
+            Account Security: "Segurança da conta"
         - locale: ru
           name: Русский
           build: true
@@ -99,6 +102,7 @@ plugins:
             Client Integrity: "Целостность клиента"
             Linked-Device Pairing: "Привязка устройств"
             Username: "Имя пользователя"
+            Account Security: "Безопасность аккаунта"
         - locale: ar
           name: العربية
           build: true
@@ -113,6 +117,7 @@ plugins:
             Client Integrity: "سلامة العميل"
             Linked-Device Pairing: "ربط الأجهزة"
             Username: "اسم المستخدم"
+            Account Security: "أمان الحساب"
         - locale: tr
           name: Türkçe
           build: true
@@ -127,6 +132,7 @@ plugins:
             Client Integrity: "İstemci bütünlüğü"
             Linked-Device Pairing: "Cihaz eşleştirme"
             Username: "Kullanıcı adı"
+            Account Security: "Hesap güvenliği"
 markdown_extensions:
   - tables
   - admonition
@@ -173,3 +179,4 @@ nav:
     - Client Integrity: WA_CLIENT_INTEGRITY.md
     - Linked-Device Pairing: WA_LINKED_DEVICE_PAIRING.md
     - Username: WA_USERNAME.md
+    - Account Security: WA_ACCOUNT_SECURITY.md

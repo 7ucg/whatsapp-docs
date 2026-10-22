@@ -1,4 +1,4 @@
-<!-- src-sha1: 4d9d5b315c46409ac06e2eb825a231a35f91cbba -->
+<!-- src-sha1: b5b29d7338bcf36ff30ce7d2307049331d1ad7f3 -->
 ---
 hide:
   - navigation
@@ -64,6 +64,14 @@ Reverse-engineerte Dokumentation der **WhatsApp-Android**-Interna. Statische Ana
     ---
 
     Username-Operationen, Username-Key, LID-Bezug, w:mex-doc_ids.
+
+    `APK 2.26.41.6`
+
+-   :material-lock-check: **[Kontosicherheit](WA_ACCOUNT_SECURITY.md)**
+
+    ---
+
+    Passwort-Login (#PWD_WA-Envelope), PIN, Recovery-E-Mail, Passkeys, vertrauenswürdige Geräte, natives OPAQUE.
 
     `APK 2.26.41.6`
 

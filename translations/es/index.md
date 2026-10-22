@@ -1,4 +1,4 @@
-<!-- src-sha1: 4d9d5b315c46409ac06e2eb825a231a35f91cbba -->
+<!-- src-sha1: b5b29d7338bcf36ff30ce7d2307049331d1ad7f3 -->
 ---
 hide:
   - navigation
@@ -64,6 +64,14 @@ Documentación de ingeniería inversa de los componentes internos de **WhatsApp 
     ---
 
     Operaciones de nombre de usuario, clave de usuario, relación con LID, doc_ids de w:mex.
+
+    `APK 2.26.41.6`
+
+-   :material-lock-check: **[Seguridad de la cuenta](WA_ACCOUNT_SECURITY.md)**
+
+    ---
+
+    Inicio de sesión con contraseña (envelope #PWD_WA), PIN, correo de recuperación, passkeys, dispositivos de confianza, OPAQUE nativo.
 
     `APK 2.26.41.6`
 
