@@ -41,7 +41,8 @@ Points that decide the rest of the report:
 | `e1` ... `e16.whatsapp.net` | `C37151de.A0F` (16 entries), step 7 and 11 | `ConnectionSequence/getEdgeHost`; random pick, or the host stored in history |
 | hard-coded IP table | `AbstractC47101wK.A00`, steps 6 and 10 | map host to IP list, covers the `eN` hosts and `g.whatsapp.net` |
 | `<ib><fbip>` list | `C40581l4` to `C36821d6.A02` | comma-separated IPs, persisted by the fallback manager (steps 2 / 8 input, inferred) |
-| user proxy / SOCKS | step 12, `C48201yM` | `java.net.Proxy.Type.SOCKS`, connect timeout 30000 ms |
+| user proxy | step 12 | plain or TLS socket to the proxy `host:chatPort`, no proxy handshake (see WA_CENSORSHIP_CIRCUMVENTION.md) |
+| SOCKS tunnel (proxy service) | `C48201yM` (`ConnectionSocketTunnel`), not step 12 | `java.net.Proxy.Type.SOCKS`, connect timeout 30000 ms |
 
 Ports: 443 and 5222 (random choice per attempt, `C37151de.A00`; the constructor also draws one coin flip that orders ports for steps 3 and 4), and 80 for the `:80` steps. The port of the last successful connection is reused when flag **33512** is on (found).
 

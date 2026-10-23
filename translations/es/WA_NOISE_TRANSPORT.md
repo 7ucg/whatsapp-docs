@@ -1,4 +1,4 @@
-<!-- src-sha1: 95a792ca8e841aadc06a8e3fae785590574c4eba -->
+<!-- src-sha1: a948bbebefb4aeb1c2d1bf74123b9dc6e606b08d -->
 # WhatsApp Transporte Noise — Full RE Report
 **Versión:** 2.26.41.6 | **Fecha:** 2026-10-23
 **Alcance:** Transporte de chat en Android (chatd): endpoints y secuencia de conexión, enrutamiento edge, framing TCP, handshake Noise XX / IK / PQ, verificaciones de la cadena de certificados, ClientPayload (UserAgent, DevicePairingData, connect type / reason), cifrado de transporte y contadores, codificación binaria de nodos, resultado de login y códigos de fallo, keepalive, backoff de reconexión, stream:error, feature flags, transportes relacionados (Tigon HTTP, DistribGW, canal Tigon Noise, MQTT), comparación con Baileys
@@ -42,7 +42,8 @@ Puntos que determinan el resto del informe:
 | `e1` ... `e16.whatsapp.net` | `C37151de.A0F` (16 entradas), pasos 7 y 11 | `ConnectionSequence/getEdgeHost`; elección aleatoria, o el host guardado en el historial |
 | tabla de IPs fijas | `AbstractC47101wK.A00`, pasos 6 y 10 | mapea host a lista de IPs, cubre los hosts `eN` y `g.whatsapp.net` |
 | lista `<ib><fbip>` | `C40581l4` a `C36821d6.A02` | IPs separadas por comas, persistidas por el gestor de respaldo (entrada de los pasos 2 / 8, inferred) |
-| proxy de usuario / SOCKS | paso 12, `C48201yM` | `java.net.Proxy.Type.SOCKS`, timeout de conexión 30000 ms |
+| proxy de usuario | paso 12 | socket plano o TLS al proxy `host:chatPort`, sin handshake de proxy (ver WA_CENSORSHIP_CIRCUMVENTION.md) |
+| túnel SOCKS (servicio de proxy) | `C48201yM` (`ConnectionSocketTunnel`), no el paso 12 | `java.net.Proxy.Type.SOCKS`, timeout de conexión 30000 ms |
 
 Puertos: 443 y 5222 (elección aleatoria por intento, `C37151de.A00`; el constructor además realiza un sorteo que ordena los puertos de los pasos 3 y 4), y 80 para los pasos `:80`. El puerto de la última conexión exitosa se reutiliza cuando el flag **33512** está activo (found).
 

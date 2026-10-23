@@ -1,4 +1,4 @@
-<!-- src-sha1: 95a792ca8e841aadc06a8e3fae785590574c4eba -->
+<!-- src-sha1: a948bbebefb4aeb1c2d1bf74123b9dc6e606b08d -->
 # WhatsApp Noise Transport — Full RE Report
 **Sürüm:** 2.26.41.6 | **Tarih:** 2026-10-23
 **Kapsam:** Android sohbet taşıması (chatd): endpoint'ler ve bağlantı sırası, edge yönlendirme, TCP çerçeveleme, Noise XX / IK / PQ handshake, sertifika zinciri kontrolleri, ClientPayload (UserAgent, DevicePairingData, connect type / reason), taşıma şifresi ve sayaçlar, binary node kodlaması, login sonucu ve hata kodları, keepalive, yeniden bağlanma backoff'u, stream:error, feature flag'leri, ilgili taşımalar (Tigon HTTP, DistribGW, Tigon Noise kanalı, MQTT), Baileys karşılaştırması
@@ -42,7 +42,8 @@ Raporun geri kalanını belirleyen noktalar:
 | `e1` ... `e16.whatsapp.net` | `C37151de.A0F` (16 giriş), adım 7 ve 11 | `ConnectionSequence/getEdgeHost`; rastgele seçim veya geçmişte saklanan host |
 | sabit kodlu IP tablosu | `AbstractC47101wK.A00`, adım 6 ve 10 | host'u IP listesine eşler, `eN` host'larını ve `g.whatsapp.net`'i kapsar |
 | `<ib><fbip>` listesi | `C40581l4` ile `C36821d6.A02` | virgülle ayrılmış IP'ler, yedek yöneticisi tarafından saklanır (adım 2 / 8 girdisi, inferred) |
-| kullanıcı proxy'si / SOCKS | adım 12, `C48201yM` | `java.net.Proxy.Type.SOCKS`, bağlantı zaman aşımı 30000 ms |
+| kullanıcı proxy'si | adım 12 | proxy `host:chatPort` adresine düz veya TLS soket, proxy el sıkışması yok (bkz. WA_CENSORSHIP_CIRCUMVENTION.md) |
+| SOCKS tüneli (proxy hizmeti) | `C48201yM` (`ConnectionSocketTunnel`), adım 12 değil | `java.net.Proxy.Type.SOCKS`, bağlantı zaman aşımı 30000 ms |
 
 Port'lar: 443 ve 5222 (her denemede rastgele seçim, `C37151de.A00`; constructor ayrıca 3. ve 4. adımların port sırasını belirleyen bir yazı-tura atar) ve `:80` adımları için 80. Son başarılı bağlantının port'u flag **33512** açıkken yeniden kullanılır (found).
 
