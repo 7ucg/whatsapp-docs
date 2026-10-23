@@ -1,4 +1,4 @@
-<!-- src-sha1: 9e1058e3eb76214c55e35cbbb05dda93127364b1 -->
+<!-- src-sha1: a1b0d0e9f7c1a5fa3cd781b21b55668d3205ba24 -->
 # WhatsApp Kullanıcı Adı — Full RE Report
 **Sürüm:** 2.26.41.6 | **Tarih:** 2026-10-17
 **Kapsam:** Kullanıcı adı kontrol / ayarlama / rezerve etme / silme, kullanıcı adı anahtarı (PIN), LID ilişkisi, gizlilik ve görünürlük, w:mex GraphQL işlemleri (doc_id'ler, değişkenler, yanıtlar), bildirimler, USync sorgusu, doğrulama kuralları, feature flag'leri, Baileys notları
@@ -348,7 +348,7 @@ Inferred: yalnızca kullanıcı adı olarak var olan bir kullanıcıya, sahibi t
 |--------------|---------|-----------|
 | `UsernameSetNotification` | `C49822Lvi` | payload `xwa2_notify_username_on_change`: LID'i (alan hash'i 107143) ve username'i okur; `InterfaceC11470Yz.BNU(lid, username)` ile saklar; kişi varsa ve eşleşen türdeyse kişiyi yeniler (`C12440bB.A0W`) |
 | `UsernameDeleteNotification` | `C49821Lvh` | payload `xwa2_notify_username_delete`: LID ve PN'i okur (hash -983979708); PN varsa silme güncellemesini çalıştırır (`C53594Nzh`) |
-| `UsernameUpdateNotification` | anonim `X.2YG` | payload'dan base64 bir hash okur, `USERNAME_UPDATE_NOTIFICATION` nedeni ve `EnumC21760rz.A0Q` ile bir USync isteği oluşturur (delta tarzı sync, inferred), log `usync triggered for hash` |
+| `UsernameUpdateNotification` | anonim `X.2YG` | payload'dan base64 bir hash okur, `USERNAME_UPDATE_NOTIFICATION` nedeni ve `EnumC21760rz.A0Q` ile bir USync isteği oluşturur (`NOTIFICATION_SIDELIST` bağlamı, `query` modu; bkz. WA_USYNC.md), log `usync triggered for hash` |
 
 Kullanıcıya gösterilen metin: "Your username has changed", "WhatsApp has assigned you a new username (%1$s)"; yani sunucu bir kullanıcı adını yeniden atayabilir (iptal, `is_username_revoked` pref'i, `revocation_banner_dismissed_<username>`).
 

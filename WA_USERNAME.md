@@ -347,7 +347,7 @@ Handlers extend `AbstractC23194A0r` and are registered in `AbstractC20380p4` (fo
 |--------------|---------|-----------|
 | `UsernameSetNotification` | `C49822Lvi` | payload `xwa2_notify_username_on_change`: reads LID (field hash 107143) and username; stores via `InterfaceC11470Yz.BNU(lid, username)`; if the contact exists and is of the matching kind, refreshes the contact (`C12440bB.A0W`) |
 | `UsernameDeleteNotification` | `C49821Lvh` | payload `xwa2_notify_username_delete`: reads LID and PN (hash -983979708); with PN present runs the delete update (`C53594Nzh`) |
-| `UsernameUpdateNotification` | anon `X.2YG` | reads a base64 hash from the payload, builds a USync request with reason `USERNAME_UPDATE_NOTIFICATION` and `EnumC21760rz.A0Q` (delta-style sync, inferred), log `usync triggered for hash` |
+| `UsernameUpdateNotification` | anon `X.2YG` | reads a base64 hash from the payload, builds a USync request with reason `USERNAME_UPDATE_NOTIFICATION` and `EnumC21760rz.A0Q` (`NOTIFICATION_SIDELIST` context, mode `query`; see WA_USYNC.md), log `usync triggered for hash` |
 
 Text shown to the user: "Your username has changed", "WhatsApp has assigned you a new username (%1$s)", i.e. the server can reassign a username (revocation, `is_username_revoked` pref, `revocation_banner_dismissed_<username>`).
 

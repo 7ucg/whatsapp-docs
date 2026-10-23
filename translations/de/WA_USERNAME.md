@@ -1,4 +1,4 @@
-<!-- src-sha1: 9e1058e3eb76214c55e35cbbb05dda93127364b1 -->
+<!-- src-sha1: a1b0d0e9f7c1a5fa3cd781b21b55668d3205ba24 -->
 # WhatsApp Username — Full RE Report
 **Version:** 2.26.41.6 | **Datum:** 2026-10-17
 **Umfang:** Username Check / Set / Reserve / Delete, Username Key (PIN), LID-Beziehung, Privatsphäre und Sichtbarkeit, w:mex-GraphQL-Operationen (doc_ids, Variablen, Responses), Notifications, USync-Lookup, Validierungsregeln, Feature-Flags, Baileys-Hinweise
@@ -348,7 +348,7 @@ Handler erweitern `AbstractC23194A0r` und sind in `AbstractC20380p4` registriert
 |--------------|---------|-----------|
 | `UsernameSetNotification` | `C49822Lvi` | Payload `xwa2_notify_username_on_change`: liest LID (Feld-Hash 107143) und Username; speichert über `InterfaceC11470Yz.BNU(lid, username)`; existiert der Kontakt und ist von passender Art, wird der Kontakt aktualisiert (`C12440bB.A0W`) |
 | `UsernameDeleteNotification` | `C49821Lvh` | Payload `xwa2_notify_username_delete`: liest LID und PN (Hash -983979708); mit vorhandener PN läuft das Delete-Update (`C53594Nzh`) |
-| `UsernameUpdateNotification` | anonym `X.2YG` | liest einen base64-Hash aus der Payload, baut einen USync-Request mit Reason `USERNAME_UPDATE_NOTIFICATION` und `EnumC21760rz.A0Q` (Delta-artiger Sync, inferred), Log `usync triggered for hash` |
+| `UsernameUpdateNotification` | anonym `X.2YG` | liest einen base64-Hash aus der Payload, baut einen USync-Request mit Reason `USERNAME_UPDATE_NOTIFICATION` und `EnumC21760rz.A0Q` (Kontext `NOTIFICATION_SIDELIST`, Modus `query`; siehe WA_USYNC.md), Log `usync triggered for hash` |
 
 Dem Nutzer gezeigter Text: "Your username has changed", "WhatsApp has assigned you a new username (%1$s)", d. h. der Server kann einen Username neu zuweisen (Widerruf, Pref `is_username_revoked`, `revocation_banner_dismissed_<username>`).
 

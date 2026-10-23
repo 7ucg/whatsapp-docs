@@ -1,4 +1,4 @@
-<!-- src-sha1: 9e1058e3eb76214c55e35cbbb05dda93127364b1 -->
+<!-- src-sha1: a1b0d0e9f7c1a5fa3cd781b21b55668d3205ba24 -->
 # WhatsApp اسم المستخدم — Full RE Report
 **الإصدار:** 2.26.41.6 | **التاريخ:** 2026-10-17
 **النطاق:** فحص اسم المستخدم / تعيينه / حجزه / حذفه، ومفتاح اسم المستخدم (PIN)، والعلاقة مع LID، والخصوصية والظهور، وعمليات GraphQL ‏w:mex (doc_ids، والمتغيرات، والاستجابات)، والإشعارات، والبحث عبر USync، وقواعد التحقق، وأعلام الميزات، وملاحظات Baileys
@@ -348,7 +348,7 @@ Inferred: المستخدم الموجود فقط كاسم مستخدم لا يم
 |--------------|---------|-----------|
 | `UsernameSetNotification` | `C49822Lvi` | الحمولة `xwa2_notify_username_on_change`: يقرأ LID (تجزئة الحقل 107143) واسم المستخدم؛ ويخزّن عبر `InterfaceC11470Yz.BNU(lid, username)`؛ وإذا كانت جهة الاتصال موجودة ومن النوع المطابق يحدّثها (`C12440bB.A0W`) |
 | `UsernameDeleteNotification` | `C49821Lvh` | الحمولة `xwa2_notify_username_delete`: يقرأ LID وPN (التجزئة -983979708)؛ ومع وجود PN يشغّل تحديث الحذف (`C53594Nzh`) |
-| `UsernameUpdateNotification` | صنف مجهول `X.2YG` | يقرأ تجزئة base64 من الحمولة، ويبني طلب USync بالسبب `USERNAME_UPDATE_NOTIFICATION` و`EnumC21760rz.A0Q` (مزامنة على نمط delta، inferred)، والسجل `usync triggered for hash` |
+| `UsernameUpdateNotification` | صنف مجهول `X.2YG` | يقرأ تجزئة base64 من الحمولة، ويبني طلب USync بالسبب `USERNAME_UPDATE_NOTIFICATION` و`EnumC21760rz.A0Q` (سياق `NOTIFICATION_SIDELIST`، الوضع `query`؛ انظر WA_USYNC.md)، والسجل `usync triggered for hash` |
 
 النص المعروض للمستخدم: "Your username has changed"، "WhatsApp has assigned you a new username (%1$s)"، أي أن الخادم يمكنه إعادة تعيين اسم مستخدم (الإلغاء، والتفضيل `is_username_revoked`، و`revocation_banner_dismissed_<username>`).
 

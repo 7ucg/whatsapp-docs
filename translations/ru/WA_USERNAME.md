@@ -1,4 +1,4 @@
-<!-- src-sha1: 9e1058e3eb76214c55e35cbbb05dda93127364b1 -->
+<!-- src-sha1: a1b0d0e9f7c1a5fa3cd781b21b55668d3205ba24 -->
 # WhatsApp Username — Full RE Report
 **Версия:** 2.26.41.6 | **Дата:** 2026-10-17
 **Область:** проверка / установка / резервирование / удаление username, ключ username (PIN), связь с LID, приватность и видимость, операции w:mex GraphQL (doc_id, переменные, ответы), уведомления, поиск через USync, правила валидации, feature-флаги, заметки по Baileys
@@ -348,7 +348,7 @@ Inferred: пользователь, существующий только как
 |--------------|---------|-----------|
 | `UsernameSetNotification` | `C49822Lvi` | payload `xwa2_notify_username_on_change`: читает LID (хэш поля 107143) и username; сохраняет через `InterfaceC11470Yz.BNU(lid, username)`; если контакт существует и подходящего вида, обновляет контакт (`C12440bB.A0W`) |
 | `UsernameDeleteNotification` | `C49821Lvh` | payload `xwa2_notify_username_delete`: читает LID и PN (хэш -983979708); при наличии PN запускает обновление удаления (`C53594Nzh`) |
-| `UsernameUpdateNotification` | анонимный `X.2YG` | читает base64-хэш из payload, строит запрос USync с причиной `USERNAME_UPDATE_NOTIFICATION` и `EnumC21760rz.A0Q` (синхронизация типа delta, inferred), лог `usync triggered for hash` |
+| `UsernameUpdateNotification` | анонимный `X.2YG` | читает base64-хэш из payload, строит запрос USync с причиной `USERNAME_UPDATE_NOTIFICATION` и `EnumC21760rz.A0Q` (контекст `NOTIFICATION_SIDELIST`, режим `query`; см. WA_USYNC.md), лог `usync triggered for hash` |
 
 Текст, показываемый пользователю: "Your username has changed", "WhatsApp has assigned you a new username (%1$s)", то есть сервер может переназначить username (отзыв, pref `is_username_revoked`, `revocation_banner_dismissed_<username>`).
 
