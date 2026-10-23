@@ -130,6 +130,38 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
     `APK 2.26.41.6`
 
+-   :material-chart-line: **[WAM Analytics](WA_WAM_ANALYTICS.md)**
+
+    ---
+
+    WAM event model, 4 channels, w:stats upload, private stats, daily events, buffer format.
+
+    `APK 2.26.41.6`
+
+-   :material-flag: **[AB Props](WA_AB_PROPS.md)**
+
+    ---
+
+    Flag tables (21,424 ids), MobileConfig, props sync, storage, overrides, flag catalog.
+
+    `APK 2.26.41.6`
+
+-   :material-database: **[Local Storage](WA_LOCAL_STORAGE.md)**
+
+    ---
+
+    msgstore.db and wa.db, key tables, prefs, caches, backups, logout wipe paths.
+
+    `APK 2.26.41.6`
+
+-   :material-key-chain-variant: **[Message Secrets](WA_MESSAGE_SECRETS.md)**
+
+    ---
+
+    messageSecret, HKDF use-case keys, encrypted reactions, polls and events, stanza extensions.
+
+    `APK 2.26.41.6`
+
 </div>
 
 !!! info "Coming soon"

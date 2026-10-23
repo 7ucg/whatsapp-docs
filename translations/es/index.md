@@ -1,4 +1,4 @@
-<!-- src-sha1: b5920296a242a0eeba7ce731008cfa04a6c63436 -->
+<!-- src-sha1: 168a34c992451d2faa786d872e43291383aabf63 -->
 ---
 hide:
   - navigation
@@ -128,6 +128,38 @@ Documentación de ingeniería inversa de los componentes internos de **WhatsApp 
     ---
 
     IQs w:b de listas, fan-out, cuota mensual, bloqueos por aviso de spam, status@broadcast.
+
+    `APK 2.26.41.6`
+
+-   :material-chart-line: **[Analítica WAM](WA_WAM_ANALYTICS.md)**
+
+    ---
+
+    Modelo de eventos WAM, 4 canales, subida w:stats, estadísticas privadas, eventos diarios, formato de búfer.
+
+    `APK 2.26.41.6`
+
+-   :material-flag: **[AB Props](WA_AB_PROPS.md)**
+
+    ---
+
+    Tablas de flags (21.424 ids), MobileConfig, sincronización de props, almacenamiento, overrides, catálogo de flags.
+
+    `APK 2.26.41.6`
+
+-   :material-database: **[Almacenamiento local](WA_LOCAL_STORAGE.md)**
+
+    ---
+
+    msgstore.db y wa.db, tablas clave, prefs, cachés, copias de seguridad, rutas de borrado al cerrar sesión.
+
+    `APK 2.26.41.6`
+
+-   :material-key-chain-variant: **[Secretos de mensaje](WA_MESSAGE_SECRETS.md)**
+
+    ---
+
+    messageSecret, claves HKDF por caso de uso, reacciones, encuestas y eventos cifrados, extensiones de stanza.
 
     `APK 2.26.41.6`
 

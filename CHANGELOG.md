@@ -3,6 +3,12 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- New reports (APK 2.26.41.6): `WA_WAM_ANALYTICS.md`, `WA_AB_PROPS.md`, `WA_LOCAL_STORAGE.md`, `WA_MESSAGE_SECRETS.md`.
+  - WAM: 4 channels, 1,008 event classes; regular upload is a `w:stats` IQ, private upload uses blinded credentials; buffer files are little-endian TLV with a `WAM` v5 header; per-event weights arrive in the AB-props response.
+  - AB Props: 21,424 flag ids in five typed default maps, shared id space with WA Web; `params_map_v4_u<N>` is a unit type, not a value width.
+  - Local Storage: `meta_ai_memory`, `start_chat_trust_signals`, `wa_trusted_contacts` and `wa_biz_integrity_signals` live in `wa.db`; only `integrity_chat_info` is in msgstore; no SQLCipher.
+  - Message Secrets: zero-salt HKDF over original id, target sender, modifier and use case; reactions are encrypted only in `group_type == 3` groups; comments need a LID sender.
+- Ban System: 34166 is an injection id, not a feature flag.
 - New report (APK 2.26.41.6): `WA_BROADCAST_LISTS.md`.
   - Lists exist server-side: the client restores them with a `w:b` get-lists IQ; there are also delete and quota IQs; list ids cannot start with a leading zero.
   - The only cap with a reader is the server-provided monthly quota (<= 300); GAP is receive-side inbox evaluation, not a send limit.

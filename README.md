@@ -37,6 +37,10 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA USync](./WA_USYNC.md) | 2.26.41.6 | usync, contact and device sync, 4 modes, 10 contexts, 30 sync types, LID mapping |
 | [WA Group History](./WA_GROUP_HISTORY.md) | 2.26.41.6 | sending recent group history to new members, history sync of companion devices, addressing modes |
 | [WA Broadcast Lists](./WA_BROADCAST_LISTS.md) | 2.26.41.6 | w:b list IQs, fan-out, monthly quota, spam-warning bans, status@broadcast |
+| [WA WAM Analytics](./WA_WAM_ANALYTICS.md) | 2.26.41.6 | WAM event model, 4 channels, w:stats upload, private stats, daily events, on-device buffer format |
+| [WA AB Props](./WA_AB_PROPS.md) | 2.26.41.6 | flag tables (21,424 ids), MobileConfig, props sync, storage, overrides, flag catalog |
+| [WA Local Storage](./WA_LOCAL_STORAGE.md) | 2.26.41.6 | msgstore.db and wa.db, key tables, prefs, caches, backups, logout wipe paths |
+| [WA Message Secrets](./WA_MESSAGE_SECRETS.md) | 2.26.41.6 | messageSecret, HKDF use-case keys, encrypted reactions, polls and events, message stanza extensions |
 
 ## Scope
 

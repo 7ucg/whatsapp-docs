@@ -1,4 +1,4 @@
-<!-- src-sha1: b5920296a242a0eeba7ce731008cfa04a6c63436 -->
+<!-- src-sha1: 168a34c992451d2faa786d872e43291383aabf63 -->
 ---
 hide:
   - navigation
@@ -128,6 +128,38 @@ hide:
     ---
 
     w:b liste IQ'ları, fan-out, aylık kota, spam uyarısı yasakları, status@broadcast.
+
+    `APK 2.26.41.6`
+
+-   :material-chart-line: **[WAM analitiği](WA_WAM_ANALYTICS.md)**
+
+    ---
+
+    WAM olay modeli, 4 kanal, w:stats yüklemesi, özel istatistikler, günlük olaylar, tampon biçimi.
+
+    `APK 2.26.41.6`
+
+-   :material-flag: **[AB Props](WA_AB_PROPS.md)**
+
+    ---
+
+    Flag tabloları (21.424 id), MobileConfig, props eşitleme, depolama, override'lar, flag kataloğu.
+
+    `APK 2.26.41.6`
+
+-   :material-database: **[Yerel depolama](WA_LOCAL_STORAGE.md)**
+
+    ---
+
+    msgstore.db ve wa.db, ana tablolar, prefs, önbellekler, yedekler, çıkışta silme yolları.
+
+    `APK 2.26.41.6`
+
+-   :material-key-chain-variant: **[Mesaj sırları](WA_MESSAGE_SECRETS.md)**
+
+    ---
+
+    messageSecret, kullanım durumuna göre HKDF anahtarları, şifreli tepkiler, anketler ve etkinlikler, stanza uzantıları.
 
     `APK 2.26.41.6`
 

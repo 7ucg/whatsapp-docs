@@ -1,4 +1,4 @@
-<!-- src-sha1: b5920296a242a0eeba7ce731008cfa04a6c63436 -->
+<!-- src-sha1: 168a34c992451d2faa786d872e43291383aabf63 -->
 ---
 hide:
   - navigation
@@ -128,6 +128,38 @@ hide:
     ---
 
     IQ списков w:b, fan-out, месячная квота, баны за спам-предупреждения, status@broadcast.
+
+    `APK 2.26.41.6`
+
+-   :material-chart-line: **[Аналитика WAM](WA_WAM_ANALYTICS.md)**
+
+    ---
+
+    Модель событий WAM, 4 канала, загрузка w:stats, приватная статистика, ежедневные события, формат буфера.
+
+    `APK 2.26.41.6`
+
+-   :material-flag: **[AB Props](WA_AB_PROPS.md)**
+
+    ---
+
+    Таблицы флагов (21 424 id), MobileConfig, синхронизация props, хранение, overrides, каталог флагов.
+
+    `APK 2.26.41.6`
+
+-   :material-database: **[Локальное хранилище](WA_LOCAL_STORAGE.md)**
+
+    ---
+
+    msgstore.db и wa.db, ключевые таблицы, prefs, кэши, бэкапы, пути очистки при выходе.
+
+    `APK 2.26.41.6`
+
+-   :material-key-chain-variant: **[Секреты сообщений](WA_MESSAGE_SECRETS.md)**
+
+    ---
+
+    messageSecret, ключи HKDF по сценариям, зашифрованные реакции, опросы и события, расширения stanza.
 
     `APK 2.26.41.6`
 

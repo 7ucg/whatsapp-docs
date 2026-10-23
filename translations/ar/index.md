@@ -1,4 +1,4 @@
-<!-- src-sha1: b5920296a242a0eeba7ce731008cfa04a6c63436 -->
+<!-- src-sha1: 168a34c992451d2faa786d872e43291383aabf63 -->
 ---
 hide:
   - navigation
@@ -128,6 +128,38 @@ hide:
     ---
 
     IQs قوائم w:b، التوزيع، الحصة الشهرية، حظر تحذيرات السبام، status@broadcast.
+
+    `APK 2.26.41.6`
+
+-   :material-chart-line: **[تحليلات WAM](WA_WAM_ANALYTICS.md)**
+
+    ---
+
+    نموذج أحداث WAM، 4 قنوات، رفع w:stats، إحصاءات خاصة، أحداث يومية، تنسيق المخزن المؤقت.
+
+    `APK 2.26.41.6`
+
+-   :material-flag: **[AB Props](WA_AB_PROPS.md)**
+
+    ---
+
+    جداول الأعلام (21,424 معرّفًا)، MobileConfig، مزامنة props، التخزين، overrides، فهرس الأعلام.
+
+    `APK 2.26.41.6`
+
+-   :material-database: **[التخزين المحلي](WA_LOCAL_STORAGE.md)**
+
+    ---
+
+    msgstore.db وwa.db، الجداول الرئيسية، prefs، الذاكرة المؤقتة، النسخ الاحتياطية، مسارات المسح عند تسجيل الخروج.
+
+    `APK 2.26.41.6`
+
+-   :material-key-chain-variant: **[أسرار الرسائل](WA_MESSAGE_SECRETS.md)**
+
+    ---
+
+    messageSecret، مفاتيح HKDF لكل حالة استخدام، التفاعلات والاستطلاعات والأحداث المشفّرة، امتدادات stanza.
 
     `APK 2.26.41.6`
 

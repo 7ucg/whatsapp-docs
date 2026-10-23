@@ -1,4 +1,4 @@
-<!-- src-sha1: b5920296a242a0eeba7ce731008cfa04a6c63436 -->
+<!-- src-sha1: 168a34c992451d2faa786d872e43291383aabf63 -->
 ---
 hide:
   - navigation
@@ -128,6 +128,38 @@ Reverse-engineerte Dokumentation der **WhatsApp-Android**-Interna. Statische Ana
     ---
 
     w:b-Listen-IQs, Fan-out, monatliches Kontingent, Spam-Warn-Sperren, status@broadcast.
+
+    `APK 2.26.41.6`
+
+-   :material-chart-line: **[WAM-Analytics](WA_WAM_ANALYTICS.md)**
+
+    ---
+
+    WAM-Eventmodell, 4 Kanäle, w:stats-Upload, private Statistiken, tägliche Events, Buffer-Format.
+
+    `APK 2.26.41.6`
+
+-   :material-flag: **[AB-Props](WA_AB_PROPS.md)**
+
+    ---
+
+    Flag-Tabellen (21.424 IDs), MobileConfig, Props-Sync, Speicherung, Overrides, Flag-Katalog.
+
+    `APK 2.26.41.6`
+
+-   :material-database: **[Lokaler Speicher](WA_LOCAL_STORAGE.md)**
+
+    ---
+
+    msgstore.db und wa.db, wichtige Tabellen, Prefs, Caches, Backups, Löschpfade beim Logout.
+
+    `APK 2.26.41.6`
+
+-   :material-key-chain-variant: **[Nachrichten-Secrets](WA_MESSAGE_SECRETS.md)**
+
+    ---
+
+    messageSecret, HKDF-Use-Case-Schlüssel, verschlüsselte Reaktionen, Umfragen und Events, Stanza-Erweiterungen.
 
     `APK 2.26.41.6`
 
