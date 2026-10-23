@@ -68,6 +68,10 @@ plugins:
             AB Props: "AB-Props"
             Local Storage: "Lokaler Speicher"
             Message Secrets: "Nachrichten-Secrets"
+            Interop: "Interop"
+            Censorship Circumvention: "Zensurumgehung"
+            Server-Driven UI: "Server-gesteuerte UI"
+            Account-less Surface: "Oberfläche ohne Konto"
             USync: "USync"
         - locale: es
           name: Español
@@ -94,6 +98,10 @@ plugins:
             AB Props: "AB Props"
             Local Storage: "Almacenamiento local"
             Message Secrets: "Secretos de mensaje"
+            Interop: "Interoperabilidad"
+            Censorship Circumvention: "Elusión de la censura"
+            Server-Driven UI: "UI dirigida por servidor"
+            Account-less Surface: "Superficie sin cuenta"
             USync: "USync"
         - locale: pt-BR
           name: Português (BR)
@@ -120,6 +128,10 @@ plugins:
             AB Props: "AB Props"
             Local Storage: "Armazenamento local"
             Message Secrets: "Segredos de mensagem"
+            Interop: "Interoperabilidade"
+            Censorship Circumvention: "Contorno de censura"
+            Server-Driven UI: "UI dirigida pelo servidor"
+            Account-less Surface: "Superfície sem conta"
             USync: "USync"
         - locale: ru
           name: Русский
@@ -146,6 +158,10 @@ plugins:
             AB Props: "AB Props"
             Local Storage: "Локальное хранилище"
             Message Secrets: "Секреты сообщений"
+            Interop: "Интероперабельность"
+            Censorship Circumvention: "Обход блокировок"
+            Server-Driven UI: "Серверный UI"
+            Account-less Surface: "Поверхность без аккаунта"
             USync: "USync"
         - locale: ar
           name: العربية
@@ -172,6 +188,10 @@ plugins:
             AB Props: "AB Props"
             Local Storage: "التخزين المحلي"
             Message Secrets: "أسرار الرسائل"
+            Interop: "التشغيل البيني"
+            Censorship Circumvention: "تجاوز الحجب"
+            Server-Driven UI: "واجهة يقودها الخادم"
+            Account-less Surface: "السطح بدون حساب"
             USync: "USync"
         - locale: tr
           name: Türkçe
@@ -198,6 +218,10 @@ plugins:
             AB Props: "AB Props"
             Local Storage: "Yerel depolama"
             Message Secrets: "Mesaj sırları"
+            Interop: "Birlikte çalışabilirlik"
+            Censorship Circumvention: "Sansür aşma"
+            Server-Driven UI: "Sunucu tarafından yönetilen arayüz"
+            Account-less Surface: "Hesapsız yüzey"
             USync: "USync"
 markdown_extensions:
   - tables
@@ -256,4 +280,8 @@ nav:
     - AB Props: WA_AB_PROPS.md
     - Local Storage: WA_LOCAL_STORAGE.md
     - Message Secrets: WA_MESSAGE_SECRETS.md
+    - Interop: WA_INTEROP.md
+    - Censorship Circumvention: WA_CENSORSHIP_CIRCUMVENTION.md
+    - Server-Driven UI: WA_SERVER_DRIVEN_UI.md
+    - Account-less Surface: WA_ACCOUNT_LESS_SURFACE.md
     - USync: WA_USYNC.md

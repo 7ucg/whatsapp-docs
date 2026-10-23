@@ -3,6 +3,12 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- New reports (APK 2.26.41.6): `WA_INTEROP.md`, `WA_CENSORSHIP_CIRCUMVENTION.md`, `WA_SERVER_DRIVEN_UI.md`, `WA_ACCOUNT_LESS_SURFACE.md`.
+  - Interop: the code is complete but gated off (root flag 7495 defaults false); plaintext is a 9-field `InteropMessage`; interop JIDs use binary tag 244; batch lookup max is 20.
+  - Censorship Circumvention: a full user-facing WhatsApp Proxy, a Psiphon SOCKS tunnel driven by an unblocking push, and a registration relay; no WebSocket, HTTP or MQTT fallback for chatd in this build.
+  - Server-Driven UI: Phoenix is an IQ with a `<fds>` child, Bloks is a GraphQL POST; no payload signature check; 15 iabjs scripts, nonce checked natively.
+  - Account-less Surface: 97 exported components; the logged-out support form is a multipart HTTPS POST, not GraphQL; pre-login AB props via `/v2/reg_onboard_abprop`.
+- Noise Transport: step 12 is the user proxy (plain or TLS socket, no proxy handshake); the SOCKS tunnel class belongs to the proxy service.
 - New reports (APK 2.26.41.6): `WA_WAM_ANALYTICS.md`, `WA_AB_PROPS.md`, `WA_LOCAL_STORAGE.md`, `WA_MESSAGE_SECRETS.md`.
   - WAM: 4 channels, 1,008 event classes; regular upload is a `w:stats` IQ, private upload uses blinded credentials; buffer files are little-endian TLV with a `WAM` v5 header; per-event weights arrive in the AB-props response.
   - AB Props: 21,424 flag ids in five typed default maps, shared id space with WA Web; `params_map_v4_u<N>` is a unit type, not a value width.

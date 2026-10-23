@@ -1,4 +1,4 @@
-<!-- src-sha1: 168a34c992451d2faa786d872e43291383aabf63 -->
+<!-- src-sha1: a10cc235881df66d01adf85a7dcdb73c2853c297 -->
 ---
 hide:
   - navigation
@@ -160,6 +160,38 @@ Reverse-engineerte Dokumentation der **WhatsApp-Android**-Interna. Statische Ana
     ---
 
     messageSecret, HKDF-Use-Case-Schlüssel, verschlüsselte Reaktionen, Umfragen und Events, Stanza-Erweiterungen.
+
+    `APK 2.26.41.6`
+
+-   :material-swap-horizontal: **[Interop](WA_INTEROP.md)**
+
+    ---
+
+    Chat-Interop mit Drittanbietern (abgeschaltet): w:interop-IQs, InteropMessage, JID-Domains, Einwilligung.
+
+    `APK 2.26.41.6`
+
+-   :material-shield-off: **[Zensurumgehung](WA_CENSORSHIP_CIRCUMVENTION.md)**
+
+    ---
+
+    WhatsApp-Proxy, Psiphon-SOCKS-Tunnel, Unblocking-Push, Registrierungs-Relay, was fehlt.
+
+    `APK 2.26.41.6`
+
+-   :material-view-dashboard: **[Server-gesteuerte UI](WA_SERVER_DRIVEN_UI.md)**
+
+    ---
+
+    Phoenix, Bloks, Native Flows und WhatsApp Flows, Payload-Formate, Aktionen, Sicherheit.
+
+    `APK 2.26.41.6`
+
+-   :material-account-off: **[Oberfläche ohne Konto](WA_ACCOUNT_LESS_SURFACE.md)**
+
+    ---
+
+    Bildschirme vor der Registrierung, Deep-Links, Hosts, Kennungen, 97 exportierte Komponenten.
 
     `APK 2.26.41.6`
 

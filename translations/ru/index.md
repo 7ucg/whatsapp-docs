@@ -1,4 +1,4 @@
-<!-- src-sha1: 168a34c992451d2faa786d872e43291383aabf63 -->
+<!-- src-sha1: a10cc235881df66d01adf85a7dcdb73c2853c297 -->
 ---
 hide:
   - navigation
@@ -160,6 +160,38 @@ hide:
     ---
 
     messageSecret, ключи HKDF по сценариям, зашифрованные реакции, опросы и события, расширения stanza.
+
+    `APK 2.26.41.6`
+
+-   :material-swap-horizontal: **[Интероперабельность](WA_INTEROP.md)**
+
+    ---
+
+    Интероперабельность чатов со сторонними сервисами (отключена): IQ w:interop, InteropMessage, домены JID, согласие.
+
+    `APK 2.26.41.6`
+
+-   :material-shield-off: **[Обход блокировок](WA_CENSORSHIP_CIRCUMVENTION.md)**
+
+    ---
+
+    Прокси WhatsApp, SOCKS-туннель Psiphon, push разблокировки, relay регистрации, чего нет в сборке.
+
+    `APK 2.26.41.6`
+
+-   :material-view-dashboard: **[Серверный UI](WA_SERVER_DRIVEN_UI.md)**
+
+    ---
+
+    Phoenix, Bloks, native flows и WhatsApp Flows, форматы payload, действия, безопасность.
+
+    `APK 2.26.41.6`
+
+-   :material-account-off: **[Поверхность без аккаунта](WA_ACCOUNT_LESS_SURFACE.md)**
+
+    ---
+
+    Экраны до регистрации, deep links, хосты, идентификаторы, 97 экспортируемых компонентов.
 
     `APK 2.26.41.6`
 

@@ -162,6 +162,38 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
     `APK 2.26.41.6`
 
+-   :material-swap-horizontal: **[Interop](WA_INTEROP.md)**
+
+    ---
+
+    Third-party chat interop (gated off): w:interop IQs, InteropMessage, JID domains, consent.
+
+    `APK 2.26.41.6`
+
+-   :material-shield-off: **[Censorship Circumvention](WA_CENSORSHIP_CIRCUMVENTION.md)**
+
+    ---
+
+    WhatsApp Proxy, Psiphon SOCKS tunnel, unblocking push, registration relay, what is absent.
+
+    `APK 2.26.41.6`
+
+-   :material-view-dashboard: **[Server-Driven UI](WA_SERVER_DRIVEN_UI.md)**
+
+    ---
+
+    Phoenix, Bloks, native flows and WhatsApp Flows, payload formats, actions, security.
+
+    `APK 2.26.41.6`
+
+-   :material-account-off: **[Account-less Surface](WA_ACCOUNT_LESS_SURFACE.md)**
+
+    ---
+
+    Pre-registration screens, deep links, hosts, identifiers, 97 exported components.
+
+    `APK 2.26.41.6`
+
 </div>
 
 !!! info "Coming soon"

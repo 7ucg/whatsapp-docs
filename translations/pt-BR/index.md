@@ -1,4 +1,4 @@
-<!-- src-sha1: 168a34c992451d2faa786d872e43291383aabf63 -->
+<!-- src-sha1: a10cc235881df66d01adf85a7dcdb73c2853c297 -->
 ---
 hide:
   - navigation
@@ -160,6 +160,38 @@ Documentação por engenharia reversa dos componentes internos do **WhatsApp And
     ---
 
     messageSecret, chaves HKDF por caso de uso, reações, enquetes e eventos criptografados, extensões de stanza.
+
+    `APK 2.26.41.6`
+
+-   :material-swap-horizontal: **[Interoperabilidade](WA_INTEROP.md)**
+
+    ---
+
+    Interoperabilidade de chats com terceiros (desativada): IQs w:interop, InteropMessage, domínios JID, consentimento.
+
+    `APK 2.26.41.6`
+
+-   :material-shield-off: **[Contorno de censura](WA_CENSORSHIP_CIRCUMVENTION.md)**
+
+    ---
+
+    Proxy do WhatsApp, túnel SOCKS do Psiphon, push de desbloqueio, relay de registro, o que não existe.
+
+    `APK 2.26.41.6`
+
+-   :material-view-dashboard: **[UI dirigida pelo servidor](WA_SERVER_DRIVEN_UI.md)**
+
+    ---
+
+    Phoenix, Bloks, native flows e WhatsApp Flows, formatos de payload, ações, segurança.
+
+    `APK 2.26.41.6`
+
+-   :material-account-off: **[Superfície sem conta](WA_ACCOUNT_LESS_SURFACE.md)**
+
+    ---
+
+    Telas pré-registro, deep links, hosts, identificadores, 97 componentes exportados.
 
     `APK 2.26.41.6`
 

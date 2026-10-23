@@ -1,4 +1,4 @@
-<!-- src-sha1: 168a34c992451d2faa786d872e43291383aabf63 -->
+<!-- src-sha1: a10cc235881df66d01adf85a7dcdb73c2853c297 -->
 ---
 hide:
   - navigation
@@ -160,6 +160,38 @@ hide:
     ---
 
     messageSecret، مفاتيح HKDF لكل حالة استخدام، التفاعلات والاستطلاعات والأحداث المشفّرة، امتدادات stanza.
+
+    `APK 2.26.41.6`
+
+-   :material-swap-horizontal: **[التشغيل البيني](WA_INTEROP.md)**
+
+    ---
+
+    التشغيل البيني للدردشات مع جهات خارجية (معطّل): IQs w:interop، InteropMessage، نطاقات JID، الموافقة.
+
+    `APK 2.26.41.6`
+
+-   :material-shield-off: **[تجاوز الحجب](WA_CENSORSHIP_CIRCUMVENTION.md)**
+
+    ---
+
+    وكيل WhatsApp، نفق SOCKS الخاص بـ Psiphon، دفع فك الحجب، ترحيل التسجيل، ما هو غير موجود.
+
+    `APK 2.26.41.6`
+
+-   :material-view-dashboard: **[واجهة يقودها الخادم](WA_SERVER_DRIVEN_UI.md)**
+
+    ---
+
+    Phoenix وBloks وnative flows وWhatsApp Flows، تنسيقات payload، الإجراءات، الأمان.
+
+    `APK 2.26.41.6`
+
+-   :material-account-off: **[السطح بدون حساب](WA_ACCOUNT_LESS_SURFACE.md)**
+
+    ---
+
+    شاشات ما قبل التسجيل، الروابط العميقة، المضيفات، المعرّفات، 97 مكوّنًا مصدّرًا.
 
     `APK 2.26.41.6`
 

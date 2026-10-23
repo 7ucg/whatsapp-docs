@@ -41,6 +41,10 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA AB Props](./WA_AB_PROPS.md) | 2.26.41.6 | flag tables (21,424 ids), MobileConfig, props sync, storage, overrides, flag catalog |
 | [WA Local Storage](./WA_LOCAL_STORAGE.md) | 2.26.41.6 | msgstore.db and wa.db, key tables, prefs, caches, backups, logout wipe paths |
 | [WA Message Secrets](./WA_MESSAGE_SECRETS.md) | 2.26.41.6 | messageSecret, HKDF use-case keys, encrypted reactions, polls and events, message stanza extensions |
+| [WA Interop](./WA_INTEROP.md) | 2.26.41.6 | third-party chat interop (gated off): w:interop IQs, InteropMessage, JID domains, consent |
+| [WA Censorship Circumvention](./WA_CENSORSHIP_CIRCUMVENTION.md) | 2.26.41.6 | WhatsApp Proxy, Psiphon SOCKS tunnel, unblocking push, registration relay, what is absent |
+| [WA Server-Driven UI](./WA_SERVER_DRIVEN_UI.md) | 2.26.41.6 | Phoenix, Bloks, native flows and WhatsApp Flows, payload formats, actions, security |
+| [WA Account-less Surface](./WA_ACCOUNT_LESS_SURFACE.md) | 2.26.41.6 | pre-registration screens, deep links, hosts, identifiers, 97 exported components |
 
 ## Scope
 
