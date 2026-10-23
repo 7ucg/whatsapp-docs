@@ -90,6 +90,14 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
     `APK 2.26.41.6`
 
+-   :material-phone-in-talk: **[Call Signaling](WA_CALL_SIGNALING.md)**
+
+    ---
+
+    Call stanzas, offer and call key, rekey, relay and media path, group calls, links, call log.
+
+    `APK 2.26.41.6`
+
 </div>
 
 !!! info "Coming soon"

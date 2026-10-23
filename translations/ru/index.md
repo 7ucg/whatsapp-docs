@@ -1,4 +1,4 @@
-<!-- src-sha1: 8678a730de6a0b84185733d9edd5ef1ba49ca935 -->
+<!-- src-sha1: 8f4d70e43bcc01687d4132028db5748cbcddb901 -->
 ---
 hide:
   - navigation
@@ -88,6 +88,14 @@ hide:
     ---
 
     chatd поверх TCP, рукопожатие Noise XX, ClientPayload, кодирование binary node, backoff переподключения, Tigon.
+
+    `APK 2.26.41.6`
+
+-   :material-phone-in-talk: **[Сигнализация звонков](WA_CALL_SIGNALING.md)**
+
+    ---
+
+    Stanza звонков, offer и call key, rekey, relay и медиа-путь, групповые звонки, ссылки, журнал звонков.
 
     `APK 2.26.41.6`
 

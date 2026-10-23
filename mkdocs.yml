@@ -60,6 +60,7 @@ plugins:
             Account Security: "Kontosicherheit"
             App-State Sync: "App-State-Sync"
             Noise Transport: "Noise-Transport"
+            Call Signaling: "Anruf-Signalisierung"
         - locale: es
           name: Español
           build: true
@@ -77,6 +78,7 @@ plugins:
             Account Security: "Seguridad de la cuenta"
             App-State Sync: "Sincronización de estado"
             Noise Transport: "Transporte Noise"
+            Call Signaling: "Señalización de llamadas"
         - locale: pt-BR
           name: Português (BR)
           build: true
@@ -94,6 +96,7 @@ plugins:
             Account Security: "Segurança da conta"
             App-State Sync: "Sincronização de estado"
             Noise Transport: "Transporte Noise"
+            Call Signaling: "Sinalização de chamadas"
         - locale: ru
           name: Русский
           build: true
@@ -111,6 +114,7 @@ plugins:
             Account Security: "Безопасность аккаунта"
             App-State Sync: "Синхронизация состояния"
             Noise Transport: "Транспорт Noise"
+            Call Signaling: "Сигнализация звонков"
         - locale: ar
           name: العربية
           build: true
@@ -128,6 +132,7 @@ plugins:
             Account Security: "أمان الحساب"
             App-State Sync: "مزامنة الحالة"
             Noise Transport: "نقل Noise"
+            Call Signaling: "إشارات المكالمات"
         - locale: tr
           name: Türkçe
           build: true
@@ -145,6 +150,7 @@ plugins:
             Account Security: "Hesap güvenliği"
             App-State Sync: "Durum eşitleme"
             Noise Transport: "Noise aktarımı"
+            Call Signaling: "Arama sinyalleşmesi"
 markdown_extensions:
   - tables
   - admonition
@@ -194,3 +200,4 @@ nav:
     - Account Security: WA_ACCOUNT_SECURITY.md
     - App-State Sync: WA_APPSTATE_SYNC.md
     - Noise Transport: WA_NOISE_TRANSPORT.md
+    - Call Signaling: WA_CALL_SIGNALING.md

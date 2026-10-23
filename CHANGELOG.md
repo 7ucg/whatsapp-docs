@@ -3,6 +3,10 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- New report (APK 2.26.41.6): `WA_CALL_SIGNALING.md`.
+  - Java is a thin shim over a native call engine; the HKDF for media keys runs in a Java callback; signaling can also use an HTTP/TEE carrier.
+  - `enc_rekey` v2 carries a Signal `<enc>` child, v3 is protobuf; mixed LID/phone-number addressing is tolerated.
+  - The 85-id table and the 7-byte capability mask from third-party notes are not present on Android.
 - New report (APK 2.26.41.6): `WA_NOISE_TRANSPORT.md`.
   - chatd is raw TCP, not WebSocket; the Noise state machine and AES-GCM are Java; intro header is `WA 06 03`.
   - Outbound stanzas are DEFLATE-compressed; reconnect backoff is Fibonacci x 10 s, capped at 48 h.

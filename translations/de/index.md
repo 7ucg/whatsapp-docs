@@ -1,4 +1,4 @@
-<!-- src-sha1: 8678a730de6a0b84185733d9edd5ef1ba49ca935 -->
+<!-- src-sha1: 8f4d70e43bcc01687d4132028db5748cbcddb901 -->
 ---
 hide:
   - navigation
@@ -88,6 +88,14 @@ Reverse-engineerte Dokumentation der **WhatsApp-Android**-Interna. Statische Ana
     ---
 
     chatd über TCP, Noise-XX-Handshake, ClientPayload, Binary-Node-Encoding, Reconnect-Backoff, Tigon.
+
+    `APK 2.26.41.6`
+
+-   :material-phone-in-talk: **[Anruf-Signalisierung](WA_CALL_SIGNALING.md)**
+
+    ---
+
+    Call-Stanzas, Offer und Call-Key, Rekey, Relay und Medienpfad, Gruppenanrufe, Links, Anrufliste.
 
     `APK 2.26.41.6`
 

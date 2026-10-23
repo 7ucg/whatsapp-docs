@@ -1,4 +1,4 @@
-<!-- src-sha1: 8678a730de6a0b84185733d9edd5ef1ba49ca935 -->
+<!-- src-sha1: 8f4d70e43bcc01687d4132028db5748cbcddb901 -->
 ---
 hide:
   - navigation
@@ -88,6 +88,14 @@ Documentación de ingeniería inversa de los componentes internos de **WhatsApp 
     ---
 
     chatd sobre TCP, handshake Noise XX, ClientPayload, codificación binary node, backoff de reconexión, Tigon.
+
+    `APK 2.26.41.6`
+
+-   :material-phone-in-talk: **[Señalización de llamadas](WA_CALL_SIGNALING.md)**
+
+    ---
+
+    Stanzas de llamada, offer y call key, rekey, relay y ruta de medios, llamadas grupales, enlaces, registro de llamadas.
 
     `APK 2.26.41.6`
 

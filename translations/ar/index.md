@@ -1,4 +1,4 @@
-<!-- src-sha1: 8678a730de6a0b84185733d9edd5ef1ba49ca935 -->
+<!-- src-sha1: 8f4d70e43bcc01687d4132028db5748cbcddb901 -->
 ---
 hide:
   - navigation
@@ -88,6 +88,14 @@ hide:
     ---
 
     chatd عبر TCP، مصافحة Noise XX، ClientPayload، ترميز binary node، تأخير إعادة الاتصال، Tigon.
+
+    `APK 2.26.41.6`
+
+-   :material-phone-in-talk: **[إشارات المكالمات](WA_CALL_SIGNALING.md)**
+
+    ---
+
+    Stanzas المكالمات، offer ومفتاح المكالمة، rekey، relay ومسار الوسائط، المكالمات الجماعية، الروابط، سجل المكالمات.
 
     `APK 2.26.41.6`
 

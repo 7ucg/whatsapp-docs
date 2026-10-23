@@ -1,4 +1,4 @@
-<!-- src-sha1: 8678a730de6a0b84185733d9edd5ef1ba49ca935 -->
+<!-- src-sha1: 8f4d70e43bcc01687d4132028db5748cbcddb901 -->
 ---
 hide:
   - navigation
@@ -88,6 +88,14 @@ hide:
     ---
 
     TCP üzerinden chatd, Noise XX el sıkışması, ClientPayload, binary node kodlaması, yeniden bağlanma backoff'u, Tigon.
+
+    `APK 2.26.41.6`
+
+-   :material-phone-in-talk: **[Arama sinyalleşmesi](WA_CALL_SIGNALING.md)**
+
+    ---
+
+    Arama stanza'ları, offer ve call key, rekey, relay ve medya yolu, grup aramaları, bağlantılar, arama geçmişi.
 
     `APK 2.26.41.6`
 

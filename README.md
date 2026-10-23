@@ -32,6 +32,7 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA Account Security](./WA_ACCOUNT_SECURITY.md) | 2.26.41.6 | Password login (#PWD_WA envelope), PIN, recovery email, passkeys, trusted devices, native OPAQUE |
 | [WA App-State Sync](./WA_APPSTATE_SYNC.md) | 2.26.41.6 | syncd collections, patches/snapshots, MACs and LTHash, key sharing, 96 sync actions |
 | [WA Noise Transport](./WA_NOISE_TRANSPORT.md) | 2.26.41.6 | chatd over TCP, Noise XX handshake, ClientPayload, binary node encoding, reconnect, Tigon |
+| [WA Call Signaling](./WA_CALL_SIGNALING.md) | 2.26.41.6 | call stanzas, offer and call key, rekey, relay and media path, group calls, links, call log |
 
 ## Scope
 
