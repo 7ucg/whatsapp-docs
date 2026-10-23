@@ -1,4 +1,4 @@
-<!-- src-sha1: 88bbd6b33e55d23c843463f312088f2fbb3765b9 -->
+<!-- src-sha1: 8678a730de6a0b84185733d9edd5ef1ba49ca935 -->
 ---
 hide:
   - navigation
@@ -80,6 +80,14 @@ Reverse-engineerte Dokumentation der **WhatsApp-Android**-Interna. Statische Ana
     ---
 
     syncd-Collections, Patches und Snapshots, MACs und LTHash, Key-Sharing, 96 Sync-Actions.
+
+    `APK 2.26.41.6`
+
+-   :material-lan-connect: **[Noise-Transport](WA_NOISE_TRANSPORT.md)**
+
+    ---
+
+    chatd über TCP, Noise-XX-Handshake, ClientPayload, Binary-Node-Encoding, Reconnect-Backoff, Tigon.
 
     `APK 2.26.41.6`
 

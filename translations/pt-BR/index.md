@@ -1,4 +1,4 @@
-<!-- src-sha1: 88bbd6b33e55d23c843463f312088f2fbb3765b9 -->
+<!-- src-sha1: 8678a730de6a0b84185733d9edd5ef1ba49ca935 -->
 ---
 hide:
   - navigation
@@ -80,6 +80,14 @@ Documentação por engenharia reversa dos componentes internos do **WhatsApp And
     ---
 
     Coleções syncd, patches e snapshots, MACs e LTHash, compartilhamento de chaves, 96 sync actions.
+
+    `APK 2.26.41.6`
+
+-   :material-lan-connect: **[Transporte Noise](WA_NOISE_TRANSPORT.md)**
+
+    ---
+
+    chatd sobre TCP, handshake Noise XX, ClientPayload, codificação binary node, backoff de reconexão, Tigon.
 
     `APK 2.26.41.6`
 

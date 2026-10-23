@@ -3,6 +3,10 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- New report (APK 2.26.41.6): `WA_NOISE_TRANSPORT.md`.
+  - chatd is raw TCP, not WebSocket; the Noise state machine and AES-GCM are Java; intro header is `WA 06 03`.
+  - Outbound stanzas are DEFLATE-compressed; reconnect backoff is Fibonacci x 10 s, capped at 48 h.
+  - A second, native "Tigon Noise" channel exists next to chatd; no MQTT client found.
 - New report (APK 2.26.41.6): `WA_APPSTATE_SYNC.md`.
   - `critical_block` holds profile/locale/security-notification settings, not a block list; `contact` and `lid_contact` are in `critical_unblock_low`.
   - ProtocolMessage field numbers from the proto extractor are off by one: key share 7, key request 8, fatal notification 10.

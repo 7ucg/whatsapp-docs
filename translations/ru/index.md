@@ -1,4 +1,4 @@
-<!-- src-sha1: 88bbd6b33e55d23c843463f312088f2fbb3765b9 -->
+<!-- src-sha1: 8678a730de6a0b84185733d9edd5ef1ba49ca935 -->
 ---
 hide:
   - navigation
@@ -80,6 +80,14 @@ hide:
     ---
 
     Коллекции syncd, патчи и снапшоты, MAC и LTHash, обмен ключами, 96 sync actions.
+
+    `APK 2.26.41.6`
+
+-   :material-lan-connect: **[Транспорт Noise](WA_NOISE_TRANSPORT.md)**
+
+    ---
+
+    chatd поверх TCP, рукопожатие Noise XX, ClientPayload, кодирование binary node, backoff переподключения, Tigon.
 
     `APK 2.26.41.6`
 

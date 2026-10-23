@@ -1,4 +1,4 @@
-<!-- src-sha1: 88bbd6b33e55d23c843463f312088f2fbb3765b9 -->
+<!-- src-sha1: 8678a730de6a0b84185733d9edd5ef1ba49ca935 -->
 ---
 hide:
   - navigation
@@ -80,6 +80,14 @@ hide:
     ---
 
     مجموعات syncd، الرقع واللقطات، MAC وLTHash، مشاركة المفاتيح، 96 إجراء مزامنة.
+
+    `APK 2.26.41.6`
+
+-   :material-lan-connect: **[نقل Noise](WA_NOISE_TRANSPORT.md)**
+
+    ---
+
+    chatd عبر TCP، مصافحة Noise XX، ClientPayload، ترميز binary node، تأخير إعادة الاتصال، Tigon.
 
     `APK 2.26.41.6`
 

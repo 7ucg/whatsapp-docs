@@ -59,6 +59,7 @@ plugins:
             Username: "Benutzername"
             Account Security: "Kontosicherheit"
             App-State Sync: "App-State-Sync"
+            Noise Transport: "Noise-Transport"
         - locale: es
           name: Español
           build: true
@@ -75,6 +76,7 @@ plugins:
             Username: "Nombre de usuario"
             Account Security: "Seguridad de la cuenta"
             App-State Sync: "Sincronización de estado"
+            Noise Transport: "Transporte Noise"
         - locale: pt-BR
           name: Português (BR)
           build: true
@@ -91,6 +93,7 @@ plugins:
             Username: "Nome de usuário"
             Account Security: "Segurança da conta"
             App-State Sync: "Sincronização de estado"
+            Noise Transport: "Transporte Noise"
         - locale: ru
           name: Русский
           build: true
@@ -107,6 +110,7 @@ plugins:
             Username: "Имя пользователя"
             Account Security: "Безопасность аккаунта"
             App-State Sync: "Синхронизация состояния"
+            Noise Transport: "Транспорт Noise"
         - locale: ar
           name: العربية
           build: true
@@ -123,6 +127,7 @@ plugins:
             Username: "اسم المستخدم"
             Account Security: "أمان الحساب"
             App-State Sync: "مزامنة الحالة"
+            Noise Transport: "نقل Noise"
         - locale: tr
           name: Türkçe
           build: true
@@ -139,6 +144,7 @@ plugins:
             Username: "Kullanıcı adı"
             Account Security: "Hesap güvenliği"
             App-State Sync: "Durum eşitleme"
+            Noise Transport: "Noise aktarımı"
 markdown_extensions:
   - tables
   - admonition
@@ -187,3 +193,4 @@ nav:
     - Username: WA_USERNAME.md
     - Account Security: WA_ACCOUNT_SECURITY.md
     - App-State Sync: WA_APPSTATE_SYNC.md
+    - Noise Transport: WA_NOISE_TRANSPORT.md

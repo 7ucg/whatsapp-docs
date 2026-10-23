@@ -1,4 +1,4 @@
-<!-- src-sha1: 88bbd6b33e55d23c843463f312088f2fbb3765b9 -->
+<!-- src-sha1: 8678a730de6a0b84185733d9edd5ef1ba49ca935 -->
 ---
 hide:
   - navigation
@@ -80,6 +80,14 @@ hide:
     ---
 
     syncd koleksiyonları, yamalar ve anlık görüntüler, MAC'ler ve LTHash, anahtar paylaşımı, 96 sync action.
+
+    `APK 2.26.41.6`
+
+-   :material-lan-connect: **[Noise aktarımı](WA_NOISE_TRANSPORT.md)**
+
+    ---
+
+    TCP üzerinden chatd, Noise XX el sıkışması, ClientPayload, binary node kodlaması, yeniden bağlanma backoff'u, Tigon.
 
     `APK 2.26.41.6`
 

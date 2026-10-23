@@ -82,6 +82,14 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
     `APK 2.26.41.6`
 
+-   :material-lan-connect: **[Noise Transport](WA_NOISE_TRANSPORT.md)**
+
+    ---
+
+    chatd over TCP, Noise XX handshake, ClientPayload, binary node encoding, reconnect backoff, Tigon.
+
+    `APK 2.26.41.6`
+
 </div>
 
 !!! info "Coming soon"
