@@ -216,7 +216,7 @@ IntegrityTagInfo {
 | 19893 | FMX card system-message logging (present, `C198788cr`) |
 | 26697 | BizIntegrity v2 (present, `C34735F5e`) |
 | 27269 | Split incoming/outgoing message count (present) |
-| 34166 | start_chat_trust_signals writer (present, `ContactInfoActivity`) |
+| 34166 | injection id, not a feature flag (see WA_AB_PROPS.md); used by the `start_chat_trust_signals` writer (`ContactInfoActivity`) |
 
 In-memory cache in `BizIntegritySignalsManager.A02`: entries valid 60000 ms (found).
 
@@ -750,7 +750,7 @@ Found in `C37414GLt`: request `variables` JSON carries `user_request{client_ephe
 | WFAC UI package | `com.whatsapp.waffle.wfac` (flat) | `com.whatsapp.waffle.wfac.ui` (+ `WfacBanBaseFragment`) |
 | WFAC prefs | 5 keys | + `wfac_last_ban_status_fetch_timestamp_ms` (5 s refresh throttle), `support_ban_appeal_user_banned_from_chat_disconnect` cleared on reset |
 | Ban state parsing | 4 states | same; `NO_APPEAL_OPENED` mapped to `CHECKPOINTED` |
-| Flags | 11061/11064/11065/12709/16349/19893/26697/27269/34166 | all present; + 19793 (N5r.A02) |
+| Flags | 11061/11064/11065/12709/16349/19893/26697/27269 | all present; + 19793 (N5r.A02) |
 | SpamWarning codes 100-106 | yes | unchanged |
 | integrity_tags | `automation_bulk_messaging`, `spam` | unchanged |
 | SpamFlow | 92 categories | 97; `odml_scam_alert_*`, `biz_spam_banner_block`, others added |

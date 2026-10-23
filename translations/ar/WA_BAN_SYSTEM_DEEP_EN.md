@@ -1,4 +1,4 @@
-<!-- src-sha1: 7460884998f14495a9fdb811db77f25ed82ce6f6 -->
+<!-- src-sha1: 84ea5bd809c6118cf8363e58c56bee3ba607d23e -->
 # WhatsApp نظام الحظر — Full RE Report
 **الإصدار:** 2.26.41.6 | **التاريخ:** 2026-10-17
 **النطاق:** مسار الحظر، دورة حياة WFAC، جمع إشارات السبام، بروتوكول GraphQL، نظام الاستئناف، وسم الحساب كمشبوه، الوقاية
@@ -217,7 +217,7 @@ IntegrityTagInfo {
 | 19893 | تسجيل رسالة النظام لبطاقة FMX (present، `C198788cr`) |
 | 26697 | BizIntegrity v2 (present، `C34735F5e`) |
 | 27269 | فصل عدّ الرسائل الواردة/الصادرة (present) |
-| 34166 | كاتب start_chat_trust_signals (present، `ContactInfoActivity`) |
+| 34166 | معرّف حقن (injection id) وليس feature flag (انظر WA_AB_PROPS.md)؛ يستخدمه كاتب `start_chat_trust_signals` (`ContactInfoActivity`) |
 
 ذاكرة مؤقتة داخل الذاكرة في `BizIntegritySignalsManager.A02`: الإدخالات صالحة لمدة 60000 ms (found).
 
@@ -751,7 +751,7 @@ Found في `C37414GLt`: يحمل JSON الخاص بـ `variables` في الطل�
 | WFAC UI package | `com.whatsapp.waffle.wfac` (flat) | `com.whatsapp.waffle.wfac.ui` (+ `WfacBanBaseFragment`) |
 | WFAC prefs | 5 مفاتيح | + `wfac_last_ban_status_fetch_timestamp_ms` (تقييد التحديث 5 s)، و`support_ban_appeal_user_banned_from_chat_disconnect` يُمسح عند إعادة الضبط |
 | Ban state parsing | 4 حالات | نفسها؛ `NO_APPEAL_OPENED` تُحوَّل إلى `CHECKPOINTED` |
-| Flags | 11061/11064/11065/12709/16349/19893/26697/27269/34166 | كلها موجودة؛ + 19793 (N5r.A02) |
+| Flags | 11061/11064/11065/12709/16349/19893/26697/27269 | كلها موجودة؛ + 19793 (N5r.A02) |
 | SpamWarning codes 100-106 | نعم | دون تغيير |
 | integrity_tags | `automation_bulk_messaging`, `spam` | دون تغيير |
 | SpamFlow | 92 فئة | 97؛ أُضيفت `odml_scam_alert_*` و`biz_spam_banner_block` وغيرها |

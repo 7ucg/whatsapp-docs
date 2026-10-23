@@ -1,4 +1,4 @@
-<!-- src-sha1: 7460884998f14495a9fdb811db77f25ed82ce6f6 -->
+<!-- src-sha1: 84ea5bd809c6118cf8363e58c56bee3ba607d23e -->
 # WhatsApp Ban System — Full RE Report
 **Версия:** 2.26.41.6 | **Дата:** 2026-10-17
 **Область:** Процесс бана, жизненный цикл WFAC, сбор спам-сигналов, протокол GraphQL, система апелляций, пометка suspicious, предотвращение
@@ -217,7 +217,7 @@ IntegrityTagInfo {
 | 19893 | Логирование системного сообщения карточки FMX (present, `C198788cr`) |
 | 26697 | BizIntegrity v2 (present, `C34735F5e`) |
 | 27269 | Раздельный подсчёт входящих/исходящих сообщений (present) |
-| 34166 | Писатель start_chat_trust_signals (present, `ContactInfoActivity`) |
+| 34166 | injection id, не feature flag (см. WA_AB_PROPS.md); используется писателем `start_chat_trust_signals` (`ContactInfoActivity`) |
 
 Кэш в памяти в `BizIntegritySignalsManager.A02`: записи действительны 60000 мс (found).
 
@@ -751,7 +751,7 @@ Found в `C37414GLt`: JSON `variables` запроса содержит `user_req
 | Пакет UI WFAC | `com.whatsapp.waffle.wfac` (плоский) | `com.whatsapp.waffle.wfac.ui` (+ `WfacBanBaseFragment`) |
 | Prefs WFAC | 5 ключей | + `wfac_last_ban_status_fetch_timestamp_ms` (троттлинг обновления 5 с), `support_ban_appeal_user_banned_from_chat_disconnect` очищается при сбросе |
 | Разбор состояния бана | 4 состояния | то же; `NO_APPEAL_OPENED` отображается в `CHECKPOINTED` |
-| Флаги | 11061/11064/11065/12709/16349/19893/26697/27269/34166 | все present; + 19793 (N5r.A02) |
+| Флаги | 11061/11064/11065/12709/16349/19893/26697/27269 | все present; + 19793 (N5r.A02) |
 | Коды SpamWarning 100-106 | да | без изменений |
 | integrity_tags | `automation_bulk_messaging`, `spam` | без изменений |
 | SpamFlow | 92 категории | 97; добавлены `odml_scam_alert_*`, `biz_spam_banner_block` и другие |

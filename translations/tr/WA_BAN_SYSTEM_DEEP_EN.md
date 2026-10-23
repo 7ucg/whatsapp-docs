@@ -1,4 +1,4 @@
-<!-- src-sha1: 7460884998f14495a9fdb811db77f25ed82ce6f6 -->
+<!-- src-sha1: 84ea5bd809c6118cf8363e58c56bee3ba607d23e -->
 # WhatsApp Ban System — Full RE Report
 **Sürüm:** 2.26.41.6 | **Tarih:** 2026-10-17
 **Kapsam:** Ban akışı, WFAC yaşam döngüsü, spam sinyali toplama, GraphQL protokolü, itiraz sistemi, şüpheli işaretleme, önleme
@@ -217,7 +217,7 @@ IntegrityTagInfo {
 | 19893 | FMX kartı sistem mesajı loglama (mevcut, `C198788cr`) |
 | 26697 | BizIntegrity v2 (mevcut, `C34735F5e`) |
 | 27269 | Gelen/giden mesaj sayısını ayırma (mevcut) |
-| 34166 | start_chat_trust_signals yazıcısı (mevcut, `ContactInfoActivity`) |
+| 34166 | injection id, feature flag değil (bkz. WA_AB_PROPS.md); `start_chat_trust_signals` yazıcısı (`ContactInfoActivity`) tarafından kullanılır |
 
 `BizIntegritySignalsManager.A02` içindeki bellek önbelleği: girdiler 60000 ms geçerli (found).
 
@@ -751,7 +751,7 @@ Bulunamadı. 2.26.41.6'nın java_src veya kaynaklarında ne `urn:ietf:params:xml
 | WFAC UI paketi | `com.whatsapp.waffle.wfac` (düz) | `com.whatsapp.waffle.wfac.ui` (+ `WfacBanBaseFragment`) |
 | WFAC prefs | 5 anahtar | + `wfac_last_ban_status_fetch_timestamp_ms` (5 sn yenileme throttle'ı), sıfırlamada `support_ban_appeal_user_banned_from_chat_disconnect` temizlenir |
 | Ban durumu ayrıştırma | 4 durum | aynı; `NO_APPEAL_OPENED` `CHECKPOINTED`'a eşlenir |
-| Flag'ler | 11061/11064/11065/12709/16349/19893/26697/27269/34166 | hepsi mevcut; + 19793 (N5r.A02) |
+| Flag'ler | 11061/11064/11065/12709/16349/19893/26697/27269 | hepsi mevcut; + 19793 (N5r.A02) |
 | SpamWarning kodları 100-106 | evet | değişmedi |
 | integrity_tags | `automation_bulk_messaging`, `spam` | değişmedi |
 | SpamFlow | 92 kategori | 97; `odml_scam_alert_*`, `biz_spam_banner_block`, diğerleri eklendi |

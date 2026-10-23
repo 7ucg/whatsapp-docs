@@ -1,4 +1,4 @@
-<!-- src-sha1: 7460884998f14495a9fdb811db77f25ed82ce6f6 -->
+<!-- src-sha1: 84ea5bd809c6118cf8363e58c56bee3ba607d23e -->
 # WhatsApp Ban-System — Full RE Report
 **Version:** 2.26.41.6 | **Datum:** 2026-10-17
 **Umfang:** Ban-Flow, WFAC-Lebenszyklus, Erfassung von Spam-Signalen, GraphQL-Protokoll, Appeal-System, Suspicious-Markierung, Prävention
@@ -217,7 +217,7 @@ IntegrityTagInfo {
 | 19893 | Logging der FMX-Card-Systemnachricht (vorhanden, `C198788cr`) |
 | 26697 | BizIntegrity v2 (vorhanden, `C34735F5e`) |
 | 27269 | Getrennte Zählung eingehender/ausgehender Nachrichten (vorhanden) |
-| 34166 | start_chat_trust_signals-Writer (vorhanden, `ContactInfoActivity`) |
+| 34166 | Injection-ID, kein Feature-Flag (siehe WA_AB_PROPS.md); vom `start_chat_trust_signals`-Writer (`ContactInfoActivity`) genutzt |
 
 In-Memory-Cache in `BizIntegritySignalsManager.A02`: Einträge 60000 ms gültig (found).
 
@@ -751,7 +751,7 @@ Found in `C37414GLt`: Die `variables`-JSON des Requests trägt `user_request{cli
 | WFAC-UI-Package | `com.whatsapp.waffle.wfac` (flach) | `com.whatsapp.waffle.wfac.ui` (+ `WfacBanBaseFragment`) |
 | WFAC-Prefs | 5 Keys | + `wfac_last_ban_status_fetch_timestamp_ms` (5-s-Refresh-Throttle), `support_ban_appeal_user_banned_from_chat_disconnect` wird beim Reset gelöscht |
 | Ban-State-Parsing | 4 Zustände | gleich; `NO_APPEAL_OPENED` auf `CHECKPOINTED` abgebildet |
-| Flags | 11061/11064/11065/12709/16349/19893/26697/27269/34166 | alle vorhanden; + 19793 (N5r.A02) |
+| Flags | 11061/11064/11065/12709/16349/19893/26697/27269 | alle vorhanden; + 19793 (N5r.A02) |
 | SpamWarning-Codes 100-106 | ja | unverändert |
 | integrity_tags | `automation_bulk_messaging`, `spam` | unverändert |
 | SpamFlow | 92 Kategorien | 97; `odml_scam_alert_*`, `biz_spam_banner_block`, weitere ergänzt |

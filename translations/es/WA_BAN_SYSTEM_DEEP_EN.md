@@ -1,4 +1,4 @@
-<!-- src-sha1: 7460884998f14495a9fdb811db77f25ed82ce6f6 -->
+<!-- src-sha1: 84ea5bd809c6118cf8363e58c56bee3ba607d23e -->
 # WhatsApp Sistema de Bloqueo — Full RE Report
 **Versión:** 2.26.41.6 | **Fecha:** 2026-10-17
 **Alcance:** Flujo de bloqueo, ciclo de vida de WFAC, recolección de señales de spam, protocolo GraphQL, sistema de apelación, marcado como sospechoso, prevención
@@ -217,7 +217,7 @@ IntegrityTagInfo {
 | 19893 | Registro del mensaje de sistema de la tarjeta FMX (presente, `C198788cr`) |
 | 26697 | BizIntegrity v2 (presente, `C34735F5e`) |
 | 27269 | Conteo dividido de mensajes entrantes/salientes (presente) |
-| 34166 | Escritor de start_chat_trust_signals (presente, `ContactInfoActivity`) |
+| 34166 | ID de inyección, no un feature flag (ver WA_AB_PROPS.md); usado por el escritor de `start_chat_trust_signals` (`ContactInfoActivity`) |
 
 Caché en memoria en `BizIntegritySignalsManager.A02`: entradas válidas 60000 ms (found).
 
@@ -751,7 +751,7 @@ Found en `C37414GLt`: el JSON `variables` de la solicitud lleva `user_request{cl
 | Paquete de UI WFAC | `com.whatsapp.waffle.wfac` (plano) | `com.whatsapp.waffle.wfac.ui` (+ `WfacBanBaseFragment`) |
 | Prefs de WFAC | 5 claves | + `wfac_last_ban_status_fetch_timestamp_ms` (throttle de refresco de 5 s), `support_ban_appeal_user_banned_from_chat_disconnect` borrada al reiniciar |
 | Parseo del estado de bloqueo | 4 estados | igual; `NO_APPEAL_OPENED` mapeado a `CHECKPOINTED` |
-| Flags | 11061/11064/11065/12709/16349/19893/26697/27269/34166 | todos presentes; + 19793 (N5r.A02) |
+| Flags | 11061/11064/11065/12709/16349/19893/26697/27269 | todos presentes; + 19793 (N5r.A02) |
 | Códigos de SpamWarning 100-106 | sí | sin cambios |
 | integrity_tags | `automation_bulk_messaging`, `spam` | sin cambios |
 | SpamFlow | 92 categorías | 97; agregadas `odml_scam_alert_*`, `biz_spam_banner_block`, otras |

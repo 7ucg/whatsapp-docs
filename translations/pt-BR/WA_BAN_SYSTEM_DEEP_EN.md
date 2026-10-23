@@ -1,4 +1,4 @@
-<!-- src-sha1: 7460884998f14495a9fdb811db77f25ed82ce6f6 -->
+<!-- src-sha1: 84ea5bd809c6118cf8363e58c56bee3ba607d23e -->
 # WhatsApp Ban System — Full RE Report
 **Versão:** 2.26.41.6 | **Data:** 2026-10-17
 **Escopo:** Fluxo de banimento, ciclo de vida do WFAC, coleta de sinais de spam, protocolo GraphQL, sistema de apelação, marcação como suspeito, prevenção
@@ -217,7 +217,7 @@ IntegrityTagInfo {
 | 19893 | Registro de mensagem de sistema do cartão FMX (presente, `C198788cr`) |
 | 26697 | BizIntegrity v2 (presente, `C34735F5e`) |
 | 27269 | Contagem separada de mensagens recebidas/enviadas (presente) |
-| 34166 | escritor de start_chat_trust_signals (presente, `ContactInfoActivity`) |
+| 34166 | ID de injeção, não um feature flag (veja WA_AB_PROPS.md); usado pelo escritor de `start_chat_trust_signals` (`ContactInfoActivity`) |
 
 Cache em memória em `BizIntegritySignalsManager.A02`: entradas válidas por 60000 ms (found).
 
@@ -751,7 +751,7 @@ Found em `C37414GLt`: o JSON `variables` da requisição carrega `user_request{c
 | Pacote de UI do WFAC | `com.whatsapp.waffle.wfac` (plano) | `com.whatsapp.waffle.wfac.ui` (+ `WfacBanBaseFragment`) |
 | Prefs do WFAC | 5 chaves | + `wfac_last_ban_status_fetch_timestamp_ms` (throttle de refresh de 5 s), `support_ban_appeal_user_banned_from_chat_disconnect` limpa no reset |
 | Parse do estado de banimento | 4 estados | igual; `NO_APPEAL_OPENED` mapeado para `CHECKPOINTED` |
-| Flags | 11061/11064/11065/12709/16349/19893/26697/27269/34166 | todas presentes; + 19793 (N5r.A02) |
+| Flags | 11061/11064/11065/12709/16349/19893/26697/27269 | todas presentes; + 19793 (N5r.A02) |
 | Códigos SpamWarning 100-106 | sim | inalterado |
 | integrity_tags | `automation_bulk_messaging`, `spam` | inalterado |
 | SpamFlow | 92 categorias | 97; `odml_scam_alert_*`, `biz_spam_banner_block`, outras adicionadas |
