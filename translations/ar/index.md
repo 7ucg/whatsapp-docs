@@ -1,4 +1,4 @@
-<!-- src-sha1: 8f4d70e43bcc01687d4132028db5748cbcddb901 -->
+<!-- src-sha1: b5920296a242a0eeba7ce731008cfa04a6c63436 -->
 ---
 hide:
   - navigation
@@ -96,6 +96,38 @@ hide:
     ---
 
     Stanzas المكالمات، offer ومفتاح المكالمة، rekey، relay ومسار الوسائط، المكالمات الجماعية، الروابط، سجل المكالمات.
+
+    `APK 2.26.41.6`
+
+-   :material-cloud-upload: **[رفع الوسائط](WA_MEDIA_UPLOAD.md)**
+
+    ---
+
+    media_conn، روابط الرفع والتنزيل، مفاتيح الوسائط HKDF، AES-CBC + HMAC، الاستئناف وإعادة المحاولة، رموز النتائج، التحصين الأصلي.
+
+    `APK 2.26.41.6`
+
+-   :material-sync-multiple: **[USync](WA_USYNC.md)**
+
+    ---
+
+    Stanza الخاص بـ USync، 4 أوضاع، 10 سياقات، 30 نوع مزامنة، مزامنة جهات الاتصال والأجهزة، ربط LID.
+
+    `APK 2.26.41.6`
+
+-   :material-account-group: **[سجل المجموعات](WA_GROUP_HISTORY.md)**
+
+    ---
+
+    حزمة السجل للأعضاء الجدد، مزامنة السجل للأجهزة المرافقة، أوضاع العنونة، الحدود.
+
+    `APK 2.26.41.6`
+
+-   :material-bullhorn: **[قوائم البث](WA_BROADCAST_LISTS.md)**
+
+    ---
+
+    IQs قوائم w:b، التوزيع، الحصة الشهرية، حظر تحذيرات السبام، status@broadcast.
 
     `APK 2.26.41.6`
 

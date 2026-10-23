@@ -1,4 +1,4 @@
-<!-- src-sha1: 8f4d70e43bcc01687d4132028db5748cbcddb901 -->
+<!-- src-sha1: b5920296a242a0eeba7ce731008cfa04a6c63436 -->
 ---
 hide:
   - navigation
@@ -96,6 +96,38 @@ Documentación de ingeniería inversa de los componentes internos de **WhatsApp 
     ---
 
     Stanzas de llamada, offer y call key, rekey, relay y ruta de medios, llamadas grupales, enlaces, registro de llamadas.
+
+    `APK 2.26.41.6`
+
+-   :material-cloud-upload: **[Subida de medios](WA_MEDIA_UPLOAD.md)**
+
+    ---
+
+    media_conn, URLs de subida y descarga, claves de medios HKDF, AES-CBC + HMAC, reanudación y reintentos, códigos de resultado, hardening nativo.
+
+    `APK 2.26.41.6`
+
+-   :material-sync-multiple: **[USync](WA_USYNC.md)**
+
+    ---
+
+    Stanza USync, 4 modos, 10 contextos, 30 tipos de sync, sincronización de contactos y dispositivos, mapeo LID.
+
+    `APK 2.26.41.6`
+
+-   :material-account-group: **[Historial de grupos](WA_GROUP_HISTORY.md)**
+
+    ---
+
+    Paquete de historial para nuevos miembros, history sync de dispositivos companion, modos de direccionamiento, límites.
+
+    `APK 2.26.41.6`
+
+-   :material-bullhorn: **[Listas de difusión](WA_BROADCAST_LISTS.md)**
+
+    ---
+
+    IQs w:b de listas, fan-out, cuota mensual, bloqueos por aviso de spam, status@broadcast.
 
     `APK 2.26.41.6`
 

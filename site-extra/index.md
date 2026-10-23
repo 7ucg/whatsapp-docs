@@ -98,6 +98,38 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
     `APK 2.26.41.6`
 
+-   :material-cloud-upload: **[Media Upload](WA_MEDIA_UPLOAD.md)**
+
+    ---
+
+    media_conn, upload and download URLs, HKDF media keys, AES-CBC + HMAC, resume and retry, result codes, native hardening.
+
+    `APK 2.26.41.6`
+
+-   :material-sync-multiple: **[USync](WA_USYNC.md)**
+
+    ---
+
+    USync stanza, 4 modes, 10 contexts, 30 sync types, contact and device sync, LID mapping.
+
+    `APK 2.26.41.6`
+
+-   :material-account-group: **[Group History](WA_GROUP_HISTORY.md)**
+
+    ---
+
+    History bundle for new members, history sync of companion devices, addressing modes, limits.
+
+    `APK 2.26.41.6`
+
+-   :material-bullhorn: **[Broadcast Lists](WA_BROADCAST_LISTS.md)**
+
+    ---
+
+    w:b list IQs, fan-out, monthly quota, spam-warning bans, status@broadcast.
+
+    `APK 2.26.41.6`
+
 </div>
 
 !!! info "Coming soon"

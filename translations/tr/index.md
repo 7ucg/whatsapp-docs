@@ -1,4 +1,4 @@
-<!-- src-sha1: 8f4d70e43bcc01687d4132028db5748cbcddb901 -->
+<!-- src-sha1: b5920296a242a0eeba7ce731008cfa04a6c63436 -->
 ---
 hide:
   - navigation
@@ -96,6 +96,38 @@ hide:
     ---
 
     Arama stanza'ları, offer ve call key, rekey, relay ve medya yolu, grup aramaları, bağlantılar, arama geçmişi.
+
+    `APK 2.26.41.6`
+
+-   :material-cloud-upload: **[Medya yükleme](WA_MEDIA_UPLOAD.md)**
+
+    ---
+
+    media_conn, yükleme ve indirme URL'leri, HKDF medya anahtarları, AES-CBC + HMAC, devam ettirme ve yeniden deneme, sonuç kodları, yerel hardening.
+
+    `APK 2.26.41.6`
+
+-   :material-sync-multiple: **[USync](WA_USYNC.md)**
+
+    ---
+
+    USync stanza'sı, 4 mod, 10 bağlam, 30 sync türü, kişi ve cihaz eşitleme, LID eşlemesi.
+
+    `APK 2.26.41.6`
+
+-   :material-account-group: **[Grup geçmişi](WA_GROUP_HISTORY.md)**
+
+    ---
+
+    Yeni üyeler için geçmiş paketi, companion cihazların history sync'i, adresleme modları, limitler.
+
+    `APK 2.26.41.6`
+
+-   :material-bullhorn: **[Yayın listeleri](WA_BROADCAST_LISTS.md)**
+
+    ---
+
+    w:b liste IQ'ları, fan-out, aylık kota, spam uyarısı yasakları, status@broadcast.
 
     `APK 2.26.41.6`
 

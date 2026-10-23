@@ -1,4 +1,4 @@
-<!-- src-sha1: 8f4d70e43bcc01687d4132028db5748cbcddb901 -->
+<!-- src-sha1: b5920296a242a0eeba7ce731008cfa04a6c63436 -->
 ---
 hide:
   - navigation
@@ -96,6 +96,38 @@ Reverse-engineerte Dokumentation der **WhatsApp-Android**-Interna. Statische Ana
     ---
 
     Call-Stanzas, Offer und Call-Key, Rekey, Relay und Medienpfad, Gruppenanrufe, Links, Anrufliste.
+
+    `APK 2.26.41.6`
+
+-   :material-cloud-upload: **[Medien-Upload](WA_MEDIA_UPLOAD.md)**
+
+    ---
+
+    media_conn, Upload- und Download-URLs, HKDF-Medienschlüssel, AES-CBC + HMAC, Resume und Retry, Ergebniscodes, natives Hardening.
+
+    `APK 2.26.41.6`
+
+-   :material-sync-multiple: **[USync](WA_USYNC.md)**
+
+    ---
+
+    USync-Stanza, 4 Modi, 10 Kontexte, 30 Sync-Typen, Kontakt- und Geräteabgleich, LID-Mapping.
+
+    `APK 2.26.41.6`
+
+-   :material-account-group: **[Gruppen-Historie](WA_GROUP_HISTORY.md)**
+
+    ---
+
+    History-Bundle für neue Mitglieder, History-Sync der Companion-Geräte, Adressierungsmodi, Limits.
+
+    `APK 2.26.41.6`
+
+-   :material-bullhorn: **[Broadcast-Listen](WA_BROADCAST_LISTS.md)**
+
+    ---
+
+    w:b-Listen-IQs, Fan-out, monatliches Kontingent, Spam-Warn-Sperren, status@broadcast.
 
     `APK 2.26.41.6`
 

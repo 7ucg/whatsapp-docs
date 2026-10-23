@@ -61,6 +61,10 @@ plugins:
             App-State Sync: "App-State-Sync"
             Noise Transport: "Noise-Transport"
             Call Signaling: "Anruf-Signalisierung"
+            Media Upload: "Medien-Upload"
+            Group History: "Gruppen-Historie"
+            Broadcast Lists: "Broadcast-Listen"
+            USync: "USync"
         - locale: es
           name: Español
           build: true
@@ -79,6 +83,10 @@ plugins:
             App-State Sync: "Sincronización de estado"
             Noise Transport: "Transporte Noise"
             Call Signaling: "Señalización de llamadas"
+            Media Upload: "Subida de medios"
+            Group History: "Historial de grupos"
+            Broadcast Lists: "Listas de difusión"
+            USync: "USync"
         - locale: pt-BR
           name: Português (BR)
           build: true
@@ -97,6 +105,10 @@ plugins:
             App-State Sync: "Sincronização de estado"
             Noise Transport: "Transporte Noise"
             Call Signaling: "Sinalização de chamadas"
+            Media Upload: "Upload de mídia"
+            Group History: "Histórico de grupos"
+            Broadcast Lists: "Listas de transmissão"
+            USync: "USync"
         - locale: ru
           name: Русский
           build: true
@@ -115,6 +127,10 @@ plugins:
             App-State Sync: "Синхронизация состояния"
             Noise Transport: "Транспорт Noise"
             Call Signaling: "Сигнализация звонков"
+            Media Upload: "Загрузка медиа"
+            Group History: "История групп"
+            Broadcast Lists: "Списки рассылки"
+            USync: "USync"
         - locale: ar
           name: العربية
           build: true
@@ -133,6 +149,10 @@ plugins:
             App-State Sync: "مزامنة الحالة"
             Noise Transport: "نقل Noise"
             Call Signaling: "إشارات المكالمات"
+            Media Upload: "رفع الوسائط"
+            Group History: "سجل المجموعات"
+            Broadcast Lists: "قوائم البث"
+            USync: "USync"
         - locale: tr
           name: Türkçe
           build: true
@@ -151,6 +171,10 @@ plugins:
             App-State Sync: "Durum eşitleme"
             Noise Transport: "Noise aktarımı"
             Call Signaling: "Arama sinyalleşmesi"
+            Media Upload: "Medya yükleme"
+            Group History: "Grup geçmişi"
+            Broadcast Lists: "Yayın listeleri"
+            USync: "USync"
 markdown_extensions:
   - tables
   - admonition
@@ -201,3 +225,7 @@ nav:
     - App-State Sync: WA_APPSTATE_SYNC.md
     - Noise Transport: WA_NOISE_TRANSPORT.md
     - Call Signaling: WA_CALL_SIGNALING.md
+    - Media Upload: WA_MEDIA_UPLOAD.md
+    - Group History: WA_GROUP_HISTORY.md
+    - Broadcast Lists: WA_BROADCAST_LISTS.md
+    - USync: WA_USYNC.md

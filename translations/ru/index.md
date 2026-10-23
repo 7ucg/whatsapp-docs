@@ -1,4 +1,4 @@
-<!-- src-sha1: 8f4d70e43bcc01687d4132028db5748cbcddb901 -->
+<!-- src-sha1: b5920296a242a0eeba7ce731008cfa04a6c63436 -->
 ---
 hide:
   - navigation
@@ -96,6 +96,38 @@ hide:
     ---
 
     Stanza звонков, offer и call key, rekey, relay и медиа-путь, групповые звонки, ссылки, журнал звонков.
+
+    `APK 2.26.41.6`
+
+-   :material-cloud-upload: **[Загрузка медиа](WA_MEDIA_UPLOAD.md)**
+
+    ---
+
+    media_conn, URL загрузки и скачивания, медиаключи HKDF, AES-CBC + HMAC, докачка и повторы, коды результатов, нативное hardening.
+
+    `APK 2.26.41.6`
+
+-   :material-sync-multiple: **[USync](WA_USYNC.md)**
+
+    ---
+
+    Stanza USync, 4 режима, 10 контекстов, 30 типов sync, синхронизация контактов и устройств, LID-маппинг.
+
+    `APK 2.26.41.6`
+
+-   :material-account-group: **[История групп](WA_GROUP_HISTORY.md)**
+
+    ---
+
+    Пакет истории для новых участников, history sync companion-устройств, режимы адресации, лимиты.
+
+    `APK 2.26.41.6`
+
+-   :material-bullhorn: **[Списки рассылки](WA_BROADCAST_LISTS.md)**
+
+    ---
+
+    IQ списков w:b, fan-out, месячная квота, баны за спам-предупреждения, status@broadcast.
 
     `APK 2.26.41.6`
 

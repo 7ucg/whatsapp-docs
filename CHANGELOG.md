@@ -3,6 +3,17 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- New report (APK 2.26.41.6): `WA_BROADCAST_LISTS.md`.
+  - Lists exist server-side: the client restores them with a `w:b` get-lists IQ; there are also delete and quota IQs; list ids cannot start with a leading zero.
+  - The only cap with a reader is the server-provided monthly quota (<= 300); GAP is receive-side inbox evaluation, not a send limit.
+- New reports (APK 2.26.41.6): `WA_USYNC.md`, `WA_GROUP_HISTORY.md`.
+  - USync: Android has no `bot` protocol; a hidden status is `type="fail"` with 401/403/404; `sid`, `index`, `last` are always sent; contact sync also exists as MEX mutations.
+  - Group History: the bundle carries no `<meta appdata>`, only the separate "history sent" notice (type 118) does; the 14-day window is server-set and not verifiable from the client.
+- Username: the USync reason context for `UsernameUpdateNotification` is `NOTIFICATION_SIDELIST` (mode `query`), not a delta-style sync.
+- New report (APK 2.26.41.6): `WA_MEDIA_UPLOAD.md`.
+  - Upload is a raw `POST` with `Content-Range` resume; the `token` is `SHA-256(random secret || hash)`; HKDF derives 80 bytes, not 112.
+  - Channel media uses the `newsletter` prefix, the plaintext hash as path and no encryption; `NON_E2EE` media uses HKDF info `non-e2ee-media-key`.
+  - `media_conn` carries no content-length limit; the WebP sandbox is gated by flag 26414; full upload (0-39) and download (0-34) result tables.
 - New report (APK 2.26.41.6): `WA_CALL_SIGNALING.md`.
   - Java is a thin shim over a native call engine; the HKDF for media keys runs in a Java callback; signaling can also use an HTTP/TEE carrier.
   - `enc_rekey` v2 carries a Signal `<enc>` child, v3 is protobuf; mixed LID/phone-number addressing is tolerated.

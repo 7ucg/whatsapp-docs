@@ -33,6 +33,10 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA App-State Sync](./WA_APPSTATE_SYNC.md) | 2.26.41.6 | syncd collections, patches/snapshots, MACs and LTHash, key sharing, 96 sync actions |
 | [WA Noise Transport](./WA_NOISE_TRANSPORT.md) | 2.26.41.6 | chatd over TCP, Noise XX handshake, ClientPayload, binary node encoding, reconnect, Tigon |
 | [WA Call Signaling](./WA_CALL_SIGNALING.md) | 2.26.41.6 | call stanzas, offer and call key, rekey, relay and media path, group calls, links, call log |
+| [WA Media Upload](./WA_MEDIA_UPLOAD.md) | 2.26.41.6 | media_conn, upload/download URLs, HKDF media keys, AES-CBC + HMAC, resume/retry, result codes, native hardening |
+| [WA USync](./WA_USYNC.md) | 2.26.41.6 | usync, contact and device sync, 4 modes, 10 contexts, 30 sync types, LID mapping |
+| [WA Group History](./WA_GROUP_HISTORY.md) | 2.26.41.6 | sending recent group history to new members, history sync of companion devices, addressing modes |
+| [WA Broadcast Lists](./WA_BROADCAST_LISTS.md) | 2.26.41.6 | w:b list IQs, fan-out, monthly quota, spam-warning bans, status@broadcast |
 
 ## Scope
 
