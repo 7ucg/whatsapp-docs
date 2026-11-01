@@ -10,6 +10,7 @@ All findings are based on static analysis of WhatsApp Android APK (JADX decompil
 - Website: https://docs.baron0.com
 - GitHub: https://github.com/7ucg
 - Repository: https://github.com/7ucg/whatsapp-docs
+- velowa: https://github.com/7ucg/velowa — WhatsApp Web multi-device library (TypeScript + Rust/WASM), the active client project behind these docs
 - Discord: https://discord.gg/R77JyK2Fu6
 - Telegram: https://t.me/wegschleifen
 - [Changelog](./CHANGELOG.md)

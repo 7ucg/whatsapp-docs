@@ -3,3 +3,4 @@
 site
 .mkdocs.build.yml
 .playwright-mcp
+/graphify-out
