@@ -1,4 +1,4 @@
-<!-- src-sha1: cd24eaf0cf9b7c406379dfa7602c00426ceab523 -->
+<!-- src-sha1: 797f64cf00ffcc1fd4c4e67d98a9999012c5b9cb -->
 ---
 hide:
   - navigation
@@ -224,6 +224,38 @@ hide:
     ---
 
     Mod/kurcalama tespit yüzeyi, genel ACRA mod sondası, WaEnhancer saldırı yüzeyi.
+
+    `APK 2.26.41.6`
+
+-   :material-bullhorn-variant-outline: **[Kanallar ve bültenler](WA_CHANNELS_NEWSLETTERS.md)**
+
+    ---
+
+    Kanal JID'i/takip akışı, yönetici davetleri, newsletter mesaj türleri, xmlns=newsletter IQ protokolü.
+
+    `APK 2.26.41.6`
+
+-   :material-poll: **[Anketler](WA_POLLS.md)**
+
+    ---
+
+    Anket mesajı sürüm geçmişi (v2-v6), oy gizliliği modeli, sonuç anlık görüntüleri, seçenek hashleme.
+
+    `APK 2.26.41.6`
+
+-   :material-sticker-emoji: **[Çıkartmalar](WA_STICKERS.md)**
+
+    ---
+
+    Sticker/lottie/pack mesaj türleri, üçüncü taraf paket intent ve content provider sözleşmesi.
+
+    `APK 2.26.41.6`
+
+-   :material-calendar-star: **[Etkinlikler](WA_EVENTS.md)**
+
+    ---
+
+    Takvim tarzı etkinlikler, şifreli RSVP yanıtları, yaşam döngüsü, görünürlük modeli.
 
     `APK 2.26.41.6`
 

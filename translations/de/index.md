@@ -1,4 +1,4 @@
-<!-- src-sha1: cd24eaf0cf9b7c406379dfa7602c00426ceab523 -->
+<!-- src-sha1: 797f64cf00ffcc1fd4c4e67d98a9999012c5b9cb -->
 ---
 hide:
   - navigation
@@ -224,6 +224,38 @@ Reverse-engineerte Dokumentation der **WhatsApp-Android**-Interna. Statische Ana
     ---
 
     Mod-/Tamper-Erkennungsfläche, generische ACRA-Mod-Sonde, WaEnhancer-Angriffsfläche.
+
+    `APK 2.26.41.6`
+
+-   :material-bullhorn-variant-outline: **[Channels & Newsletter](WA_CHANNELS_NEWSLETTERS.md)**
+
+    ---
+
+    Channel-JID/Follow-Flow, Admin-Einladungen, Newsletter-Nachrichtentypen, das xmlns=newsletter-IQ-Protokoll.
+
+    `APK 2.26.41.6`
+
+-   :material-poll: **[Umfragen](WA_POLLS.md)**
+
+    ---
+
+    Versionshistorie der Umfrage-Nachrichten (v2-v6), Abstimmungs-Privacy-Modell, Ergebnis-Snapshots, Options-Hashing.
+
+    `APK 2.26.41.6`
+
+-   :material-sticker-emoji: **[Sticker](WA_STICKERS.md)**
+
+    ---
+
+    Sticker-/Lottie-/Paket-Nachrichtentypen, Intent- und Content-Provider-Vertrag für Drittanbieter-Pakete.
+
+    `APK 2.26.41.6`
+
+-   :material-calendar-star: **[Events](WA_EVENTS.md)**
+
+    ---
+
+    Kalender-artige Events, verschlüsselte RSVP-Antworten, Lebenszyklus, Sichtbarkeitsmodell.
 
     `APK 2.26.41.6`
 

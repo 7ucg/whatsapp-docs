@@ -76,6 +76,10 @@ plugins:
             Managed Account: "Verwaltetes Konto"
             View-Once: "View-Once"
             Client Mod Detection: "Client-Mod-Erkennung"
+            Channels & Newsletters: "Channels & Newsletter"
+            Polls: "Umfragen"
+            Stickers: "Sticker"
+            Events: "Events"
             USync: "USync"
         - locale: es
           name: Español
@@ -110,6 +114,10 @@ plugins:
             Managed Account: "Cuenta gestionada"
             View-Once: "Ver una vez"
             Client Mod Detection: "Detección de mods de cliente"
+            Channels & Newsletters: "Canales y boletines"
+            Polls: "Encuestas"
+            Stickers: "Stickers"
+            Events: "Eventos"
             USync: "USync"
         - locale: pt-BR
           name: Português (BR)
@@ -144,6 +152,10 @@ plugins:
             Managed Account: "Conta gerenciada"
             View-Once: "Ver uma vez"
             Client Mod Detection: "Detecção de mods do cliente"
+            Channels & Newsletters: "Canais e newsletters"
+            Polls: "Enquetes"
+            Stickers: "Figurinhas"
+            Events: "Eventos"
             USync: "USync"
         - locale: ru
           name: Русский
@@ -178,6 +190,10 @@ plugins:
             Managed Account: "Управляемый аккаунт"
             View-Once: "Просмотр один раз"
             Client Mod Detection: "Обнаружение модов клиента"
+            Channels & Newsletters: "Каналы и рассылки"
+            Polls: "Опросы"
+            Stickers: "Стикеры"
+            Events: "События"
             USync: "USync"
         - locale: ar
           name: العربية
@@ -212,6 +228,10 @@ plugins:
             Managed Account: "الحساب المُدار"
             View-Once: "المشاهدة لمرة واحدة"
             Client Mod Detection: "كشف تعديلات العميل"
+            Channels & Newsletters: "القنوات والنشرات"
+            Polls: "استطلاعات الرأي"
+            Stickers: "الملصقات"
+            Events: "الفعاليات"
             USync: "USync"
         - locale: tr
           name: Türkçe
@@ -246,6 +266,10 @@ plugins:
             Managed Account: "Yönetilen hesap"
             View-Once: "Tek seferlik görüntüleme"
             Client Mod Detection: "İstemci mod tespiti"
+            Channels & Newsletters: "Kanallar ve bültenler"
+            Polls: "Anketler"
+            Stickers: "Çıkartmalar"
+            Events: "Etkinlikler"
             USync: "USync"
 markdown_extensions:
   - tables
@@ -312,4 +336,8 @@ nav:
     - Managed Account: WA_MANAGED_ACCOUNT.md
     - View-Once: WA_VIEW_ONCE.md
     - Client Mod Detection: WA_CLIENT_MOD_DETECTION.md
+    - Channels & Newsletters: WA_CHANNELS_NEWSLETTERS.md
+    - Polls: WA_POLLS.md
+    - Stickers: WA_STICKERS.md
+    - Events: WA_EVENTS.md
     - USync: WA_USYNC.md

@@ -1,4 +1,4 @@
-<!-- src-sha1: cd24eaf0cf9b7c406379dfa7602c00426ceab523 -->
+<!-- src-sha1: 797f64cf00ffcc1fd4c4e67d98a9999012c5b9cb -->
 ---
 hide:
   - navigation
@@ -224,6 +224,38 @@ hide:
     ---
 
     Поверхность обнаружения модов/подделки, общий зонд ACRA, поверхность атаки WaEnhancer.
+
+    `APK 2.26.41.6`
+
+-   :material-bullhorn-variant-outline: **[Каналы и рассылки](WA_CHANNELS_NEWSLETTERS.md)**
+
+    ---
+
+    JID канала/подписка, приглашения админов, типы сообщений newsletter, протокол IQ xmlns=newsletter.
+
+    `APK 2.26.41.6`
+
+-   :material-poll: **[Опросы](WA_POLLS.md)**
+
+    ---
+
+    История версий сообщений опроса (v2-v6), модель приватности голосования, снапшоты результатов, хеширование вариантов.
+
+    `APK 2.26.41.6`
+
+-   :material-sticker-emoji: **[Стикеры](WA_STICKERS.md)**
+
+    ---
+
+    Типы сообщений sticker/lottie/pack, контракт intent и content provider для сторонних паков.
+
+    `APK 2.26.41.6`
+
+-   :material-calendar-star: **[События](WA_EVENTS.md)**
+
+    ---
+
+    События в стиле календаря, зашифрованные ответы RSVP, жизненный цикл, модель видимости.
 
     `APK 2.26.41.6`
 

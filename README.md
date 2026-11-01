@@ -50,6 +50,10 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA Managed Account](./WA_MANAGED_ACCOUNT.md) | 2.26.41.6 | parental supervision (sponsor/dependent), distinct from BSP/Cloud-API business delegation |
 | [WA View-Once](./WA_VIEW_ONCE.md) | 2.26.41.6 | proto marking, FLAG_SECURE enforcement, local deletion job, the unavailable error case |
 | [WA Client Mod Detection](./WA_CLIENT_MOD_DETECTION.md) | 2.26.41.6 | mod/tamper detection surface, the generic ACRA mod probe, WaEnhancer attack surface |
+| [WA Channels & Newsletters](./WA_CHANNELS_NEWSLETTERS.md) | 2.26.41.6 | channel JID/follow flow, admin invites, newsletter message types, the xmlns=newsletter IQ protocol |
+| [WA Polls](./WA_POLLS.md) | 2.26.41.6 | poll message version history (v2-v6), vote privacy model, result snapshots, option hashing |
+| [WA Stickers](./WA_STICKERS.md) | 2.26.41.6 | sticker/lottie/pack message types, third-party pack intent & content-provider contract |
+| [WA Events](./WA_EVENTS.md) | 2.26.41.6 | calendar-style events, encrypted RSVP responses, lifecycle, visibility model |
 
 ## Scope
 

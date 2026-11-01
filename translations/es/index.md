@@ -1,4 +1,4 @@
-<!-- src-sha1: cd24eaf0cf9b7c406379dfa7602c00426ceab523 -->
+<!-- src-sha1: 797f64cf00ffcc1fd4c4e67d98a9999012c5b9cb -->
 ---
 hide:
   - navigation
@@ -224,6 +224,38 @@ Documentación de ingeniería inversa de los componentes internos de **WhatsApp 
     ---
 
     Superficie de detección de mods/manipulación, sonda ACRA genérica, superficie de ataque de WaEnhancer.
+
+    `APK 2.26.41.6`
+
+-   :material-bullhorn-variant-outline: **[Canales y boletines](WA_CHANNELS_NEWSLETTERS.md)**
+
+    ---
+
+    JID de canal/flujo de seguimiento, invitaciones de admin, tipos de mensaje newsletter, protocolo IQ xmlns=newsletter.
+
+    `APK 2.26.41.6`
+
+-   :material-poll: **[Encuestas](WA_POLLS.md)**
+
+    ---
+
+    Historial de versiones de mensajes de encuesta (v2-v6), modelo de privacidad del voto, snapshots de resultados, hashing de opciones.
+
+    `APK 2.26.41.6`
+
+-   :material-sticker-emoji: **[Stickers](WA_STICKERS.md)**
+
+    ---
+
+    Tipos de mensaje sticker/lottie/pack, contrato de intent y content provider para paquetes de terceros.
+
+    `APK 2.26.41.6`
+
+-   :material-calendar-star: **[Eventos](WA_EVENTS.md)**
+
+    ---
+
+    Eventos tipo calendario, respuestas RSVP cifradas, ciclo de vida, modelo de visibilidad.
 
     `APK 2.26.41.6`
 

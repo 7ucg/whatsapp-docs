@@ -1,4 +1,4 @@
-<!-- src-sha1: cd24eaf0cf9b7c406379dfa7602c00426ceab523 -->
+<!-- src-sha1: 797f64cf00ffcc1fd4c4e67d98a9999012c5b9cb -->
 ---
 hide:
   - navigation
@@ -224,6 +224,38 @@ hide:
     ---
 
     سطح كشف التعديلات/العبث، فحص ACRA العام، سطح هجوم WaEnhancer.
+
+    `APK 2.26.41.6`
+
+-   :material-bullhorn-variant-outline: **[القنوات والنشرات](WA_CHANNELS_NEWSLETTERS.md)**
+
+    ---
+
+    JID القناة/تدفق المتابعة، دعوات المشرفين، أنواع رسائل newsletter، بروتوكول IQ الخاص بـ xmlns=newsletter.
+
+    `APK 2.26.41.6`
+
+-   :material-poll: **[استطلاعات الرأي](WA_POLLS.md)**
+
+    ---
+
+    تاريخ إصدارات رسائل الاستطلاع (v2-v6)، نموذج خصوصية التصويت، لقطات النتائج، تجزئة الخيارات.
+
+    `APK 2.26.41.6`
+
+-   :material-sticker-emoji: **[الملصقات](WA_STICKERS.md)**
+
+    ---
+
+    أنواع رسائل sticker/lottie/pack، عقد intent ومزوّد المحتوى لحزم الطرف الثالث.
+
+    `APK 2.26.41.6`
+
+-   :material-calendar-star: **[الفعاليات](WA_EVENTS.md)**
+
+    ---
+
+    فعاليات على طراز التقويم، ردود RSVP مشفّرة، دورة الحياة، نموذج الظهور.
 
     `APK 2.26.41.6`
 

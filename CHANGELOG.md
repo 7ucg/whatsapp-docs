@@ -3,6 +3,11 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- New reports (APK 2.26.41.6): `WA_CHANNELS_NEWSLETTERS.md`, `WA_POLLS.md`, `WA_STICKERS.md`, `WA_EVENTS.md`.
+  - Channels & Newsletters: found the full `xmlns="newsletter"` IQ surface (not previously documented); the admin-invite also goes out as a real per-recipient E2E message alongside the MEX grant; channels are NON_E2EE at transport.
+  - Polls: `pollCreationMessageV4` is a genuine FutureProofMessage fallback, not a copy artifact; "hide voter names" is UI-only, the creator always resolves the voter cryptographically; option selection is by SHA-256(option text).
+  - Stickers: undocumented `StickerMessage` field 26 `audioMessage` plus a new top-level field 134 `audioStickerMessage`; full third-party sticker-pack intent/content-provider contract recovered.
+  - Events: exact `EventResponseMessage` field order and RSVP enum confirmed by direct class read; event metadata and RSVP answers are server-visible, not purely E2E; location gated behind RSVP.
 - New reports (APK 2.26.41.6): `WA_PAYMENTS.md`, `WA_MANAGED_ACCOUNT.md`, `WA_VIEW_ONCE.md`, `WA_CLIENT_MOD_DETECTION.md`.
   - Payments: decline/cancel messages carry only a MessageKey, no reason code; `payeeVpa` is a literal wire field; the NPCI "CL" credential layer now has confirmed class names (`CLRemoteService`, `CLRemoteServiceImpl`).
   - Managed Account: "Managed account" in-client is parental supervision (sponsor/dependent), not BSP/Cloud-API business delegation, which has no such label and is covered by linking to the pairing and account-security reports.

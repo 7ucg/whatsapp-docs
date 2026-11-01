@@ -226,6 +226,38 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
     `APK 2.26.41.6`
 
+-   :material-bullhorn-variant-outline: **[Channels & Newsletters](WA_CHANNELS_NEWSLETTERS.md)**
+
+    ---
+
+    Channel JID/follow flow, admin invites, newsletter message types, the xmlns=newsletter IQ protocol.
+
+    `APK 2.26.41.6`
+
+-   :material-poll: **[Polls](WA_POLLS.md)**
+
+    ---
+
+    Poll message version history (v2-v6), vote privacy model, result snapshots, option hashing.
+
+    `APK 2.26.41.6`
+
+-   :material-sticker-emoji: **[Stickers](WA_STICKERS.md)**
+
+    ---
+
+    Sticker/lottie/pack message types, third-party pack intent & content-provider contract.
+
+    `APK 2.26.41.6`
+
+-   :material-calendar-star: **[Events](WA_EVENTS.md)**
+
+    ---
+
+    Calendar-style events, encrypted RSVP responses, lifecycle, visibility model.
+
+    `APK 2.26.41.6`
+
 </div>
 
 !!! info "Coming soon"
