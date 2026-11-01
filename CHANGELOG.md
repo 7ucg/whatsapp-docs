@@ -3,6 +3,11 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- New reports (APK 2.26.41.6): `WA_PAYMENTS.md`, `WA_MANAGED_ACCOUNT.md`, `WA_VIEW_ONCE.md`, `WA_CLIENT_MOD_DETECTION.md`.
+  - Payments: decline/cancel messages carry only a MessageKey, no reason code; `payeeVpa` is a literal wire field; the NPCI "CL" credential layer now has confirmed class names (`CLRemoteService`, `CLRemoteServiceImpl`).
+  - Managed Account: "Managed account" in-client is parental supervision (sponsor/dependent), not BSP/Cloud-API business delegation, which has no such label and is covered by linking to the pairing and account-security reports.
+  - View-Once: screenshot/recording block is the raw `FLAG_SECURE` value (8192); local deletion runs as a real SQL job; the `view_once="true"` producer is corrected versus earlier research.
+  - Client Mod Detection: no WaEnhancer/GB/Xposed-specific detection found; the only mod signal is a generic ACRA-class probe, telemetry only.
 - Meta AI: new section "Bot Signature Verification" in `WA_META_AI.md` — live-tested (not static-only) finding. The EdDSA + X.509 signature on `richResponseMessage` (chain roots to Meta's own CA, private key never leaves Meta's backend) binds to *(content, phone number)*, not to live sender identity. A captured, genuine proof replayed from a non-bot sender to the matching number still renders as verified AI content (at most a one-tap "unknown sender" consent gate, not a hard block).
 - New reports (APK 2.26.41.6): `WA_INTEROP.md`, `WA_CENSORSHIP_CIRCUMVENTION.md`, `WA_SERVER_DRIVEN_UI.md`, `WA_ACCOUNT_LESS_SURFACE.md`.
   - Interop: the code is complete but gated off (root flag 7495 defaults false); plaintext is a 9-field `InteropMessage`; interop JIDs use binary tag 244; batch lookup max is 20.

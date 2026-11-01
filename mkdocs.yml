@@ -72,6 +72,10 @@ plugins:
             Censorship Circumvention: "Zensurumgehung"
             Server-Driven UI: "Server-gesteuerte UI"
             Account-less Surface: "Oberfläche ohne Konto"
+            Payments: "Zahlungen"
+            Managed Account: "Verwaltetes Konto"
+            View-Once: "View-Once"
+            Client Mod Detection: "Client-Mod-Erkennung"
             USync: "USync"
         - locale: es
           name: Español
@@ -102,6 +106,10 @@ plugins:
             Censorship Circumvention: "Elusión de la censura"
             Server-Driven UI: "UI dirigida por servidor"
             Account-less Surface: "Superficie sin cuenta"
+            Payments: "Pagos"
+            Managed Account: "Cuenta gestionada"
+            View-Once: "Ver una vez"
+            Client Mod Detection: "Detección de mods de cliente"
             USync: "USync"
         - locale: pt-BR
           name: Português (BR)
@@ -132,6 +140,10 @@ plugins:
             Censorship Circumvention: "Contorno de censura"
             Server-Driven UI: "UI dirigida pelo servidor"
             Account-less Surface: "Superfície sem conta"
+            Payments: "Pagamentos"
+            Managed Account: "Conta gerenciada"
+            View-Once: "Ver uma vez"
+            Client Mod Detection: "Detecção de mods do cliente"
             USync: "USync"
         - locale: ru
           name: Русский
@@ -162,6 +174,10 @@ plugins:
             Censorship Circumvention: "Обход блокировок"
             Server-Driven UI: "Серверный UI"
             Account-less Surface: "Поверхность без аккаунта"
+            Payments: "Платежи"
+            Managed Account: "Управляемый аккаунт"
+            View-Once: "Просмотр один раз"
+            Client Mod Detection: "Обнаружение модов клиента"
             USync: "USync"
         - locale: ar
           name: العربية
@@ -192,6 +208,10 @@ plugins:
             Censorship Circumvention: "تجاوز الحجب"
             Server-Driven UI: "واجهة يقودها الخادم"
             Account-less Surface: "السطح بدون حساب"
+            Payments: "المدفوعات"
+            Managed Account: "الحساب المُدار"
+            View-Once: "المشاهدة لمرة واحدة"
+            Client Mod Detection: "كشف تعديلات العميل"
             USync: "USync"
         - locale: tr
           name: Türkçe
@@ -222,6 +242,10 @@ plugins:
             Censorship Circumvention: "Sansür aşma"
             Server-Driven UI: "Sunucu tarafından yönetilen arayüz"
             Account-less Surface: "Hesapsız yüzey"
+            Payments: "Ödemeler"
+            Managed Account: "Yönetilen hesap"
+            View-Once: "Tek seferlik görüntüleme"
+            Client Mod Detection: "İstemci mod tespiti"
             USync: "USync"
 markdown_extensions:
   - tables
@@ -284,4 +308,8 @@ nav:
     - Censorship Circumvention: WA_CENSORSHIP_CIRCUMVENTION.md
     - Server-Driven UI: WA_SERVER_DRIVEN_UI.md
     - Account-less Surface: WA_ACCOUNT_LESS_SURFACE.md
+    - Payments: WA_PAYMENTS.md
+    - Managed Account: WA_MANAGED_ACCOUNT.md
+    - View-Once: WA_VIEW_ONCE.md
+    - Client Mod Detection: WA_CLIENT_MOD_DETECTION.md
     - USync: WA_USYNC.md

@@ -46,6 +46,10 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA Censorship Circumvention](./WA_CENSORSHIP_CIRCUMVENTION.md) | 2.26.41.6 | WhatsApp Proxy, Psiphon SOCKS tunnel, unblocking push, registration relay, what is absent |
 | [WA Server-Driven UI](./WA_SERVER_DRIVEN_UI.md) | 2.26.41.6 | Phoenix, Bloks, native flows and WhatsApp Flows, payload formats, actions, security |
 | [WA Account-less Surface](./WA_ACCOUNT_LESS_SURFACE.md) | 2.26.41.6 | pre-registration screens, deep links, hosts, identifiers, 97 exported components |
+| [WA Payments](./WA_PAYMENTS.md) | 2.26.41.6 | payment message types, India UPI/NPCI CL credential layer, GraphQL doc_ids, decline/error handling |
+| [WA Managed Account](./WA_MANAGED_ACCOUNT.md) | 2.26.41.6 | parental supervision (sponsor/dependent), distinct from BSP/Cloud-API business delegation |
+| [WA View-Once](./WA_VIEW_ONCE.md) | 2.26.41.6 | proto marking, FLAG_SECURE enforcement, local deletion job, the unavailable error case |
+| [WA Client Mod Detection](./WA_CLIENT_MOD_DETECTION.md) | 2.26.41.6 | mod/tamper detection surface, the generic ACRA mod probe, WaEnhancer attack surface |
 
 ## Scope
 

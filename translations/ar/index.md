@@ -1,4 +1,4 @@
-<!-- src-sha1: ffe79aa6008d1b51438dc15baaafb2d52ecd4eec -->
+<!-- src-sha1: cd24eaf0cf9b7c406379dfa7602c00426ceab523 -->
 ---
 hide:
   - navigation
@@ -192,6 +192,38 @@ hide:
     ---
 
     شاشات ما قبل التسجيل، الروابط العميقة، المضيفات، المعرّفات، 97 مكوّنًا مصدّرًا.
+
+    `APK 2.26.41.6`
+
+-   :material-credit-card-outline: **[المدفوعات](WA_PAYMENTS.md)**
+
+    ---
+
+    أنواع رسائل الدفع، طبقة بيانات اعتماد UPI/NPCI CL (الهند)، معرّفات GraphQL، الرفض والأخطاء.
+
+    `APK 2.26.41.6`
+
+-   :material-account-child-outline: **[الحساب المُدار](WA_MANAGED_ACCOUNT.md)**
+
+    ---
+
+    الإشراف الأبوي (sponsor/dependent)، ويختلف عن تفويض الأعمال عبر BSP/Cloud-API.
+
+    `APK 2.26.41.6`
+
+-   :material-eye-off-outline: **[المشاهدة لمرة واحدة](WA_VIEW_ONCE.md)**
+
+    ---
+
+    وسم Proto، تطبيق FLAG_SECURE، مهمة الحذف المحلية، حالة الخطأ unavailable.
+
+    `APK 2.26.41.6`
+
+-   :material-shield-bug-outline: **[كشف تعديلات العميل](WA_CLIENT_MOD_DETECTION.md)**
+
+    ---
+
+    سطح كشف التعديلات/العبث، فحص ACRA العام، سطح هجوم WaEnhancer.
 
     `APK 2.26.41.6`
 

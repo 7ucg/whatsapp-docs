@@ -1,4 +1,4 @@
-<!-- src-sha1: ffe79aa6008d1b51438dc15baaafb2d52ecd4eec -->
+<!-- src-sha1: cd24eaf0cf9b7c406379dfa7602c00426ceab523 -->
 ---
 hide:
   - navigation
@@ -192,6 +192,38 @@ Documentação por engenharia reversa dos componentes internos do **WhatsApp And
     ---
 
     Telas pré-registro, deep links, hosts, identificadores, 97 componentes exportados.
+
+    `APK 2.26.41.6`
+
+-   :material-credit-card-outline: **[Pagamentos](WA_PAYMENTS.md)**
+
+    ---
+
+    Tipos de mensagens de pagamento, camada de credenciais UPI/NPCI CL (Índia), doc_ids GraphQL, recusas/erros.
+
+    `APK 2.26.41.6`
+
+-   :material-account-child-outline: **[Conta gerenciada](WA_MANAGED_ACCOUNT.md)**
+
+    ---
+
+    Supervisão parental (sponsor/dependente), distinta da delegação de negócio BSP/Cloud-API.
+
+    `APK 2.26.41.6`
+
+-   :material-eye-off-outline: **[Ver uma vez](WA_VIEW_ONCE.md)**
+
+    ---
+
+    Marcação no proto, aplicação do FLAG_SECURE, job de exclusão local, o caso de erro unavailable.
+
+    `APK 2.26.41.6`
+
+-   :material-shield-bug-outline: **[Detecção de mods do cliente](WA_CLIENT_MOD_DETECTION.md)**
+
+    ---
+
+    Superfície de detecção de mods/adulteração, sonda ACRA genérica, superfície de ataque do WaEnhancer.
 
     `APK 2.26.41.6`
 

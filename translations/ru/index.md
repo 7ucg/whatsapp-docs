@@ -1,4 +1,4 @@
-<!-- src-sha1: ffe79aa6008d1b51438dc15baaafb2d52ecd4eec -->
+<!-- src-sha1: cd24eaf0cf9b7c406379dfa7602c00426ceab523 -->
 ---
 hide:
   - navigation
@@ -192,6 +192,38 @@ hide:
     ---
 
     Экраны до регистрации, deep links, хосты, идентификаторы, 97 экспортируемых компонентов.
+
+    `APK 2.26.41.6`
+
+-   :material-credit-card-outline: **[Платежи](WA_PAYMENTS.md)**
+
+    ---
+
+    Типы платёжных сообщений, слой credentials UPI/NPCI CL (Индия), GraphQL doc_ids, отказы и ошибки.
+
+    `APK 2.26.41.6`
+
+-   :material-account-child-outline: **[Управляемый аккаунт](WA_MANAGED_ACCOUNT.md)**
+
+    ---
+
+    Родительский надзор (sponsor/dependent), отдельно от бизнес-делегирования BSP/Cloud-API.
+
+    `APK 2.26.41.6`
+
+-   :material-eye-off-outline: **[Просмотр один раз](WA_VIEW_ONCE.md)**
+
+    ---
+
+    Маркировка в proto, применение FLAG_SECURE, локальная задача удаления, случай ошибки unavailable.
+
+    `APK 2.26.41.6`
+
+-   :material-shield-bug-outline: **[Обнаружение модов клиента](WA_CLIENT_MOD_DETECTION.md)**
+
+    ---
+
+    Поверхность обнаружения модов/подделки, общий зонд ACRA, поверхность атаки WaEnhancer.
 
     `APK 2.26.41.6`
 

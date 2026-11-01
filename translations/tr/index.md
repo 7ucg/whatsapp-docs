@@ -1,4 +1,4 @@
-<!-- src-sha1: ffe79aa6008d1b51438dc15baaafb2d52ecd4eec -->
+<!-- src-sha1: cd24eaf0cf9b7c406379dfa7602c00426ceab523 -->
 ---
 hide:
   - navigation
@@ -192,6 +192,38 @@ hide:
     ---
 
     Kayıt öncesi ekranlar, deep link'ler, host'lar, tanımlayıcılar, 97 dışa açık bileşen.
+
+    `APK 2.26.41.6`
+
+-   :material-credit-card-outline: **[Ödemeler](WA_PAYMENTS.md)**
+
+    ---
+
+    Ödeme mesajı türleri, UPI/NPCI CL kimlik bilgisi katmanı (Hindistan), GraphQL doc_id'leri, ret/hata işleme.
+
+    `APK 2.26.41.6`
+
+-   :material-account-child-outline: **[Yönetilen hesap](WA_MANAGED_ACCOUNT.md)**
+
+    ---
+
+    Ebeveyn denetimi (sponsor/dependent), BSP/Cloud-API iş devrinden farklıdır.
+
+    `APK 2.26.41.6`
+
+-   :material-eye-off-outline: **[Tek seferlik görüntüleme](WA_VIEW_ONCE.md)**
+
+    ---
+
+    Proto işaretleme, FLAG_SECURE uygulaması, yerel silme işi, unavailable hata durumu.
+
+    `APK 2.26.41.6`
+
+-   :material-shield-bug-outline: **[İstemci mod tespiti](WA_CLIENT_MOD_DETECTION.md)**
+
+    ---
+
+    Mod/kurcalama tespit yüzeyi, genel ACRA mod sondası, WaEnhancer saldırı yüzeyi.
 
     `APK 2.26.41.6`
 

@@ -194,6 +194,38 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
     `APK 2.26.41.6`
 
+-   :material-credit-card-outline: **[Payments](WA_PAYMENTS.md)**
+
+    ---
+
+    Payment message types, India UPI/NPCI CL credential layer, GraphQL doc_ids, decline/error handling.
+
+    `APK 2.26.41.6`
+
+-   :material-account-child-outline: **[Managed Account](WA_MANAGED_ACCOUNT.md)**
+
+    ---
+
+    Parental supervision (sponsor/dependent), distinct from BSP/Cloud-API business delegation.
+
+    `APK 2.26.41.6`
+
+-   :material-eye-off-outline: **[View-Once](WA_VIEW_ONCE.md)**
+
+    ---
+
+    Proto marking, FLAG_SECURE enforcement, local deletion job, the unavailable error case.
+
+    `APK 2.26.41.6`
+
+-   :material-shield-bug-outline: **[Client Mod Detection](WA_CLIENT_MOD_DETECTION.md)**
+
+    ---
+
+    Mod/tamper detection surface, the generic ACRA mod probe, WaEnhancer attack surface.
+
+    `APK 2.26.41.6`
+
 </div>
 
 !!! info "Coming soon"
