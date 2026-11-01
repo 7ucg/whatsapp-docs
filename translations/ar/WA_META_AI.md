@@ -1,4 +1,4 @@
-<!-- src-sha1: 64389e16d6c478a5b57f43abf9ee01a01474f02f -->
+<!-- src-sha1: 4a0b884541f4221f33fe16d1a5659612eb6bac89 -->
 # WhatsApp Meta AI — Full RE Report
 **الإصدار:** 2.26.41.6 | **التاريخ:** 2026-10-17
 **النطاق:** البنية الداخلية لـ Meta AI — الـ JIDs، التوجيه، حقول proto، طلبات بيانات Hatch الوصفية، عرض الاستجابة، سبب فشل Baileys، الإصلاح
@@ -352,7 +352,46 @@ HF1.A01(jid, method, ..., params, viewMode, timeoutMs)
 
 ---
 
-## 9. إصلاح Baileys
+## 9. التحقق من توقيع البوت (موثوقية المحتوى)
+
+منفصلة عن كل ما سبق: آلية تتيح للعميل **المستقبل** التحقق من أن محتوى `richResponseMessage` أتى بالفعل من خلفية الذكاء الاصطناعي لدى Meta، بصرف النظر عمّن رحّل الرسالة. النتائج الساكنة أدناه `found` في شيفرة 2.26.41.6؛ ونتيجة إعادة التشغيل (replay) في 9.4 هي `tested` (حيّة، على حساب المؤلف الخاص — ليست اعتراض حركة بيانات، بل عميل شرعي يؤلف رسالته ويرحّلها بنفسه).
+
+### 9.1 موضع Proto
+
+`BotMetadata.verificationMetadata` — الحقل **27** (`messageContextInfo` (35) → `botMetadata` (7) → `verificationMetadata` (27))، النوع `DPC`/`BotSignatureVerificationMetadata` (يكشف toString الاسم الحقيقي): `proofs[]`، كل عنصر `BotSignatureVerificationUseCaseProof` بالحقول `version` (int)، `useCase` (enum `WA_BOT_MSG` / `WA_TEE_BOT_MSG`)، `signature` (bytes)، `certificateChain` (bytes متكررة، DER X.509).
+
+### 9.2 خوارزمية التحقق
+
+الفئة `C33259EeB`، الاسم الداخلي `BotSignatureVerificationUtils` (من سلاسل السجل):
+
+1. **التحقق من سلسلة الشهادات** لـ `certificateChain` مقابل مرساة ثقة (trust anchor)، عبر `HFg.A01(date, certs, true)`.
+2. **بناء البايتات الموقَّعة**: `"1" + <phone-number string> + <unifiedResponse bytes>` — يربط التوقيع **المحتوى ورقم الهاتف معًا**، لا المحتوى وحده.
+3. **تحقق EdDSA** (السجل: `"EdDSA signature verification result"`) باستخدام مفتاح Ed25519 الخام المستخرج من SubjectPublicKeyInfo لشهادة الطرف (leaf).
+4. **نمط التطبيق (enforcement)**، يُقرأ من الإعداد **19590**، enum `EnumC32057Dzg`: `NONE` (`"none"`، معطّل، ينجح دائمًا)، `LOG_ONLY` (`"log_only"`، يتحقق ويسجّل، لا يحجب أبدًا)، `ENFORCE_BLOCKING` (`"enforce_blocking"`، فشل الفحص يعيد `false`). تُخزَّن النتيجة كـ `E05`: `UNKNOWN` / `VALID` / `FAILED` / `DOWNLOAD_CONSENT_ACCEPTED`، وتُحفظ في عمود SQLite `bot_message_info.signature_validation_status` (الجدول يحوي أيضًا `bot_client_public_key`).
+
+### 9.3 بوابة عرض الصف
+
+`C30085D6v.A00` (موزّع نوع الصف) و`EOK`/`C32608EKo`: إذا كانت حالة التوقيع `FAILED` والعلم **27635** مفعّلًا ← صف مموَّه `ConversationRowAiUnknownSenderMasked` ("signature verification failed"). وبشكل مستقل، إذا لم يكن JID المرسل موجودًا في مخزن ملفات البوتات المُزامَن محليًا (`C224899mg`، نفس مزامنة `BotProfileSyncManagerImpl`) والعلم **27355** مفعّلًا ← `ConversationRowAiUnknownSenderPreview` ("unknown sender with unconsented content")، معاينة مشروطة بموافقة لا حجب صارم.
+
+### 9.4 تسجيل حقيقي وإعادة تشغيل حيّة (tested)
+
+رد حقيقي من Meta AI، مسجَّل من جهة العميل في محادثة فعلية (حساب خاص، فكّه تشفير عميل المؤلف نفسه — ليس اعتراض حركة بيانات)، حمل:
+
+- `botMetadata.verificationMetadata.proofs[0]`: `version: 1`، `useCase: "WA_BOT_MSG"`، `signature` بحجم 64 بايت (بحجم Ed25519)، `certificateChain` من إدخالين.
+- شهادة الطرف (leaf): `CN=svc:wa-bot-msg-leaf`، مفتاح Ed25519، صادرة عن `Meta WA SS Int CA 2025-09`، وتتسلسل إلى `Meta WA Feature Root CA` (`O=Meta Platforms Inc.`)، صلاحية ≈7 أشهر (شهادة خدمة تُدار تناوبها تلقائيًا) — المفتاح الخاص للتوقيع موجود فقط في خلفية Meta.
+- `botMetadata.botInfrastructureDiagnostics.botBackend: "CLIPPY"` — اسم خلفية بوت لم يُوثَّق سابقًا (انظر أيضًا "Hatch" في الأقسام 1–6).
+- `messageContextInfo.accountEncryptionAttestation.accountType: "NON_E2EE"`، حقل مجاور لـ `botMetadata`.
+- شكل التسليم: `protocolMessage` بـ `type: MESSAGE_EDIT`، و`editedMessage.richResponseMessage` (الرد الأول في الخيط يصل ملفوفًا مسبقًا كتعديل على عنصر نائب)، و`key.remoteJid` = JID المؤلف نفسه.
+
+**الاختبار:** رُحِّلت `richResponseMessage` + `messageContextInfo.botMetadata` بالضبط (التوقيع وسلسلة الشهادات دون تغيير بايت لبايت) عبر `relayMessage` من جهاز المؤلف نفسه — وليس JID البوت `867051314767696@bot` — إلى رقم المؤلف نفسه (الرقم نفسه المضمَّن أصلًا في البايتات الموقَّعة).
+
+**النتيجة:** ظهر المحتوى بتنسيق "AI" الكامل والنص الحقيقي، موسومًا بـ "Forwarded". بعض عمليات التسليم للحمولة نفسها أظهرت بدلًا من ذلك "WhatsApp can't verify the security of this media. Only download if you trust the sender." مع إجراء تنزيل؛ والنقر على التنزيل كشف المحتوى نفسه، بما يطابق حالة `DOWNLOAD_CONSENT_ACCEPTED` ومسار الشيفرة "unknown sender with unconsented content" في 9.3. وأظهرت عملية تسليم واحدة احتياطًا عامًا "your version of WhatsApp doesn't support it" بدلًا من ذلك؛ السبب غير مُثبَت (unknown).
+
+**الخلاصة (tested):** الفحص التشفيري في 9.2 يرتبط بـ *(المحتوى، رقم الهاتف)*، لا بهوية المرسل الحي أو JID الخاص به. يمكن إعادة تشغيل `richResponseMessage` موقَّعة بصلاحية من مرسل غير بوت وتظل تنجح في التحقق من التوقيع، ما دام رقم المستقبل يطابق الرقم المدمج في التوقيع — ويعرضه العميل المستقبل كمحتوى ذكاء اصطناعي حقيقي (على الأكثر مقيّد بخطوة موافقة شكلية بنقرة واحدة "unknown sender"، لا حجب صارم). هذه آلية موثوقية محتوى، لا آلية موثوقية مرسل؛ وتشفير طبقة Signal الخاص بواتساب نفسه، وليس هذا التوقيع، هو ما يوثّق هوية المرسل الحي.
+
+---
+
+## 10. إصلاح Baileys
 
 لا يُدَّعى وجود تنفيذ يعمل. ما يلي رسم هيكلي لمواضع الحقول بحسب 2.26.41.6، موسوم **inferred**؛ لم يُشغَّل ضد خادم.
 
@@ -406,7 +445,7 @@ const content = {
 
 ---
 
-## 10. التدفقات
+## 11. التدفقات
 
 ### 10.1 رسالة محادثة إلى البوت (found جهة العميل، inferred جهة الخادم)
 
@@ -441,7 +480,7 @@ Response: matched by requestId (inferred) → continuation resumes; timeout → 
 
 ---
 
-## 11. التغييرات مقابل 2.26.26.4
+## 12. التغييرات مقابل 2.26.26.4
 
 | Item | 2.26.26.4 | 2.26.41.6 |
 |------|-----------|-----------|
@@ -460,6 +499,7 @@ Response: matched by requestId (inferred) → continuation resumes; timeout → 
 | Action enum | enum قيم 1/2/3 | oneof 1/2/3 + `ACTION_NOT_SET` 0 |
 | Hatch JSON envelope | `method`, `params` في المستوى الأعلى | متداخلان تحت `payload`؛ ويضيف `accepts_encoding` |
 | Hatch carrier | رسالة عادية، الفئة `Azz` | `ProtocolMessage.aiMetadataOperation` (31) → `C25754B9o`؛ ويضيف `bizAiMetadataSync` (2) |
+| Bot signature verification | غير موثّق | جديد: `BotMetadata.verificationMetadata` (27)، EdDSA + سلسلة شهادات X.509 على (المحتوى، رقم الهاتف)؛ تم اختباره حيًا، يرتبط برقم الهاتف لا بالمرسل الحي (القسم 9) |
 | Pending maps | واحدة (`A02`) | اثنتان: `A04` continuations، `A03` callbacks الأجزاء `GuR` |
 | Streaming fields | جدول مقاطع واحد لـ Meta AI | `chunkOrder` (history sync)، `isLastChunk` (رسالة TEE)، `streamingSidecar` (وسائط)؛ `clientStreaming`/`serverStreaming` غير موجودة |
 | Profile sync interval | "every ~1 min" | الدقيقة هي WorkManager backoff، وليست فترة دورية |

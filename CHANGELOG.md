@@ -3,6 +3,7 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- Meta AI: new section "Bot Signature Verification" in `WA_META_AI.md` — live-tested (not static-only) finding. The EdDSA + X.509 signature on `richResponseMessage` (chain roots to Meta's own CA, private key never leaves Meta's backend) binds to *(content, phone number)*, not to live sender identity. A captured, genuine proof replayed from a non-bot sender to the matching number still renders as verified AI content (at most a one-tap "unknown sender" consent gate, not a hard block).
 - New reports (APK 2.26.41.6): `WA_INTEROP.md`, `WA_CENSORSHIP_CIRCUMVENTION.md`, `WA_SERVER_DRIVEN_UI.md`, `WA_ACCOUNT_LESS_SURFACE.md`.
   - Interop: the code is complete but gated off (root flag 7495 defaults false); plaintext is a 9-field `InteropMessage`; interop JIDs use binary tag 244; batch lookup max is 20.
   - Censorship Circumvention: a full user-facing WhatsApp Proxy, a Psiphon SOCKS tunnel driven by an unblocking push, and a registration relay; no WebSocket, HTTP or MQTT fallback for chatd in this build.

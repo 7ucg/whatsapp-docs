@@ -351,7 +351,46 @@ All rows are **inferred**: static comparison of the client's requirements with a
 
 ---
 
-## 9. Baileys Fix
+## 9. Bot Signature Verification (content authenticity)
+
+Separate from everything above: a mechanism that lets the **receiving** client verify that `richResponseMessage` content genuinely came from Meta's AI backend, independent of who relayed the message. Static findings below are `found` in 2.26.41.6 code; the replay result in 9.4 is `tested` (live, on the author's own account — not traffic interception, a legitimate client composing and relaying its own message).
+
+### 9.1 Proto location
+
+`BotMetadata.verificationMetadata` — field **27** (`messageContextInfo` (35) → `botMetadata` (7) → `verificationMetadata` (27)), type `DPC`/`BotSignatureVerificationMetadata` (toString reveals the real name): `proofs[]`, each a `BotSignatureVerificationUseCaseProof` with `version` (int), `useCase` (enum `WA_BOT_MSG` / `WA_TEE_BOT_MSG`), `signature` (bytes), `certificateChain` (repeated bytes, DER X.509).
+
+### 9.2 Verification algorithm
+
+Class `C33259EeB`, internal name `BotSignatureVerificationUtils` (from log strings):
+
+1. **Certificate-chain validation** of `certificateChain` against a trust anchor, via `HFg.A01(date, certs, true)`.
+2. **Signed-bytes construction**: `"1" + <phone-number string> + <unifiedResponse bytes>` — the signature binds **content and a phone number together**, not content alone.
+3. **EdDSA verify** (log: `"EdDSA signature verification result"`) using the raw Ed25519 key extracted from the leaf certificate's SubjectPublicKeyInfo.
+4. **Enforcement mode**, read from config **19590**, enum `EnumC32057Dzg`: `NONE` (`"none"`, disabled, always pass), `LOG_ONLY` (`"log_only"`, verify + log, never block), `ENFORCE_BLOCKING` (`"enforce_blocking"`, a failed check returns `false`). Result stored as `E05`: `UNKNOWN` / `VALID` / `FAILED` / `DOWNLOAD_CONSENT_ACCEPTED`, persisted in SQLite column `bot_message_info.signature_validation_status` (table also has `bot_client_public_key`).
+
+### 9.3 Row rendering gate
+
+`C30085D6v.A00` (row-type dispatcher) and `EOK`/`C32608EKo`: if signature status is `FAILED` and flag **27635** is on → masked row `ConversationRowAiUnknownSenderMasked` ("signature verification failed"). Independently, if the sender JID is not present in the locally-synced bot-profile store (`C224899mg`, the same sync as `BotProfileSyncManagerImpl`) and flag **27355** is on → `ConversationRowAiUnknownSenderPreview` ("unknown sender with unconsented content"), a consent-gated preview rather than a hard block.
+
+### 9.4 Real capture and live replay (tested)
+
+A genuine Meta AI reply, captured client-side in a real conversation (own account, decrypted by the author's own client — not traffic interception), carried:
+
+- `botMetadata.verificationMetadata.proofs[0]`: `version: 1`, `useCase: "WA_BOT_MSG"`, a 64-byte (Ed25519-sized) `signature`, a 2-entry `certificateChain`.
+- Leaf certificate: `CN=svc:wa-bot-msg-leaf`, Ed25519 key, issued by `Meta WA SS Int CA 2025-09`, chaining to `Meta WA Feature Root CA` (`O=Meta Platforms Inc.`), validity ≈7 months (auto-rotated service cert) — the signing private key exists only in Meta's backend.
+- `botMetadata.botInfrastructureDiagnostics.botBackend: "CLIPPY"` — a bot backend name not previously documented (see also "Hatch" in sections 1–6).
+- `messageContextInfo.accountEncryptionAttestation.accountType: "NON_E2EE"`, a sibling field of `botMetadata`.
+- Delivery shape: `protocolMessage` with `type: MESSAGE_EDIT`, `editedMessage.richResponseMessage` (the first reply in a thread arrives pre-wrapped as an edit of a placeholder), `key.remoteJid` = the author's own JID.
+
+**Test:** the exact `richResponseMessage` + `messageContextInfo.botMetadata` (signature and certificate chain byte-for-byte unchanged) was relayed via `relayMessage` from the author's own device — not the bot JID `867051314767696@bot` — to the author's own number (the same number already embedded in the signed bytes).
+
+**Result:** the content rendered with full "AI" styling and the real text, labeled "Forwarded". Some deliveries of the identical payload instead showed "WhatsApp can't verify the security of this media. Only download if you trust the sender." with a Download action; tapping Download revealed the identical content, matching the `DOWNLOAD_CONSENT_ACCEPTED` status and the "unknown sender with unconsented content" code path in 9.3. One delivery showed a generic "your version of WhatsApp doesn't support it" fallback instead; cause not established (unknown).
+
+**Conclusion (tested):** the cryptographic check in 9.2 binds to *(content, phone number)*, not to the live sender's identity or JID. A validly-signed `richResponseMessage` can be replayed from a non-bot sender and still pass signature verification, as long as the recipient's number matches the number baked into the signature — the receiving client renders it as genuine AI content (at most gated by a one-tap, cosmetic "unknown sender" consent step, not a hard block). This is a content-authenticity mechanism, not a sender-authenticity one; WhatsApp's own Signal-layer encryption, not this signature, is what authenticates the live sender.
+
+---
+
+## 10. Baileys Fix
 
 No working implementation is claimed. What follows is a structural sketch of where fields live per 2.26.41.6, marked **inferred**; it has not been run against a server.
 
@@ -405,7 +444,7 @@ const content = {
 
 ---
 
-## 10. Flows
+## 11. Flows
 
 ### 10.1 Chat message to the bot (found client side, inferred server side)
 
@@ -440,7 +479,7 @@ Response: matched by requestId (inferred) → continuation resumes; timeout → 
 
 ---
 
-## 11. Changes vs 2.26.26.4
+## 12. Changes vs 2.26.26.4
 
 | Item | 2.26.26.4 | 2.26.41.6 |
 |------|-----------|-----------|
@@ -459,6 +498,7 @@ Response: matched by requestId (inferred) → continuation resumes; timeout → 
 | Action enum | Value enum 1/2/3 | oneof 1/2/3 + `ACTION_NOT_SET` 0 |
 | Hatch JSON envelope | `method`, `params` top-level | Nested under `payload`; adds `accepts_encoding` |
 | Hatch carrier | Standard message, class `Azz` | `ProtocolMessage.aiMetadataOperation` (31) → `C25754B9o`; adds `bizAiMetadataSync` (2) |
+| Bot signature verification | not documented | New: `BotMetadata.verificationMetadata` (27), EdDSA + X.509 cert chain over (content, phone number); tested live, binds to phone number not live sender (section 9) |
 | Pending maps | One (`A02`) | Two: `A04` continuations, `A03` `GuR` part callbacks |
 | Streaming fields | One Meta AI chunk table | `chunkOrder` (history sync), `isLastChunk` (TEE message), `streamingSidecar` (media); `clientStreaming`/`serverStreaming` not found |
 | Profile sync interval | "every ~1 min" | 1 min is WorkManager backoff, not a period |
