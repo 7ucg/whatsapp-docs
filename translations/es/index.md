@@ -1,4 +1,4 @@
-<!-- src-sha1: 797f64cf00ffcc1fd4c4e67d98a9999012c5b9cb -->
+<!-- src-sha1: 0094087e762aaaacf3afdb1e20a7cc458c89eb52 -->
 ---
 hide:
   - navigation
@@ -256,6 +256,14 @@ Documentación de ingeniería inversa de los componentes internos de **WhatsApp 
     ---
 
     Eventos tipo calendario, respuestas RSVP cifradas, ciclo de vida, modelo de visibilidad.
+
+    `APK 2.26.41.6`
+
+-   :material-link-variant: **[Enlaces de llamada](WA_CALL_LINKS.md)**
+
+    ---
+
+    Enlaces de llamada para invitados, handshake link_query/link_join, sala de espera, asignación de JID de invitado, entrega de relay/clave.
 
     `APK 2.26.41.6`
 

@@ -1,4 +1,4 @@
-<!-- src-sha1: 797f64cf00ffcc1fd4c4e67d98a9999012c5b9cb -->
+<!-- src-sha1: 0094087e762aaaacf3afdb1e20a7cc458c89eb52 -->
 ---
 hide:
   - navigation
@@ -256,6 +256,14 @@ hide:
     ---
 
     فعاليات على طراز التقويم، ردود RSVP مشفّرة، دورة الحياة، نموذج الظهور.
+
+    `APK 2.26.41.6`
+
+-   :material-link-variant: **[روابط المكالمات](WA_CALL_LINKS.md)**
+
+    ---
+
+    روابط مكالمات الضيوف، مصافحة link_query/link_join، غرفة الانتظار، تخصيص JID للضيف، تسليم الـ relay/المفتاح.
 
     `APK 2.26.41.6`
 

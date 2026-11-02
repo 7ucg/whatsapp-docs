@@ -80,6 +80,7 @@ plugins:
             Polls: "Umfragen"
             Stickers: "Sticker"
             Events: "Events"
+            Call Links: "Anruf-Links"
             USync: "USync"
         - locale: es
           name: Español
@@ -118,6 +119,7 @@ plugins:
             Polls: "Encuestas"
             Stickers: "Stickers"
             Events: "Eventos"
+            Call Links: "Enlaces de llamada"
             USync: "USync"
         - locale: pt-BR
           name: Português (BR)
@@ -156,6 +158,7 @@ plugins:
             Polls: "Enquetes"
             Stickers: "Figurinhas"
             Events: "Eventos"
+            Call Links: "Links de chamada"
             USync: "USync"
         - locale: ru
           name: Русский
@@ -194,6 +197,7 @@ plugins:
             Polls: "Опросы"
             Stickers: "Стикеры"
             Events: "События"
+            Call Links: "Ссылки на звонок"
             USync: "USync"
         - locale: ar
           name: العربية
@@ -232,6 +236,7 @@ plugins:
             Polls: "استطلاعات الرأي"
             Stickers: "الملصقات"
             Events: "الفعاليات"
+            Call Links: "روابط المكالمات"
             USync: "USync"
         - locale: tr
           name: Türkçe
@@ -270,6 +275,7 @@ plugins:
             Polls: "Anketler"
             Stickers: "Çıkartmalar"
             Events: "Etkinlikler"
+            Call Links: "Arama bağlantıları"
             USync: "USync"
 markdown_extensions:
   - tables
@@ -340,4 +346,5 @@ nav:
     - Polls: WA_POLLS.md
     - Stickers: WA_STICKERS.md
     - Events: WA_EVENTS.md
+    - Call Links: WA_CALL_LINKS.md
     - USync: WA_USYNC.md

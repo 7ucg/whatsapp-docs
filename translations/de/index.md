@@ -1,4 +1,4 @@
-<!-- src-sha1: 797f64cf00ffcc1fd4c4e67d98a9999012c5b9cb -->
+<!-- src-sha1: 0094087e762aaaacf3afdb1e20a7cc458c89eb52 -->
 ---
 hide:
   - navigation
@@ -256,6 +256,14 @@ Reverse-engineerte Dokumentation der **WhatsApp-Android**-Interna. Statische Ana
     ---
 
     Kalender-artige Events, verschlüsselte RSVP-Antworten, Lebenszyklus, Sichtbarkeitsmodell.
+
+    `APK 2.26.41.6`
+
+-   :material-link-variant: **[Anruf-Links](WA_CALL_LINKS.md)**
+
+    ---
+
+    Gast-Anruf-Links, link_query/link_join-Handshake, Warteraum, Gast-JID-Zuteilung, Relay-/Schlüssel-Übergabe.
 
     `APK 2.26.41.6`
 

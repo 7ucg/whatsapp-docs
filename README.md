@@ -54,6 +54,7 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA Polls](./WA_POLLS.md) | 2.26.41.6 | poll message version history (v2-v6), vote privacy model, result snapshots, option hashing |
 | [WA Stickers](./WA_STICKERS.md) | 2.26.41.6 | sticker/lottie/pack message types, third-party pack intent & content-provider contract |
 | [WA Events](./WA_EVENTS.md) | 2.26.41.6 | calendar-style events, encrypted RSVP responses, lifecycle, visibility model |
+| [WA Call Links](./WA_CALL_LINKS.md) | 2.26.41.6 | guest call links, link_query/link_join handshake, waiting room, guest JID allocation, relay/key handoff |
 
 ## Scope
 

@@ -1,4 +1,4 @@
-<!-- src-sha1: 797f64cf00ffcc1fd4c4e67d98a9999012c5b9cb -->
+<!-- src-sha1: 0094087e762aaaacf3afdb1e20a7cc458c89eb52 -->
 ---
 hide:
   - navigation
@@ -256,6 +256,14 @@ Documentação por engenharia reversa dos componentes internos do **WhatsApp And
     ---
 
     Eventos estilo calendário, respostas RSVP criptografadas, ciclo de vida, modelo de visibilidade.
+
+    `APK 2.26.41.6`
+
+-   :material-link-variant: **[Links de chamada](WA_CALL_LINKS.md)**
+
+    ---
+
+    Links de chamada para convidados, handshake link_query/link_join, sala de espera, atribuição de JID do convidado, entrega de relay/chave.
 
     `APK 2.26.41.6`
 

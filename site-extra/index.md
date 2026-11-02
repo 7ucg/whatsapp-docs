@@ -258,6 +258,14 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
     `APK 2.26.41.6`
 
+-   :material-link-variant: **[Call Links](WA_CALL_LINKS.md)**
+
+    ---
+
+    Guest call links, link_query/link_join handshake, waiting room, guest JID allocation, relay/key handoff.
+
+    `APK 2.26.41.6`
+
 </div>
 
 !!! info "Coming soon"

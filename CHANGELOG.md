@@ -3,6 +3,11 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- New report (APK 2.26.41.6): `WA_CALL_LINKS.md` — first report based on a live decoded wire capture (tested tier), not static APK analysis alone.
+  - The call-domain JID resolves from bare `call` to `<call-id>@call` once `link_join` returns a call-id.
+  - The guest gets a fresh server-allocated JID with `account_kind="guest"`, distinct from a normal callee.
+  - `<key>`/`<hbh_key>` are double-encoded (base64-in-binary-node); `<token>`/`<auth_token>` are plain binary.
+  - `voip_settings` carries a `fs.guest_calling_logging_enabled` flag.
 - New reports (APK 2.26.41.6): `WA_CHANNELS_NEWSLETTERS.md`, `WA_POLLS.md`, `WA_STICKERS.md`, `WA_EVENTS.md`.
   - Channels & Newsletters: found the full `xmlns="newsletter"` IQ surface (not previously documented); the admin-invite also goes out as a real per-recipient E2E message alongside the MEX grant; channels are NON_E2EE at transport.
   - Polls: `pollCreationMessageV4` is a genuine FutureProofMessage fallback, not a copy artifact; "hide voter names" is UI-only, the creator always resolves the voter cryptographically; option selection is by SHA-256(option text).

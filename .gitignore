@@ -4,3 +4,4 @@ site
 .mkdocs.build.yml
 .playwright-mcp
 /graphify-out
+/wa-web-logs
