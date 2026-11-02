@@ -1,4 +1,4 @@
-<!-- src-sha1: a948bbebefb4aeb1c2d1bf74123b9dc6e606b08d -->
+<!-- src-sha1: ad6dd81482798f0a61e5848e5e17c17614e1df44 -->
 # WhatsApp Noise Transport — Full RE Report
 **Version:** 2.26.41.6 | **Datum:** 2026-10-23
 **Umfang:** Android-Chat-Transport (chatd): Endpunkte und Verbindungssequenz, Edge-Routing, TCP-Framing, Noise-XX- / IK- / PQ-Handshake, Prüfungen der Zertifikatskette, ClientPayload (UserAgent, DevicePairingData, Connect-Type / Reason), Transport-Cipher und Zähler, binäre Node-Kodierung, Login-Ergebnis und Fehlercodes, Keepalive, Reconnect-Backoff, stream:error, Feature-Flags, verwandte Transporte (Tigon HTTP, DistribGW, Tigon-Noise-Kanal, MQTT), Baileys-Vergleich
@@ -580,6 +580,6 @@ Bestätigte Unterschiede, die für einen Transport im Android-Stil zählen: Der 
 | Was die TLS-gewrappten Endpunkte innerhalb von TLS tragen | inferred aus dem Codepfad |
 | Ping- und TCP-Keepalive-Werte | Server-Flags |
 | Failure-Type-Ints 0-15 zu Client-Screens; Wirkung der Flags **38643**, **15716** | nicht nachverfolgt / unaufgelöst |
-| Payload-Felder ohne Writer (`webInfo`, `shards`, `fb*`, `accountType`, `testIsolationId`, `paddingBytes`, `pull`) | in diesem Build keine gefunden |
+| Payload-Felder ohne Writer (`webInfo`, `shards`, `fb*`, `accountType`, `testIsolationId`, `paddingBytes`, `pull`) | in diesem Build keine gefunden; `accountType = GUEST` wird von einem Nicht-Android-Client gesetzt — siehe [WA_CALL_LINKS.md](WA_CALL_LINKS.md) §15 |
 | Tigon-Noise-Kanal-Handshake, Framing; DGW-Wire-Protokoll und Nutzer | nativ, nur Strings |
 | Dictionary-Strings, die importierte Java-Konstanten sind (zum Beispiel `enc`) | in der Indexliste nicht aufgelöst |

@@ -579,6 +579,6 @@ Confirmed differences that matter for an Android-style transport: the edge hint 
 | What the TLS-wrapped endpoints carry inside TLS | inferred from code path |
 | Ping and TCP-keepalive values | server flags |
 | Failure type ints 0-15 to client screens; effect of flags **38643**, **15716** | not traced / unresolved |
-| Payload fields without a writer (`webInfo`, `shards`, `fb*`, `accountType`, `testIsolationId`, `paddingBytes`, `pull`) | none found in this build |
+| Payload fields without a writer (`webInfo`, `shards`, `fb*`, `accountType`, `testIsolationId`, `paddingBytes`, `pull`) | none found in this build; `accountType = GUEST` is set by a non-Android client — see [WA_CALL_LINKS.md](WA_CALL_LINKS.md) §15 |
 | Tigon Noise channel handshake, framing; DGW wire protocol and users | native, strings only |
 | Dictionary strings that are imported Java constants (for example `enc`) | not resolved in the index list |

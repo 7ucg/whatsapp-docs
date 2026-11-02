@@ -1,4 +1,4 @@
-<!-- src-sha1: a948bbebefb4aeb1c2d1bf74123b9dc6e606b08d -->
+<!-- src-sha1: ad6dd81482798f0a61e5848e5e17c17614e1df44 -->
 # WhatsApp نقل Noise — Full RE Report
 **الإصدار:** 2.26.41.6 | **التاريخ:** 2026-10-23
 **النطاق:** نقل الدردشة في Android (chatd): نقاط الاتصال وتسلسل الاتصال، وتوجيه edge، وتأطير TCP، ومصافحة Noise XX / IK / PQ، وفحوص سلسلة الشهادات، وClientPayload (UserAgent وDevicePairingData ونوع الاتصال / سببه)، وتشفير النقل والعدّادات، وترميز العقد الثنائي، ونتيجة تسجيل الدخول وأكواد الفشل، وkeepalive، وتراجع إعادة الاتصال (backoff)، وstream:error، وأعلام الميزات، والنواقل ذات الصلة (Tigon HTTP وDistribGW وقناة Tigon Noise وMQTT)، ومقارنة مع Baileys
@@ -580,6 +580,6 @@ size = 1 + 2 * attrCount + (content ? 1 : 0)
 | ما تحمله نقاط الاتصال المغلّفة بـ TLS داخل TLS | inferred من مسار الكود |
 | قيم ping وTCP-keepalive | أعلام الخادم |
 | أعداد أنواع الفشل الصحيحة 0-15 إلى شاشات العميل؛ أثر العلمين **38643** و**15716** | لم تُتتبَّع / غير محلولة |
-| حقول الحمولة بلا كاتب (`webInfo` و`shards` و`fb*` و`accountType` و`testIsolationId` و`paddingBytes` و`pull`) | لم يُعثر على شيء في هذا البناء |
+| حقول الحمولة بلا كاتب (`webInfo` و`shards` و`fb*` و`accountType` و`testIsolationId` و`paddingBytes` و`pull`) | لم يُعثر على شيء في هذا البناء؛ يضبط `accountType = GUEST` عميل غير أندرويد — انظر [WA_CALL_LINKS.md](WA_CALL_LINKS.md) §15 |
 | مصافحة قناة Tigon Noise وتأطيرها؛ بروتوكول سلك DGW ومستخدموه | native، سلاسل فقط |
 | سلاسل القاموس التي هي ثوابت Java مستوردة (مثل `enc`) | لم تُحَل في قائمة الفهارس |

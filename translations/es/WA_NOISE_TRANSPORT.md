@@ -1,4 +1,4 @@
-<!-- src-sha1: a948bbebefb4aeb1c2d1bf74123b9dc6e606b08d -->
+<!-- src-sha1: ad6dd81482798f0a61e5848e5e17c17614e1df44 -->
 # WhatsApp Transporte Noise — Full RE Report
 **Versión:** 2.26.41.6 | **Fecha:** 2026-10-23
 **Alcance:** Transporte de chat en Android (chatd): endpoints y secuencia de conexión, enrutamiento edge, framing TCP, handshake Noise XX / IK / PQ, verificaciones de la cadena de certificados, ClientPayload (UserAgent, DevicePairingData, connect type / reason), cifrado de transporte y contadores, codificación binaria de nodos, resultado de login y códigos de fallo, keepalive, backoff de reconexión, stream:error, feature flags, transportes relacionados (Tigon HTTP, DistribGW, canal Tigon Noise, MQTT), comparación con Baileys
@@ -580,6 +580,6 @@ Diferencias confirmadas relevantes para un transporte al estilo Android: la pist
 | Qué llevan los endpoints envueltos en TLS dentro de TLS | inferred a partir de la ruta de código |
 | Valores de ping y TCP-keepalive | flags del servidor |
 | Enteros de tipo de fallo 0-15 a pantallas del cliente; efecto de los flags **38643**, **15716** | no trazado / sin resolver |
-| Campos del payload sin escritor (`webInfo`, `shards`, `fb*`, `accountType`, `testIsolationId`, `paddingBytes`, `pull`) | ninguno encontrado en este build |
+| Campos del payload sin escritor (`webInfo`, `shards`, `fb*`, `accountType`, `testIsolationId`, `paddingBytes`, `pull`) | ninguno encontrado en este build; `accountType = GUEST` lo establece un cliente que no es Android — ver [WA_CALL_LINKS.md](WA_CALL_LINKS.md) §15 |
 | Handshake y framing del canal Tigon Noise; protocolo de red de DGW y sus usuarios | nativo, solo strings |
 | Strings del diccionario que son constantes Java importadas (por ejemplo `enc`) | no resueltos en la lista de índices |

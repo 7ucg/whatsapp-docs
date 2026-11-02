@@ -1,4 +1,4 @@
-<!-- src-sha1: a948bbebefb4aeb1c2d1bf74123b9dc6e606b08d -->
+<!-- src-sha1: ad6dd81482798f0a61e5848e5e17c17614e1df44 -->
 # WhatsApp Noise Transport — Full RE Report
 **Sürüm:** 2.26.41.6 | **Tarih:** 2026-10-23
 **Kapsam:** Android sohbet taşıması (chatd): endpoint'ler ve bağlantı sırası, edge yönlendirme, TCP çerçeveleme, Noise XX / IK / PQ handshake, sertifika zinciri kontrolleri, ClientPayload (UserAgent, DevicePairingData, connect type / reason), taşıma şifresi ve sayaçlar, binary node kodlaması, login sonucu ve hata kodları, keepalive, yeniden bağlanma backoff'u, stream:error, feature flag'leri, ilgili taşımalar (Tigon HTTP, DistribGW, Tigon Noise kanalı, MQTT), Baileys karşılaştırması
@@ -580,6 +580,6 @@ Android tarzı bir taşıma için önemli olan doğrulanmış farklar: edge ipuc
 | TLS ile sarılmış endpoint'lerin TLS içinde ne taşıdığı | kod yolundan inferred |
 | Ping ve TCP-keepalive değerleri | sunucu flag'leri |
 | Failure tip int'leri 0-15'in client ekranlarına eşlenmesi; flag'ler **38643**, **15716** etkisi | izlenmedi / çözümlenmedi |
-| Yazıcısı olmayan payload alanları (`webInfo`, `shards`, `fb*`, `accountType`, `testIsolationId`, `paddingBytes`, `pull`) | bu build'de hiçbiri bulunamadı |
+| Yazıcısı olmayan payload alanları (`webInfo`, `shards`, `fb*`, `accountType`, `testIsolationId`, `paddingBytes`, `pull`) | bu build'de hiçbiri bulunamadı; `accountType = GUEST` Android dışı bir istemci tarafından ayarlanır — bkz. [WA_CALL_LINKS.md](WA_CALL_LINKS.md) §15 |
 | Tigon Noise kanalı handshake'i, çerçevelemesi; DGW wire protokolü ve kullanıcıları | native, yalnızca string'ler |
 | İçe aktarılan Java sabiti olan sözlük string'leri (örneğin `enc`) | indeks listesinde çözümlenmedi |

@@ -3,6 +3,7 @@
 Newest first. Versions refer to the analysed WhatsApp Android APK.
 
 ## Unreleased
+- Call Links: new sections 14-15 on guest registration — a browser guest registers via `v.whatsapp.net/v2/guest_reg` (same Signal identity bundle shape as normal registration, plus `guest_type`/`invite_code`/`guest_name`) and logs in over the ordinary Noise XX transport with `ClientPayload.accountType = GUEST` (field already defined in the shared proto, found unwritten on Android in WA_NOISE_TRANSPORT.md).
 - New report (APK 2.26.41.6): `WA_CALL_LINKS.md` — first report based on a live decoded wire capture (tested tier), not static APK analysis alone.
   - The call-domain JID resolves from bare `call` to `<call-id>@call` once `link_join` returns a call-id.
   - The guest gets a fresh server-allocated JID with `account_kind="guest"`, distinct from a normal callee.

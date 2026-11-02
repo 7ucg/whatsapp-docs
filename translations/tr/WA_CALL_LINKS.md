@@ -1,4 +1,4 @@
-<!-- src-sha1: 12b80567ad9e73698ea38209998c12bdf3666099 -->
+<!-- src-sha1: 5cbe81a4c1568d0ea9b8c065d2d8dc0fbf7e1afc -->
 # WhatsApp Çağrı Bağlantıları — Full RE Report
 **Sürüm:** 2.26.41.6 | **Tarih:** 2026-11-02
 **Kapsam:** Misafir çağrı bağlantıları (`call.whatsapp.com/{voice|video}/{token}`): `link_query` / `link_join` el sıkışması, bekleme odası, misafir katılımcı / JID tahsis modeli ve misafire kabul anında verilen röle ve anahtar materyali. Bu rapor sadece bağlantı/bekleme-odası/misafir katmanını kapsar; genel `<call>` zarf dilbilgisi, offer/accept/terminate, çağrı anahtarı, röle seçim mantığı ve medya yolu [WA_CALL_SIGNALING.md](WA_CALL_SIGNALING.md) içinde ele alınır ve burada sadece referans verilir, tekrar edilmez.
@@ -34,7 +34,7 @@ Zaten kimlik doğrulanmış bir chatd bağlantısından (katılan oturumun tel �
 
 Her iki oturum da host'u ve call-id'nin kendi oluşturucusunu `type=1, domainType=1` şeklinde bir JID ile ve açık bir `server` özniteliği olmadan adresliyor; aynı yakalamalarda başka yerlerde aynı şekil, aynı hesap için, açık bir `server="lid"` ile eşleştiriliyor (örn. mesaj-sınıfı alındı onayları). Birlikte okunduğunda: buradaki çağrı sinyalizasyonu LID kimlikleri üzerinden çalışıyor, bu da [WA_CALL_SIGNALING.md](WA_CALL_SIGNALING.md) §3.2'nin çağrı stanza'larının farklı-alan bir `call-creator`'a karşı LID bir `to`'ya tolerans gösterdiği notuyla tutarlı.
 
-Bu yakalamanın göstermediği: gerçekten hesapsız bir tarayıcı oturumunun (önceden hiç WhatsApp girişi olmadan) aynı bağlantıya ulaşması. Aşağıdaki stanza şekilleri bir misafir katılımı için çağrı-sinyalizasyon-katmanı protokolüdür; anonim bir web ziyaretçisinin istemcisinin bayt-eşdeğeri stanza'lar üretip üretmediği, veya önce ekstra bir sağlama adımından geçip geçmediği **unknown**'dır.
+Gerçekten hesapsız bir tarayıcı oturumundan (önceden hiç WhatsApp girişi yapılmamış, insan tarafından yönlendirilmiş, hiçbir şey otomatikleştirilmemiş) üçüncü bir yakalama bu boşluğun bir kısmını dolduruyor: yukarıdaki bölümlerin zaten var olduğunu varsaydığı kimliği üreten kayıt adımını gösteriyor ve bu adımın ayrı bir taşıma yerine olağan web taşıması üzerinden çalıştığını doğruluyor. Bkz. §14–§15. O oturumdan decode edilmiş misafir stanza içeriğinin (§4'ün şekilleriyle bayt-eşdeğeri olup olmadığı) yakalanmadı — Noise kanalı bunu, diğer her istemci için olduğu gibi, pasif bir ağ görünümünden gizliyor.
 
 ---
 
@@ -279,12 +279,55 @@ Misafir için eksik olan cihaz-başına çağrı anahtarı (satır 2) en önemli
 
 ---
 
-## 14. Bilinmeyenler
+## 14. Misafir kaydı (web istemcisi, tested)
+
+Gerçekten hesapsız bir tarayıcı oturumu — önceden hiç WhatsApp girişi olmadan — `link_query`'yi göndermeden önce atılabilir bir kimlik kaydeder. Kanıt: gerçek bir çağrı bağlantısını tarayıcıda açan, insan tarafından yönlendirilen bir oturumun CDP yakalaması; aşağıdaki akışta sayfayı açma ve bir ad yazma noktasının ötesinde hiçbir şey otomatikleştirilmedi veya betiklenmedi.
+
+```
+GET https://v.whatsapp.net/v2/guest_reg?...
+```
+
+| Parametre | Örnek | Anlam |
+|-------|---------|---------|
+| `mcc` / `mnc` | `310` / `999` | sahte operatör kodları |
+| `lc` / `lg` | yerel ayar (örn. `DE`/`DE`) | UI yerel ayarı |
+| `device_id` | uuid | tarayıcı tarafından üretilmiş cihaz id'si |
+| `access_session_id` | uuid | oturum id'si |
+| `authkey` | base64, 32 bayt | Curve25519 Noise statik açık anahtarı |
+| `e_regid` | base64, 4 bayt | kayıt id'si |
+| `e_keytype` | base64, 1 bayt | `0x05` = Curve25519 |
+| `e_ident` | base64, 32 bayt | Signal kimlik açık anahtarı |
+| `e_skey_id` / `e_skey_val` / `e_skey_sig` | — | imzalı-prekey id'si, açık anahtar (32 B), imza (64 B) |
+| `os_name` / `os_version` / `browser` / `browser_version` | UA bilgileri | istemci parmak izi |
+| `web_build_version` | örn. `2.3000.1052682108` | istemci build'i |
+| `guest_type` | `guest_calling` | bunu bir çağrı-bağlantısı misafir kaydı olarak işaretler |
+| `invite_code` | bağlantının token'ı | misafirin hangi bağlantıya katıldığı |
+| `guest_name` | özgür metin | misafirin yazdığı görünen ad |
+| `id` | 20 ham bayt | normal kayıtta telefon numarasının yerini alır |
+| `backup_token` | 20 ham bayt | yakalamada `id` ile aynı |
+
+Yanıt (200, gövde yakalanmadı), misafirin giriş yapacağı kimlik bilgilerini geri verir. Yapısal olarak bu, normal WhatsApp kaydıyla **aynı kayıt paketidir** (regid, kimlik anahtarı, imzalı prekey, imza) — `guest_type`/`invite_code`/`guest_name` sadece misafire özel eklemelerdir ve `guest_reg`, normal `/v2/reg` yolundan ayrı bir endpoint'tir (**found**, ayrı ana makine adları/yollar gözlemlendi; burada Android'in kendi kayıt koduna karşı çapraz kontrol edilmedi — bu konu başka yerde ele alınıyorsa `WA_MOBILE_REGISTRATION` kapsam notuna bakın).
+
+Sayfada bir anti-otomasyon zorlama sağlayıcısı için bir CSP izin-listesi girişi mevcuttu ve misafir-önyükleme kodu bir captcha/zorlama kavramına atıfta bulunuyor, ama bu düşük hacimli, insan tarafından yönlendirilen oturumda hiçbir zorlama token'ı istenmedi veya gönderilmedi (**tested**: burada yok; **unknown**: hangi koşullar altında devreye girdiği — risk tabanlı kötüye-kullanım-önleme kısıtlaması çalışma varsayımıdır, doğrulanmadı). Bu rapor o kontrolü daha fazla incelemiyor; bunu yapmak bir kötüye-kullanım-önleme mekanizmasını araştırmak anlamına gelir, ki bu burada kapsam dışıdır.
+
+Bunun ayrı, misafir-farkında bir kod yolu olduğuna dair istemci tarafı kanıt (found, görülen birçok benzer modül adının temsili bir alt kümesi): bir katılımcı-adı-işleme modülü ve normal sohbet istemcisinin eşdeğerlerinden ayrı, misafire özel bir mesajlaşma/iş-kalıcılığı modülü, ayrıca literal olarak "çağrı UI'si bir misafir için mi çalışıyor" için adlandırılmış bir modül.
+
+## 15. Misafir oturumu için Noise taşıması (tested)
+
+Kayıtlı misafir kimliği, [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md)'de zaten belgelenmiş olan **aynı** taşıma üzerinden giriş yapar: `wss://web.whatsapp.com/ws/chat`'e uzunluk-önekli bir WebSocket (gözlemlenen alternatif port `5222`), `WA` + sürüm prologu ve aynı Noise XX mesaj dizisi (ClientHello → sertifika zinciriyle ServerHello → statik/kimlik anahtarını taşıyan şifreli ClientFinish → ilk şifreli `ClientPayload`). El sıkışma çerçevelemesinde misafir için farklı hiçbir şey yok; bu, ikinci bir istemci platformundan (bu projede başka yerde ele alınan Android uygulaması değil, bir tarayıcı) bağımsız olarak, çağrı-bağlantısı misafirlerinin paralel bir hafif protokol değil, sıradan Noise XX istemcileri olduğunu doğruluyor.
+
+Bunun eklediği bir proto-seviyesi gerçek: `ClientPayload`, paylaşılan WhatsApp proto şemasında zaten bir `AccountType` alanı tanımlıyor (`DEFAULT = 0`, `GUEST = 1`). [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md) bu alanı Android'de mevcut ama yazılmamış olarak buldu (hiçbir kod yolu onu ayarlamıyor — Android asla bir misafir değildir). Bir tarayıcı misafir oturumu bunu gerçekten ayarlayan istemcidir: `accountType = GUEST`, bir misafir ile normal bir istemci girişi arasındaki, kimliğin normal telefon kaydı yerine `guest_reg`'den (§14) gelmesinin ve hiçbir cihaz-eşleştirme verisi taşımamasının üzerine eklenen, tek `ClientPayload` farkıdır.
+
+Daha derin fonksiyon-başına detay (bir misafir `ClientPayload`'ı oluşturan tam kod ve `guest_reg` yanıt gövdesi) sayfayla birlikte süresi dolan, lazy-load edilen, oturuma-bağlı betik paketlerinde oturuyor; bunu elde etmek betik-kaynağı erişimli taze bir canlı yakalama gerektirir, statik bir fetch değil. Yukarıda zaten saptanan — taşımanın değiştirilmemiş Noise XX olduğu, kimlik paketinin normal bir kayıt paketi olduğu ve işaretlenen tek alanın `accountType = GUEST` olduğu — o kaynağı geri kazanmaya bağlı değildir.
+
+---
+
+## 16. Bilinmeyenler
 
 | Öğe | Durum |
 |------|--------|
 | Token üretim yeri (istemci-üretimli vs. sunucu-atanmış) | `createCallLink` çağrı noktasının token argümanı yok (found); gerçek köken native'dir (unknown) |
-| Gerçekten hesapsız bir tarayıcı oturumunun aynı stanza dizisini üretip üretmediği | yakalanmadı — her iki yakalama da zaten kimlik doğrulanmış bir bağlantı üzerinde, misafir olarak katılmayı seçerek çalıştı |
+| Gerçekten hesapsız bir tarayıcı oturumunun aynı decode edilmiş stanza dizisini üretip üretmediği | kısmen çözüldü (§14–§15): oturum `guest_reg` üzerinden kaydoluyor ve `ClientPayload.accountType = GUEST` ile aynı Noise XX taşıması üzerinden giriş yapıyor; o oturum için decode edilmiş `link_query`/`link_join` içeriğinin kendisi yakalanmadı |
 | Host-tarafı kabul eylemi (`waiting_room_toggle`/`_admit`) tel şekli | bu yakalamada yok (tek-uçlu); sadece WA_CALL_SIGNALING.md §10.3 statiklerinden anlatılır |
 | Kabulün görülen tek heartbeat'ten neden bu kadar hızlı geldiği | uyanık host mu yoksa bir otomatik-kabul koşulu mu — bu kanıttan ayırt edilemiyor |
 | Misafir JID ömrü / tekrarlanan katılımlar arasında yeniden kullanım | gözlemlenmedi |

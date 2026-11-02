@@ -33,7 +33,7 @@ Two independent guest joins were captured end to end, both from an already-authe
 
 Both sessions address the host and the call-id's own creator with a JID shape `type=1, domainType=1` and no explicit `server` attribute; elsewhere in the same captures that same shape is paired, for the identical account, with an explicit `server="lid"` (e.g. the message-class receipt acks). Read together as: call signaling here runs over LID identities, consistent with [WA_CALL_SIGNALING.md](WA_CALL_SIGNALING.md) §3.2's note that call stanzas tolerate a LID `to` against a different-domain `call-creator`.
 
-What this capture does not show: a genuinely account-less browser session (no prior WhatsApp login at all) hitting the same link. The stanza shapes below are the call-signaling-layer protocol for a guest join; whether an anonymous web visitor's client produces byte-identical stanzas, or goes through an extra provisioning step first, is **unknown**.
+A third capture, from a genuinely account-less browser session (no prior WhatsApp login at all, human-driven, nothing automated), fills part of that gap: it shows the registration step that produces the identity the sections above assume already exists, and confirms that step runs over the ordinary web transport, not a separate one. See §14–§15. The decrypted guest stanza content from that session (whether it is byte-identical to §4's shapes) was not captured — the Noise channel hides it from a passive network view, same as for any other client.
 
 ---
 
@@ -278,12 +278,55 @@ The missing per-device call key for the guest (row 2) is the most consequential 
 
 ---
 
-## 14. Unknowns
+## 14. Guest registration (web client, tested)
+
+A genuinely account-less browser session — no prior WhatsApp login — registers a throwaway identity before it ever sends `link_query`. Evidence: a CDP capture of one human-driven session opening a real call link in a browser; nothing in the flow below was automated or scripted past the point of opening the page and typing a name.
+
+```
+GET https://v.whatsapp.net/v2/guest_reg?...
+```
+
+| Param | Example | Meaning |
+|-------|---------|---------|
+| `mcc` / `mnc` | `310` / `999` | dummy carrier codes |
+| `lc` / `lg` | locale (e.g. `DE`/`DE`) | UI locale |
+| `device_id` | uuid | browser-generated device id |
+| `access_session_id` | uuid | session id |
+| `authkey` | base64, 32 bytes | Curve25519 Noise static public key |
+| `e_regid` | base64, 4 bytes | registration id |
+| `e_keytype` | base64, 1 byte | `0x05` = Curve25519 |
+| `e_ident` | base64, 32 bytes | Signal identity public key |
+| `e_skey_id` / `e_skey_val` / `e_skey_sig` | — | signed-prekey id, public key (32 B), signature (64 B) |
+| `os_name` / `os_version` / `browser` / `browser_version` | UA facts | client fingerprint |
+| `web_build_version` | e.g. `2.3000.1052682108` | client build |
+| `guest_type` | `guest_calling` | marks this as a call-link guest registration |
+| `invite_code` | the link's token | which link the guest is joining |
+| `guest_name` | freeform | the display name the guest typed |
+| `id` | 20 raw bytes | takes the slot a phone number fills in normal registration |
+| `backup_token` | 20 raw bytes | equal to `id` in the capture |
+
+The response (200, body not captured) hands back the credentials the guest logs in with. Structurally this is the **same registration bundle** (regid, identity key, signed prekey, signature) as normal WhatsApp registration — `guest_type`/`invite_code`/`guest_name` are the only guest-specific additions, and `guest_reg` is a distinct endpoint from the normal `/v2/reg` path (**found**, distinct hostnames/paths observed; not cross-checked against Android's own registration code here — see `WA_MOBILE_REGISTRATION` scope note if that topic is covered elsewhere).
+
+A CSP allow-list entry for an anti-automation challenge provider was present on the page, and guest-bootstrap code references a captcha/challenge concept, but no challenge token was required or sent in this low-volume, human-driven session (**tested**: absent here; **unknown**: under what conditions it fires — risk-based anti-abuse gating is the working assumption, not confirmed). This report does not investigate that control further; doing so would mean probing an anti-abuse mechanism, which is out of scope here.
+
+Client-side evidence that this is a distinct, guest-aware code path (found, representative subset of many similar module names seen): a participant-name-handling module and a guest-specific messaging/job-persistence module distinct from the normal chat client's equivalents, plus a module literally named for "is this call UI running for a guest".
+
+## 15. Noise transport for a guest session (tested)
+
+The registered guest identity logs in over the **same** transport already documented in [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md): a length-prefixed WebSocket to `wss://web.whatsapp.com/ws/chat` (observed alternate port `5222`), the `WA` + version prologue, and the same Noise XX message sequence (ClientHello → ServerHello with certificate chain → encrypted ClientFinish carrying the static/identity key → the first encrypted `ClientPayload`). Nothing about the handshake framing differs for a guest; this independently confirms, from a second client platform (a browser, not the Android app covered elsewhere in this project), that call-link guests are ordinary Noise XX clients, not a parallel lightweight protocol.
+
+One proto-level fact this adds: `ClientPayload` already defines an `AccountType` field (`DEFAULT = 0`, `GUEST = 1`) in the shared WhatsApp proto schema. [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md) found this field present but unwritten on Android (no code path sets it — Android is never a guest). A browser guest session is the client that actually sets it: `accountType = GUEST` is the one `ClientPayload` difference between a guest and a normal client login, on top of the identity coming from `guest_reg` (§14) instead of normal phone registration and carrying no device-pairing data.
+
+The deeper per-function detail (the exact code that builds a guest `ClientPayload`, and the `guest_reg` response body) sits in lazy-loaded, session-gated script bundles that expire with the page; getting it needs a fresh live capture with script-source access, not a static fetch. What is already established above — the transport is unmodified Noise XX, the identity bundle is a normal registration bundle, and the one marked field is `accountType = GUEST` — does not depend on recovering that source.
+
+---
+
+## 16. Unknowns
 
 | Item | Status |
 |------|--------|
 | Token generation site (client-minted vs. server-assigned) | `createCallLink` call site carries no token argument (found); true origin is native (unknown) |
-| Whether a genuinely account-less browser session produces the same stanza sequence | not captured — both captures ran over an already-authenticated connection choosing to join as a guest |
+| Whether a genuinely account-less browser session produces the same decrypted stanza sequence | partially resolved (§14–§15): the session registers via `guest_reg` and logs in over the same Noise XX transport with `ClientPayload.accountType = GUEST`; the decrypted `link_query`/`link_join` content itself was not captured for that session |
 | Host-side admit action (`waiting_room_toggle`/`_admit`) wire shape | not in this capture (single-ended); described only from WA_CALL_SIGNALING.md §10.3 statics |
 | Why admission followed the single observed heartbeat so quickly | alert host vs. an auto-admit condition — not distinguishable from this evidence |
 | Guest JID lifetime / reuse across repeated joins | not observed |

@@ -1,4 +1,4 @@
-<!-- src-sha1: a948bbebefb4aeb1c2d1bf74123b9dc6e606b08d -->
+<!-- src-sha1: ad6dd81482798f0a61e5848e5e17c17614e1df44 -->
 # WhatsApp Noise Transport — Full RE Report
 **Версия:** 2.26.41.6 | **Дата:** 2026-10-23
 **Область:** транспорт чатов Android (chatd): эндпоинты и последовательность подключения, edge-маршрутизация, TCP-фрейминг, рукопожатие Noise XX / IK / PQ, проверки цепочки сертификатов, ClientPayload (UserAgent, DevicePairingData, connect type / reason), транспортный шифр и счётчики, бинарное кодирование узлов, результат логина и коды ошибок, keepalive, backoff при переподключении, stream:error, feature-флаги, смежные транспорты (Tigon HTTP, DistribGW, канал Tigon Noise, MQTT), сравнение с Baileys
@@ -580,6 +580,6 @@ size = 1 + 2 * attrCount + (content ? 1 : 0)
 | Что несут эндпоинты с TLS-обёрткой внутри TLS | inferred по пути кода |
 | Значения ping и TCP-keepalive | серверные флаги |
 | Целые type сбоев 0–15 и экраны клиента; эффект флагов **38643**, **15716** | не прослежено / не выяснено |
-| Поля payload без записи (`webInfo`, `shards`, `fb*`, `accountType`, `testIsolationId`, `paddingBytes`, `pull`) | в этой сборке не найдено |
+| Поля payload без записи (`webInfo`, `shards`, `fb*`, `accountType`, `testIsolationId`, `paddingBytes`, `pull`) | в этой сборке не найдено; `accountType = GUEST` устанавливает клиент, отличный от Android — см. [WA_CALL_LINKS.md](WA_CALL_LINKS.md) §15 |
 | Рукопожатие и фрейминг канала Tigon Noise; протокол DGW на проводе и его пользователи | нативный код, только строки |
 | Строки словаря, являющиеся импортированными Java-константами (например `enc`) | не разрешены в списке индексов |

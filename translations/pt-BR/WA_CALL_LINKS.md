@@ -1,4 +1,4 @@
-<!-- src-sha1: 12b80567ad9e73698ea38209998c12bdf3666099 -->
+<!-- src-sha1: 5cbe81a4c1568d0ea9b8c065d2d8dc0fbf7e1afc -->
 # WhatsApp Links de Chamada — Full RE Report
 **Versão:** 2.26.41.6 | **Data:** 2026-11-02
 **Escopo:** Links de chamada para convidados (`call.whatsapp.com/{voice|video}/{token}`): o handshake `link_query` / `link_join`, a sala de espera, o modelo de participante convidado / alocação de JID, e o material de relay e de chave entregue a um convidado na admissão. Este relatório cobre apenas a camada de link/sala-de-espera/convidado; a gramática genérica do envelope `<call>`, offer/accept/terminate, a chave da chamada, a lógica de seleção de relay e o caminho de mídia são cobertos em [WA_CALL_SIGNALING.md](WA_CALL_SIGNALING.md) e apenas referenciados aqui, sem repetição.
@@ -34,7 +34,7 @@ Duas entradas de convidado independentes foram capturadas de ponta a ponta, amba
 
 Ambas as sessões endereçam o host e o próprio criador do call-id com uma forma de JID `type=1, domainType=1` e sem atributo `server` explícito; em outros pontos das mesmas capturas, essa mesma forma aparece, para a mesma conta, com `server="lid"` explícito (ex. os acks de recibo de classe mensagem). Lidos em conjunto: a sinalização de chamada aqui roda sobre identidades LID, consistente com a nota do WA_CALL_SIGNALING.md §3.2 de que stanzas de chamada toleram um `to` LID contra um `call-creator` de domínio diferente.
 
-O que esta captura não mostra: uma sessão de navegador genuinamente sem conta (sem nenhum login prévio no WhatsApp) acessando o mesmo link. As formas de stanza abaixo são o protocolo da camada de sinalização de chamada para uma entrada de convidado; se um visitante web anônimo produz stanzas byte a byte idênticas, ou passa por uma etapa extra de provisionamento antes, é **unknown**.
+Uma terceira captura, de uma sessão de navegador genuinamente sem conta (sem nenhum login prévio no WhatsApp, conduzida por um humano, nada automatizado), preenche parte dessa lacuna: mostra a etapa de registro que produz a identidade que as seções acima assumem já existir, e confirma que essa etapa roda sobre o transporte web ordinário, não um transporte separado. Ver §14–§15. O conteúdo decifrado da stanza de convidado dessa sessão (se é byte a byte idêntico às formas da §4) não foi capturado — o canal Noise o esconde de uma visão passiva de rede, assim como para qualquer outro cliente.
 
 ---
 
@@ -279,12 +279,55 @@ A chave de chamada por dispositivo ausente para o convidado (linha 2) é a difer
 
 ---
 
-## 14. Desconhecidos
+## 14. Registro do convidado (cliente web, tested)
+
+Uma sessão de navegador genuinamente sem conta — sem nenhum login prévio no WhatsApp — registra uma identidade descartável antes mesmo de enviar `link_query`. Evidência: uma captura CDP de uma sessão conduzida por um humano abrindo um link de chamada real em um navegador; nada no fluxo abaixo foi automatizado ou roteirizado além do ponto de abrir a página e digitar um nome.
+
+```
+GET https://v.whatsapp.net/v2/guest_reg?...
+```
+
+| Parâmetro | Exemplo | Significado |
+|-------|---------|---------|
+| `mcc` / `mnc` | `310` / `999` | códigos de operadora fictícios |
+| `lc` / `lg` | locale (ex. `DE`/`DE`) | locale da interface |
+| `device_id` | uuid | id de dispositivo gerado pelo navegador |
+| `access_session_id` | uuid | id da sessão |
+| `authkey` | base64, 32 bytes | chave pública estática Curve25519 do Noise |
+| `e_regid` | base64, 4 bytes | id de registro |
+| `e_keytype` | base64, 1 byte | `0x05` = Curve25519 |
+| `e_ident` | base64, 32 bytes | chave pública de identidade Signal |
+| `e_skey_id` / `e_skey_val` / `e_skey_sig` | — | id da signed-prekey, chave pública (32 B), assinatura (64 B) |
+| `os_name` / `os_version` / `browser` / `browser_version` | fatos de UA | fingerprint do cliente |
+| `web_build_version` | ex. `2.3000.1052682108` | build do cliente |
+| `guest_type` | `guest_calling` | marca isto como um registro de convidado de link de chamada |
+| `invite_code` | o token do link | em qual link o convidado está entrando |
+| `guest_name` | texto livre | o nome de exibição que o convidado digitou |
+| `id` | 20 bytes brutos | ocupa o espaço que um número de telefone preenche no registro normal |
+| `backup_token` | 20 bytes brutos | igual a `id` nesta captura |
+
+A resposta (200, corpo não capturado) devolve as credenciais com as quais o convidado faz login. Estruturalmente, este é o **mesmo pacote de registro** (regid, chave de identidade, signed prekey, assinatura) do registro normal do WhatsApp — `guest_type`/`invite_code`/`guest_name` são os únicos acréscimos específicos de convidado, e `guest_reg` é um endpoint distinto do caminho normal `/v2/reg` (**found**, hostnames/caminhos distintos observados; não verificado cruzadamente com o próprio código de registro do Android aqui — ver a nota de escopo de `WA_MOBILE_REGISTRATION` se esse tópico for coberto em outro lugar).
+
+Uma entrada de allow-list de CSP para um provedor de desafio anti-automação estava presente na página, e o código de bootstrap do convidado referencia um conceito de captcha/desafio, mas nenhum token de desafio foi exigido ou enviado nesta sessão de baixo volume, conduzida por humano (**tested**: ausente aqui; **unknown**: em quais condições ele é acionado — uma gate de anti-abuso baseada em risco é a hipótese de trabalho, não confirmada). Este relatório não investiga esse controle mais a fundo; fazê-lo significaria sondar um mecanismo anti-abuso, o que está fora do escopo aqui.
+
+Evidência do lado do cliente de que este é um caminho de código distinto e consciente de convidado (found, subconjunto representativo de muitos nomes de módulo semelhantes vistos): um módulo de tratamento de nome de participante e um módulo de mensageria/persistência de job específico de convidado, distintos dos equivalentes do cliente de chat normal, além de um módulo literalmente nomeado para "esta UI de chamada está rodando para um convidado".
+
+## 15. Transporte Noise para uma sessão de convidado (tested)
+
+A identidade de convidado registrada faz login sobre o **mesmo** transporte já documentado em [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md): um WebSocket com prefixo de tamanho para `wss://web.whatsapp.com/ws/chat` (porta alternativa observada `5222`), o prólogo `WA` + versão, e a mesma sequência de mensagens Noise XX (ClientHello → ServerHello com cadeia de certificado → ClientFinish criptografado carregando a chave estática/de identidade → o primeiro `ClientPayload` criptografado). Nada no framing do handshake difere para um convidado; isto confirma de forma independente, a partir de uma segunda plataforma de cliente (um navegador, não o app Android cobertos em outras partes deste projeto), que convidados de link de chamada são clientes Noise XX ordinários, não um protocolo leve paralelo.
+
+Um fato em nível de proto que isto adiciona: `ClientPayload` já define um campo `AccountType` (`DEFAULT = 0`, `GUEST = 1`) no esquema de proto compartilhado do WhatsApp. O [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md) encontrou esse campo presente, mas nunca escrito no Android (nenhum caminho de código o define — o Android nunca é um convidado). Uma sessão de convidado no navegador é o cliente que de fato o define: `accountType = GUEST` é a única diferença de `ClientPayload` entre um convidado e um login normal de cliente, além de a identidade vir de `guest_reg` (§14) em vez do registro normal por telefone e não carregar nenhum dado de pareamento de dispositivo.
+
+O detalhe mais fino, por função (o código exato que monta um `ClientPayload` de convidado, e o corpo da resposta de `guest_reg`) está em bundles de script carregados de forma lazy e vinculados à sessão, que expiram com a página; obtê-lo exige uma nova captura ao vivo com acesso ao código-fonte do script, não uma busca estática. O que já foi estabelecido acima — o transporte é Noise XX sem modificação, o pacote de identidade é um pacote de registro normal, e o único campo marcado é `accountType = GUEST` — não depende de recuperar esse código-fonte.
+
+---
+
+## 16. Desconhecidos
 
 | Item | Status |
 |------|--------|
 | Local de geração do token (gerado pelo cliente vs. atribuído pelo servidor) | o ponto de chamada de `createCallLink` não carrega argumento de token (found); a origem real é nativa (unknown) |
-| Se uma sessão de navegador genuinamente sem conta produz a mesma sequência de stanzas | não capturado — ambas as capturas rodaram sobre uma conexão já autenticada que escolheu entrar como convidado |
+| Se uma sessão de navegador genuinamente sem conta produz a mesma sequência de stanzas decifradas | parcialmente resolvido (§14–§15): a sessão se registra via `guest_reg` e faz login sobre o mesmo transporte Noise XX com `ClientPayload.accountType = GUEST`; o conteúdo decifrado de `link_query`/`link_join` em si não foi capturado para essa sessão |
 | Forma na rede da ação de admit do lado do host (`waiting_room_toggle`/`_admit`) | não está nesta captura (unilateral); descrita apenas a partir dos dados estáticos do WA_CALL_SIGNALING.md §10.3 |
 | Por que a admissão seguiu o único heartbeat observado tão rápido | host atento vs. condição de auto-admissão — não distinguível a partir desta evidência |
 | Tempo de vida / reutilização do JID de convidado entre entradas repetidas | não observado |
@@ -293,3 +336,4 @@ A chave de chamada por dispositivo ausente para o convidado (linha 2) é a difer
 | Propósito da codificação dupla em base64 em `<key>`/`<hbh_key>` vs. `<token>`/`<auth_token>` bruto | unknown |
 | `connected-limit` como limite configurável pelo cliente vs. sempre atribuído pelo servidor | nenhum setter do lado do cliente encontrado (found: apenas retornado pelo servidor) |
 | Limites de taxa / controles de abuso na criação de link ou entrada de convidados | nada encontrado do lado do cliente; comportamento do servidor unknown |
+</content>
