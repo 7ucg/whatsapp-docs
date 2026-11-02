@@ -216,7 +216,7 @@ No other protocol difference was observed between the two; media type is carried
 | Roster delivery | `group_info` inside the offer or a later update | `group_update`/`group_info` push from `<call-id>@call`, bundled with `<relay>` and `<voip_settings>` in the same stanza |
 | JID addressing | peer/group JID throughout | bare `call` domain until a call-id exists, then `<call-id>@call` |
 
-The missing per-device call key for the guest (row 2) is the most consequential difference and is **tested** only as an absence in this capture — not confirmed as a protocol rule; it is also consistent with WA_CALL_SIGNALING.md §9.2's note that group offers carry no per-device key and keys are re-shared out of band (`enc_rekey`). Whether a guest ever receives an `enc_rekey` was not observed in either capture window used here.
+The missing per-device call key for the guest (row 2) is the most consequential difference and is **tested** only as an absence in this capture — not confirmed as a protocol rule; it is also consistent with WA_CALL_SIGNALING.md §9.2's note that group offers carry no per-device key and keys are re-shared out of band (`enc_rekey`). Whether a guest ever receives an `enc_rekey`, and whether it is even usable, is resolved in §15.1: yes to both — it decrypts and installs into the media engine like any other participant's.
 
 ---
 
@@ -317,7 +317,44 @@ The registered guest identity logs in over the **same** transport already docume
 
 One proto-level fact this adds: `ClientPayload` already defines an `AccountType` field (`DEFAULT = 0`, `GUEST = 1`) in the shared WhatsApp proto schema. [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md) found this field present but unwritten on Android (no code path sets it — Android is never a guest). A browser guest session is the client that actually sets it: `accountType = GUEST` is the one `ClientPayload` difference between a guest and a normal client login, on top of the identity coming from `guest_reg` (§14) instead of normal phone registration and carrying no device-pairing data.
 
-The deeper per-function detail (the exact code that builds a guest `ClientPayload`, and the `guest_reg` response body) sits in lazy-loaded, session-gated script bundles that expire with the page; getting it needs a fresh live capture with script-source access, not a static fetch. What is already established above — the transport is unmodified Noise XX, the identity bundle is a normal registration bundle, and the one marked field is `accountType = GUEST` — does not depend on recovering that source.
+A second, independent guest session recovered that deeper per-function detail directly: 106 scripts actually executed during a fresh guest session (21 MB, pulled via `Debugger.getScriptSource`, not a static fetch — the lazy/worker bundles that §14's capture could not reach) include the literal guest `ClientPayload` builder (**found**, verbatim source):
+
+```js
+{
+  product:     WAWebProtobufsWa6.pb.ClientPayload$Product.WHATSAPP_LID,
+  accountType: WAWebProtobufsWa6.pb.ClientPayload$AccountType.GUEST
+}
+```
+
+confirming the enum as `AccountType = {DEFAULT: 0, GUEST: 1}` and `Product.WHATSAPP_LID = 4`. `Wa6.pb` in this bundle is the same shared proto schema referenced above.
+
+The same dump resolves the module chain behind the handshake, all found as plain dependency declarations in the executed code, not inferred from behavior:
+
+```
+WAComms                — top-level connection manager (Smax ping RPCs, retry loop)
+ └ WAWebWatchedSocket  — holds both WS URLs: wss://web.whatsapp.com/ws/chat and the :5222 fallback
+    └ WANoiseHandshake — Noise XX
+       └ WANoiseSocket — AES-GCM record layer
+          └ WAFrameSocket — 3-byte length framing
+             └ WASocketTransport — raw WebSocket
+```
+
+This is the same stack an ordinary (non-guest) client uses — there is no guest-specific transport branch below `WAWebGuestCoreBackendBootstrap`, the module that assembles the guest session and then feeds it into the ordinary `WAComms`/`WAWebClientPayload` pipeline through `WAWebGuestCoreBackendApi` (80+ bridge functions, including separate socket/identity/VoIP bridge implementations). Guest call signalling runs through `WAWebGuestCallingVoipBridge` → `WAWebVoipBridgeSignalingHandlers`, which hands off into the same `WAWebHandleVoipCall`/`WAWebVoipStackInterface` a normal call uses — i.e. the guest path is a thin bootstrap/bridge layer in front of the ordinary client internals, not a parallel implementation.
+
+What the two browser sessions above did not resolve: the `guest_reg` HTTP response body — neither captured it, so both could only describe the identity as it is *used* on the wire, not what the server hands back for it.
+
+### 15.1 `guest_reg` response and the login `ClientPayload`, resolved by a live client join (tested)
+
+A third source closes that gap: velowa (the active client project this repo's report examples are written for — see "Conventions" in CLAUDE.md) implements the guest flow described in §14-§15 and was run live against a real, self-made call link — its own `guest_reg` call, its own Noise login, its own `link_query`/`link_join`, decrypted and decoded by that same client (the same "tested" bar as §2's captures: a client reading its own session, not interception). Two facts the browser captures above could not show:
+
+- **`guest_reg`'s response body**, on a `200`, is JSON: `{ "ent_access_token": "<token>", "ent_canonical_fbid": "<digits>", "lid": "<digits>@lid", "status": "ok" }`. The `lid` is the guest's own JID number — **assigned at `guest_reg` time**, not only at call admission as §14 (working from the browser capture alone, which never saw this body) had to assume. §16's open question on this is resolved as far as timing goes; `ent_access_token`/`ent_canonical_fbid` look Graph-API-shaped (compare the `access_token=WA|...` in §2's `graphql/` call) but what, if anything, a guest client is meant to do with them was not exercised.
+- **The login `ClientPayload` needs `username` set to that `lid`'s number.** Logging in with only `accountType = GUEST` / `product = WHATSAPP_LID` (§15's dumped literal, which — being a partial object in the source, not the complete payload — turns out to not be the whole story) completes the Noise handshake normally, but the server then closes the WebSocket outright (no close frame, abnormal closure) immediately after. Adding `username = <the guest_reg lid's number>` fixed it: the connection stays up, and `link_query`/`link_join` succeed from it.
+
+With both fixes, the full flow in §13 ran end to end on a real link, repeatedly: registered → Noise login → `link_query` → `link_join` → held in the waiting room (`inWaitingRoom: true`) → admitted by the host → a `group_update` roster listing the host and the guest (`account_kind="guest"`, the chosen name) side by side → ordinary in-call traffic (`mute_v2`, `transport`, `relaylatency`, `enc_rekey`) on `<call-id>@call` → a clean leave (`terminate` with the call duration, then `group_call_duration`) that the host's own next roster push shows as `state="terminated"`, not a drop. Nothing in that sequence differs from §4-§8's browser-captured shapes.
+
+One thing this run resolves beyond the signalling shapes: **a guest's `enc_rekey` is a real, decryptable Signal-wrapped call key**, not an empty formality. §10 marked whether a guest ever gets one as unobserved; here the guest decrypted the `enc_rekey` envelope from the host's device, installed the resulting key into its media engine, and the relay connection came up — `status: 'connected'` with a live media session, the shared key applied (not merely present on the wire). This means a guest has everything a normal participant has for the actual call content, not just the signalling: §10's note about "no per-device call key" describes the admission handshake only, not a reduced-capability media path.
+
+One infrastructure-level observation from the same runs, unrelated to the WhatsApp protocol itself: a plain HTTP client (Node's `fetch`) hitting `guest_reg` with a realistic browser header set still intermittently got no response for ~30s before an empty-body `HTTP 408`, while the identical request via `curl` consistently answered in 2-3s. Cause not established (TLS/HTTP2 fingerprinting is the obvious suspect, not confirmed); noted here only because it could otherwise look like `guest_reg` itself is flaky.
 
 ---
 
@@ -326,11 +363,12 @@ The deeper per-function detail (the exact code that builds a guest `ClientPayloa
 | Item | Status |
 |------|--------|
 | Token generation site (client-minted vs. server-assigned) | `createCallLink` call site carries no token argument (found); true origin is native (unknown) |
-| Whether a genuinely account-less browser session produces the same decrypted stanza sequence | partially resolved (§14–§15): the session registers via `guest_reg` and logs in over the same Noise XX transport with `ClientPayload.accountType = GUEST`; the decrypted `link_query`/`link_join` content itself was not captured for that session |
+| Whether a genuinely account-less session produces the same decrypted stanza sequence | resolved (§15.1): a guest-side client decrypting its own session got the same `link_query`/`link_join` ack shapes as §4, over the same Noise XX transport with `ClientPayload.accountType = GUEST` |
+| `guest_reg` HTTP response body (credential shape returned to the guest) | resolved (§15.1): JSON `{ent_access_token, ent_canonical_fbid, lid, status:"ok"}`; the guest's own `lid` is assigned here, not only at admission |
 | Host-side admit action (`waiting_room_toggle`/`_admit`) wire shape | not in this capture (single-ended); described only from WA_CALL_SIGNALING.md §10.3 statics |
 | Why admission followed the single observed heartbeat so quickly | alert host vs. an auto-admit condition — not distinguishable from this evidence |
 | Guest JID lifetime / reuse across repeated joins | not observed |
-| Whether a guest ever receives `enc_rekey` or any Signal-wrapped call key | not observed in either capture window |
+| Whether a guest ever receives `enc_rekey` or any Signal-wrapped call key | resolved (§15.1): yes — a guest receives it, decrypts it, and the key installs into the media engine; the relay/media connection comes up with it |
 | `<participant pid jid>` mapping under `<relay>` | not present in this 2-party capture; unknown if group calls with guests use it |
 | Purpose of double base64 encoding on `<key>`/`<hbh_key>` vs. raw `<token>`/`<auth_token>` | unknown |
 | `connected-limit` as a client-settable cap vs. always server-assigned | no client setter found (found: server-returned only) |
