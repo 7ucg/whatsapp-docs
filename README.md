@@ -1,7 +1,7 @@
 # whatsapp-docs
 
 Reverse-engineered documentation of WhatsApp Android internals.
-All findings are based on static analysis of WhatsApp Android APK (JADX decompile + Kotlin decompile).
+All findings are based on static analysis of the WhatsApp Android APK (apktool smali/resource decode, targeted JADX/Kotlin decompilation of individual classes).
 
 > More reports are coming soon: new topics and updates for every new APK version.
 
@@ -66,8 +66,9 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 - Report system (SMAX stanzas, spam_list, all report types)
 - XMPP protocol details (stanza structures, binary token dictionary)
 - Client-side signal collection (dhash, message velocity, broadcast limits, WaFA)
-- Meta AI bots (JIDs, proto fields, Hatch requests)
+- Meta AI bots (JIDs, proto fields, Hatch/Muse AI agent, Private Search)
 - Reporting, client integrity/attestation, linked-device pairing, usernames
+- Groups and communities (structure, addressing, membership, join approval), org accounts
 
 ## Notes
 
