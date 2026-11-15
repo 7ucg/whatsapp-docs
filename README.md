@@ -58,6 +58,7 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA Groups & Communities](./WA_GROUPS_AND_COMMUNITIES.md) | 2.26.41.6 | parent/linked/default sub-groups, addressing, w:g2/w:gp2, group+community MEX ops, invites, admin settings, community join approval |
 | [WA Hatch/Muse AI Agent](./WA_HATCH_MUSE.md) | 2.26.41.6 | attested Noise-gateway VM transport, native carrier + SEV-SNP attestation, agent-browser noVNC stream, workspace (spaces, feed, goals, ideas, approvals, connectors), Vesta OPAQUE identity/PIN recovery, paid tier, reachability verdict |
 | [WA Org Accounts](./WA_ORG_ACCOUNTS.md) | 2.26.45.10 | org_id/member directory membership model, invite-link + email-OTP join flow, `GraphQlOrgApi`/`OrgEmailCodeClient` ops, distinction from Managed Account and Business API delegation |
+| [WA Business App](./WA_BUSINESS_APP.md) | 2.26.45.7 (Business) / 2.26.45.10 (consumer) | `com.whatsapp.w4b` vs consumer APK diff: 45 Business-only package roots, exclusive React Native + Fresco stack, `facebook-schema` GraphQL asymmetry (215 ops), permission diff, distinction from Business API/Cloud API and Managed Account |
 
 ## Scope
 
