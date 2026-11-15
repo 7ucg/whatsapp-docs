@@ -29,6 +29,13 @@ All statements are static analysis of the decompiled APK. Tier: **found** = read
 
 Names differ per build; every obfuscated name above was resolved in 2.26.41.6 from stable strings (`spam_list`, `spam_flow`, `reporting_token_key`, `GET_REPORTING_INFO_LIST`, `blocklist`).
 
+**Re-verified in 2.26.45.10** (found): `com.whatsapp.reportinfra.rpc.*` (the six RPC wrappers) and
+`com.whatsapp.reportinfra.repo.SpamReportRepo` are unchanged — same six classes, same JID-class routing, same
+`SpamRPCManager.A01`-`A06` calls, same error/log strings (smali-only check, no jadx this pass). This is not a
+new report surface; it is the same package documented above, just re-confirmed. The WAM perf-metric hook
+(`wam_spam_report_perf`, section 11.3) now visibly routes through a named `ReportSpamPerfMetric$Companion`
+helper one layer closer to `SpamReportRepo` — same telemetry, no new fields.
+
 ---
 
 ## 2. Report types
