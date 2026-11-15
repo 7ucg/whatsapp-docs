@@ -1,4 +1,4 @@
-<!-- src-sha1: 84ea5bd809c6118cf8363e58c56bee3ba607d23e -->
+<!-- src-sha1: 8651b8d090e77403eb4a371175327e71510f2e61 -->
 # WhatsApp Sistema de Bloqueo — Full RE Report
 **Versión:** 2.26.41.6 | **Fecha:** 2026-10-17
 **Alcance:** Flujo de bloqueo, ciclo de vida de WFAC, recolección de señales de spam, protocolo GraphQL, sistema de apelación, marcado como sospechoso, prevención
@@ -583,6 +583,20 @@ Las cuatro condiciones de disparo del informe anterior (`is_suspicious == 1`, `i
 | `WfacUnbanDecisionFragment` | Confirmación posterior a la apelación |
 
 Disparador (cambiado): `Main.A5D()` ya no existe; su equivalente es `Main.A5W()`, que lee `wfac_ban_state` al inicio (switch sobre "UNBANNED" / "BANNED" / "CHECKPOINTED", estado de registro 21, log "main/me/wfac ban") e inicia `WfacBanActivity` mediante `HBC`. No se encontró ningún listener de cambios de SharedPreferences. `wfac_ban_state` es escrito por el handler del fetch del estado de bloqueo y por `WfacBanActivity.onCreate` (2.3). La ruta de fallo de login (403) abre en su lugar la antigua `com.whatsapp.userban.ui.BanAppealActivity` (`HBB`). 2.26.41.6: clases ahora en `com.whatsapp.waffle.wfac.ui` (también `WfacBanBaseFragment`); actividad abierta mediante el helper de intent `HBC` y la transición de pantalla `I1T` (`transitionToScreen`).
+
+#### 7.3a Precalentamiento de atestación Play Integrity en la apelación de bloqueo (nuevo en 2.26.45.10, found)
+
+`com.whatsapp.userban.ui.BanAppealActivity` (la pantalla de apelación de la ruta de fallo de login, arriba) ahora inicia un **precalentamiento de atestación de Play Integrity** como parte de su propio ciclo de vida, antes del envío real de la apelación — tres nuevas clases bajo `com.whatsapp.userban.signals`:
+
+| Clase | Rol |
+|-------|------|
+| `BanAppealPlayIntegrityPrewarmer` (`$prewarm$1` coroutine body) | Solicita/prepara un token de Google Play Integrity de forma temprana, antes de que el usuario termine el formulario de apelación |
+| `BanAppealSignalsAggregator` | Combina el token precalentado con otras fuentes de señales asíncronas (cada una resuelta mediante su propio deferred de tipo `LX/05b;`) en un agregado único |
+| `BanAppealExistRequester` | Verifica la existencia de apelación/bloqueo y es donde viven `appeal_token`, `backup_token` y la propia solicitud `ban_appeal` (`no_appeal_token` como caso de fallo registrado) |
+
+`BanAppealActivity` construye `BanAppealPlayIntegrityPrewarmer$prewarm$1` directamente dentro de su método de ruta de reanudación (renombrado en smali como `A44`) y lo lanza en un coroutine scope — es decir, el precalentamiento comienza en cuanto se abre la pantalla de apelación, no al momento del envío, por lo que el token ya está preparado cuando `BanAppealExistRequester` publica la apelación. El prewarmer registra cuatro resultados de fallo con nombre como cadenas simples: `"BanAppealPlayIntegrityPrewarmer/prewarm nonpositive_timeout"`, `"...prepare_failed"`, `"...api_error"`, `"...unavailable"` — la única evidencia estructurada de sus propios modos de fallo; no se encontró ningún literal de cadena para la ruta de éxito (probablemente solo un objeto de token en caché sin línea de log).
+
+**No alcanzable de forma independiente**: Play Integrity emite un token atestado por Google, específico por dispositivo/app, que un cliente de terceros no puede falsificar ni reproducir para otro dispositivo — esto eleva la exigencia para la automatización de apelaciones, no abre una nueva superficie de apelación. Los estados de bloqueo `unbanReasonData`/`IN_REVIEW` y el resto del flujo de apelación (7.3, la tabla de 7.3) no cambian en esencia; solo la ruta de envío ganó este paso de atestación.
 
 ### 7.4 SMB Soft Enforcement
 

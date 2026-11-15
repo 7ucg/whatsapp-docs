@@ -1,4 +1,4 @@
-<!-- src-sha1: 84ea5bd809c6118cf8363e58c56bee3ba607d23e -->
+<!-- src-sha1: 8651b8d090e77403eb4a371175327e71510f2e61 -->
 # WhatsApp Ban System — Full RE Report
 **Sürüm:** 2.26.41.6 | **Tarih:** 2026-10-17
 **Kapsam:** Ban akışı, WFAC yaşam döngüsü, spam sinyali toplama, GraphQL protokolü, itiraz sistemi, şüpheli işaretleme, önleme
@@ -584,6 +584,20 @@ Found: bir bilgi sayfası ("learn more" bağlantıları `about-blocking-reportin
 
 Tetikleyici (değişti): `Main.A5D()` kalktı; eşdeğeri `Main.A5W()`'dir, başlangıçta `wfac_ban_state`'i okur ("UNBANNED" / "BANNED" / "CHECKPOINTED" üzerinde switch, kayıt durumu 21, log "main/me/wfac ban") ve `HBC` üzerinden `WfacBanActivity`'yi başlatır. Hiçbir SharedPreferences değişiklik dinleyicisi bulunamadı. `wfac_ban_state`, ban-durumu fetch işleyicisi ve `WfacBanActivity.onCreate` tarafından yazılır (2.3). Login-failure yolu (403) bunun yerine daha eski `com.whatsapp.userban.ui.BanAppealActivity`'yi (`HBB`) açar. 2.26.41.6: sınıflar artık `com.whatsapp.waffle.wfac.ui` içinde (ayrıca `WfacBanBaseFragment`); activity `HBC` intent yardımcısı ve `I1T` ekran geçişi (`transitionToScreen`) ile açılır.
 
+#### 7.3a Ban itiraz akışında Play Integrity attestation prewarm'ı (2.26.45.10'da yeni, found)
+
+`com.whatsapp.userban.ui.BanAppealActivity` (yukarıdaki, login-failure yolundaki itiraz ekranı), kendi yaşam döngüsünün bir parçası olarak, asıl itiraz gönderiminden önce bir **Play Integrity attestation prewarm'ı** başlatır artık — `com.whatsapp.userban.signals` altında üç yeni sınıf:
+
+| Sınıf | Rolü |
+|-------|------|
+| `BanAppealPlayIntegrityPrewarmer` (`$prewarm$1` coroutine gövdesi) | Kullanıcı itiraz formunu bitirmeden önce, erkenden bir Google Play Integrity token'ı ister/hazırlar |
+| `BanAppealSignalsAggregator` | Prewarm edilmiş token'ı diğer asenkron sinyal kaynaklarıyla (her biri kendi `LX/05b;` tipli deferred'ı üzerinden çözülür) tek bir toplamda birleştirir |
+| `BanAppealExistRequester` | İtiraz/ban varlığını kontrol eder ve `appeal_token`, `backup_token` ile `ban_appeal` isteğinin kendisinin yaşadığı yerdir (loglanan bir hata durumu olarak `no_appeal_token`) |
+
+`BanAppealActivity`, `BanAppealPlayIntegrityPrewarmer$prewarm$1`'i doğrudan kendi resume-path metodu içinde (smali'de yeniden adlandırılmış `A44`) oluşturur ve bir coroutine scope'unda başlatır — yani prewarm, itiraz ekranı açıldığı anda başlar, gönderim anında değil; bu sayede `BanAppealExistRequester` itirazı postaladığında token zaten hazırlanmış olur. Prewarmer, kendi dört adlandırılmış hata sonucunu düz string olarak loglar: `"BanAppealPlayIntegrityPrewarmer/prewarm nonpositive_timeout"`, `"...prepare_failed"`, `"...api_error"`, `"...unavailable"` — kendi hata modlarının tek yapılandırılmış kanıtı budur; buna karşılık gelen bir başarı-yolu string literali bulunamadı (muhtemelen yalnızca log satırı olmayan, önbelleğe alınmış bir token nesnesi).
+
+**Bağımsız olarak erişilemez**: Play Integrity, üçüncü taraf bir istemcinin başka bir cihaz için sahteleyemeyeceği veya tekrar oynatamayacağı, Google tarafından attest edilmiş, cihaz/uygulama başına bir token verir — bu, itiraz otomasyonunun eşiğini yükseltir, yeni bir itiraz yüzeyi açmaz. `unbanReasonData`/`IN_REVIEW` ban durumları ve itiraz akışının geri kalanı (7.3, 7.3'ün tablosu) türü itibarıyla değişmedi; yalnızca gönderim yolu bu attestation adımını kazandı.
+
 ### 7.4 SMB Soft Enforcement
 
 Değişti: tetikleyici, `is_suspicious=true` + `"business_policy_violation"` içeren `integrity_tags` değildir (bu string 2.26.41.6'da yok). Bu, `biz_integrity_warning_notification > violation` çocuğu olan bir XMPP business bildirimidir (işleyici `AnonymousClass142`, bildirim id 202):
@@ -643,18 +657,18 @@ ACS token `"WA_ODML"` ile indirilebilir ML modeli (`OdmlModelDownloadClient` iç
 | 402 + `appeal_token` + `code` 106 | 13 | aynı | `ContextualAgeCollectionActivity` (extra'lar `appealToken`, `expireTimeout`) |
 | 402 + `appeal_token` + `code` 107 / `code` 109 | 14 / 15 | aynı | "U13 Banned PAA Pending" yolu (yönetilen-hesap prefs'leri, onboarding) |
 | 403 | 7 | `is_eu`, `vt`, `violation_reason`, `appeal_token`, `reg_info` | Kalıcı ban: `HGB.startPermanentBanFlow` -> `BanAppealActivity` (flag 19714 gecikmesinden sonra, ms cinsinden) |
-| 405 | 3 | `t` (saniye) | `software_forced_expiration` pref'ini yazar |
-| 406 | 5 | `code` | Pref `underage_account_banned` |
+| 405 | 3 | `t` (saniye) | `software_forced_expiration` tercihini yazar |
+| 406 | 5 | `code` | Tercih `underage_account_banned` |
 | 416 | 11 | `vt`, `violation_reason`, `source_acct`, `appeal_token` | `WfacManager.startUnderageBanFlow`; `violation_reason == "u13_checkpoint"` `support_ban_appeal_user_banned_from_chat_disconnect`'i ayarlar |
 | diğer | 0 | - | Logout ("exception-password" yolu) |
 
 Tüm failure tipleri ayrıca isteğe bağlı logout UI özniteliklerini okur: `logout_message_header`, `logout_message_subtext`, `logout_message_locale`, `logout_main_button_text`, `logout_main_button_url`, `logout_secondary_button_text`, `logout_secondary_button_url`. `location`, yönlendirme için node'dan okunur.
 
-`<stream:error>` (companion read interceptor, `C40601l6`): `code` 515 / 516, çocuk `conflict type="device_removed"` (deregister), çocuk `ack` (kick). Bana özgü çocuk bulunamadı. `<presence type="unavailable">` ve WebSocket kapatma kodları incelenmedi.
+`<stream:error>` (eşlik eden okuma interceptor'ı, `C40601l6`): `code` 515 / 516, çocuk `conflict type="device_removed"` (deregister), çocuk `ack` (kick). Ban'a özgü bir çocuk bulunamadı. `<presence type="unavailable">` ve WebSocket close kodları incelenmedi.
 
-### 8.2 XMPP hata token'ları (binary sözlük)
+### 8.2 XMPP hata token'ları (ikili sözlük)
 
-Sözlük `AbstractC40911lb` (tek byte'lık `A00`, çift byte'lık `A01`). Önceki tablodaki token'ların varlığı:
+Sözlük `AbstractC40911lb` (tek bayt `A00`, çift bayt `A01`). Önceki tablonun token'larının varlığı:
 
 | Token string'i | Sözlükte |
 |-------------|---------------|
@@ -665,19 +679,19 @@ Sözlük `AbstractC40911lb` (tek byte'lık `A00`, çift byte'lık `A01`). Öncek
 | `server-error` | evet |
 | `401` | evet |
 | `policy-violation` | bulunamadı |
-| `403` | token olarak bulunamadı (`reason` değeri 403 int öznitelik olarak okunur) |
+| `403` | token olarak bulunamadı (`reason` değeri 403 int özniteliği olarak okunur) |
 
-Önceki raporun "Meaning" sütunu (örn. `403` = "Forbidden (ban-related)") inferred idi; yalnızca 403 anlamı artık yukarıdaki `<failure>` işlemeyle destekleniyor. Sözlükte ayrıca: `404`, `407`, `failure`, `locked`.
+Önceki raporun "Meaning" sütunu (örn. `403` = "Forbidden (ban-related)") inferred'dı; artık sadece 403 anlamı yukarıdaki `<failure>` işlenmesiyle desteklenmektedir. Sözlükte ayrıca: `404`, `407`, `failure`, `locked`.
 
 ### 8.3 Kısıtlı hesaplar için IQ yanıtları
 
-Bulunamadı. 2.26.41.6'nın java_src veya kaynaklarında ne `urn:ietf:params:xml:ns:xmpp-stanzas` namespace'i ne de "Account restricted" / "User banned" metinleri var ve sözlükte `forbidden` / `service-unavailable` token'ları yok. Önceki raporun XML örnekleri doğrulanmadı ve güvenilmemeli (açıklayıcı olabilirler). IQ başına hata işleme (örn. `item-not-found`, `not-authorized` ayrıştırıcıları `K3P`, `C23205A1e` gibi) kısıtlı hesaplar için izlenmedi.
+Bulunamadı. Ne `urn:ietf:params:xml:ns:xmpp-stanzas` namespace'i ne de "Account restricted" / "User banned" metinleri 2.26.41.6'nın java_src veya kaynaklarında mevcut, ve sözlükte `forbidden` / `service-unavailable` token'ları yok. Önceki raporun XML örnekleri doğrulanmamıştır ve güvenilmemelidir (açıklayıcı olabilirler). IQ başına hata işlenmesi (örn. `item-not-found`, `not-authorized` ayrıştırıcıları gibi `K3P`, `C23205A1e`) kısıtlı hesaplar için izlenmedi.
 
 ---
 
 ## 9. Tam Veri Akışı (Uçtan Uca)
 
-(2.26.41.6'da yeniden kontrol edildi: doc_id `28596420510007620`, girdi biçimi `query_input`, yukarıdaki sınıf adları. 2.26.26.4 diyagramındaki `isBanned` -> `wfac_ban_state` -> `Main.A5D()` okları, kodda böyle bir bağlantı olmadığı için kaldırıldı; bkz. bölüm 1 ve 2.3.)
+(2.26.41.6'da yeniden kontrol edildi: doc_id `28596420510007620`, girdi biçimi `query_input`, yukarıdaki sınıf adları. 2.26.26.4 diyagramının `isBanned` -> `wfac_ban_state` -> `Main.A5D()` okları kaldırıldı, çünkü kodda böyle bir bağlantı yoktur; bkz. bölüm 1 ve 2.3.)
 
 ```
 [Open chat / send message]
@@ -733,43 +747,43 @@ Bulunamadı. 2.26.41.6'nın java_src veya kaynaklarında ne `urn:ietf:params:xml
 
 ## 10. İtiraz İsteği (2.26.41.6)
 
-`C37414GLt` içinde bulundu: istek `variables` JSON'u `user_request{client_ephemeral_pub_key_base64, ciphertext_base64, encryption_nonce_base64}` ve `app_id` (`"dev.app.id"`) taşır; şifrelemeden önceki düz metin `{token, debug_info, description}`'dır; bağlam etiketi `"WA_INAPP_BAN_APPEALS"` (anahtar türetme info'su). Taşıma (found, `AbstractC40195HfH`): MEX değil, `doc_id` ve bir `access_token` alanı ile `https://<host>.facebook.com/graphql` adresine düz bir Facebook Graph POST'u. `C37414GLt`, `hg3.A04.A00()` true ise `doc_id` **38509456535312323**, aksi halde **5473316762755318** geçirir. `submitBanAppeal` işlem adı 2.26.41.6'nın java_src, smali, assets veya res'inde string olarak geçmez ve her iki doc_id de projenin sorgu kataloğunda yoktur, dolayısıyla ad doğrulanmadı. Gönderimden önce `C40191HfD`, şifreleme için anahtar materyalini sağlayan `data.purpose_public_keys{purpose_public_ek, purpose_public_ik, purpose_public_ik_sig, purpose_dummy_ciphertext, purpose_dummy_nonce}` içeren ilk bir yanıtı ayrıştırır.
+`C37414GLt` içinde bulundu: istek `variables` JSON'u `user_request{client_ephemeral_pub_key_base64, ciphertext_base64, encryption_nonce_base64}` ve `app_id`'i (`"dev.app.id"`) taşır; şifrelemeden önceki düz metin `{token, debug_info, description}`'dır; bağlam etiketi `"WA_INAPP_BAN_APPEALS"` (key derivation bilgisi). Taşıma (found, `AbstractC40195HfH`): MEX değil, `https://<host>.facebook.com/graphql`'e `doc_id` ve bir `access_token` alanı içeren düz bir Facebook Graph POST'u. `C37414GLt`, `hg3.A04.A00()` true olduğunda `doc_id` **38509456535312323**'ü, değilse **5473316762755318**'i geçirir. `submitBanAppeal` işlem adı, 2.26.41.6'nın java_src, smali, assets veya res'inde string olarak geçmez ve her iki doc_id de projenin query kataloğunda yoktur, dolayısıyla ad doğrulanmamıştır. Gönderimden önce, `C40191HfD`, şifreleme için anahtar materyalini sağlayan `data.purpose_public_keys{purpose_public_ek, purpose_public_ik, purpose_public_ik_sig, purpose_dummy_ciphertext, purpose_dummy_nonce}` içeren bir ilk yanıtı ayrıştırır.
 
 ---
 
-## 11. 2.26.26.4'e göre değişiklikler
+## 11. 2.26.26.4'e Göre Değişiklikler
 
 | Öğe | 2.26.26.4 | 2.26.41.6 |
 |------|-----------|-----------|
 | BizIntegrityQuery doc_id | `25975613018777537` | `28596420510007620` (2.26.38.10'da rotasyona girdi) |
-| İstek biçimi | `$userJids` listesi (yeniden yapılandırılmış) | `input{query_input[{jid, privacy_token{tctoken,timestamp}}], telemetry{context}}` |
+| İstek biçimi | `$userJids` listesi (yeniden yapılandırıldı) | `input{query_input[{jid, privacy_token{tctoken,timestamp}}], telemetry{context}}` |
 | DTO sınıfı | `C39833Hhl` | `C51530MtC` (17 alan: + `isMetaVerified`, `fmxBusinessHoldoutGroup`) |
 | `wa_biz_integrity_signals` | 14 sütun | + `is_meta_verified`, `fmx_business_holdout_group`; sayılar REAL |
 | Store / manager | `BizIntegritySignalsManager.A08/A01` | store `LwI`, şema `C53116Nmn`, manager A02 60 sn bellek önbelleği |
 | start_chat_trust_signals okuyucusu | `C2M7.A0K` | `C57342Yp` |
-| Trust tier enum | kaydedilmedi, 7 değer | `M5B`, aynı 7 değer |
+| Trust tier enum'u | kaydedilmedi, 7 değer | `M5B`, aynı 7 değer |
 | WFAC UI paketi | `com.whatsapp.waffle.wfac` (düz) | `com.whatsapp.waffle.wfac.ui` (+ `WfacBanBaseFragment`) |
-| WFAC prefs | 5 anahtar | + `wfac_last_ban_status_fetch_timestamp_ms` (5 sn yenileme throttle'ı), sıfırlamada `support_ban_appeal_user_banned_from_chat_disconnect` temizlenir |
-| Ban durumu ayrıştırma | 4 durum | aynı; `NO_APPEAL_OPENED` `CHECKPOINTED`'a eşlenir |
+| WFAC prefs | 5 anahtar | + `wfac_last_ban_status_fetch_timestamp_ms` (5 sn refresh throttle), sıfırlamada temizlenen `support_ban_appeal_user_banned_from_chat_disconnect` |
+| Ban durumu ayrıştırma | 4 durum | aynı; `NO_APPEAL_OPENED`, `CHECKPOINTED`'a eşlendi |
 | Flag'ler | 11061/11064/11065/12709/16349/19893/26697/27269 | hepsi mevcut; + 19793 (N5r.A02) |
 | SpamWarning kodları 100-106 | evet | değişmedi |
 | integrity_tags | `automation_bulk_messaging`, `spam` | değişmedi |
 | SpamFlow | 92 kategori | 97; `odml_scam_alert_*`, `biz_spam_banner_block`, diğerleri eklendi |
-| ML feature'ları | `isCountryMismatch`, `mostRecentSenderScore` (31535/31536) | değişmedi, `integrityai.impl.InputFeatureProviderImpl` içinde |
+| ML feature'lar | `isCountryMismatch`, `mostRecentSenderScore` (31535/31536) | değişmedi, `integrityai.impl.InputFeatureProviderImpl` içinde |
 | Broadcast limiti 20278 | 10000 / 30 gün | değişmedi |
-| Bağlantı anındaki ban/uyarı olayları | "XMPP ban sinyali yok" | XMPP login `<failure>`: reason 402 (SpamWarning / U13), 403 (kalıcı ban -> `BanAppealActivity`), 405, 406, 416 (WFAC underage); `C45351tB`, `C0ZH` |
-| `Main.A5D()` | `wfac_ban_state` değişikliğine tepki verir | kalktı; `Main.A5W()` durumu başlangıçta okur (kayıt durumu 21) ve `HBC` ile `WfacBanActivity`'yi açar |
+| Bağlantı anındaki ban/uyarı olayları | "XMPP ban sinyali yok" | XMPP login `<failure>`: reason 402 (SpamWarning / U13), 403 (kesin ban -> `BanAppealActivity`), 405, 406, 416 (WFAC underage); `C45351tB`, `C0ZH` |
+| `Main.A5D()` | `wfac_ban_state` değişikliğine tepki verir | kalktı; `Main.A5W()` başlangıçta durumu okur (kayıt durumu 21) ve `HBC` üzerinden `WfacBanActivity`'yi açar |
 | `wfac_ban_state` yazıcıları | kaydedilmedi | ban-durumu fetch işleyicisi `C40191HfD`; `WfacBanActivity.onCreate` (launch source'a göre CHECKPOINTED / BANNED / UNBANNED); `is_banned`'dan bağlantı yok |
-| BizIntegrity uygunluğu | "işletme hesapları kontrolü atlar" | SMB kişilerini (`smb:` seviyesi) veya `hostStorage == 2` (12709) seçer; zorunlu yol 16349; fetch'te 975-JID parçalama yok |
-| 975 batch | GraphQL batch'i | yerel SQL mesaj-sayımı parçası (`N54`) |
+| BizIntegrity uygunluğu | "işletme hesapları kontrolü atlar" | SMB kişilerini (`smb:` seviyesi) veya `hostStorage == 2`'yi (12709) seçer; zorunlu yol 16349; fetch'te 975-JID parçalama yok |
+| 975 batch'i | GraphQL batch'i | yerel SQL mesaj sayımı parçası (`N54`) |
 | Flag 12709 | sunucu tarafı whitelist | yerel `hostStorage == 2` kontrolü |
-| Flag 2923, 24 sa hesap yaşı toleransı, `dhash` oluşturma | iddia edilmişti | 2.26.41.6'da bulunamadı |
-| `integrity_tags` değerleri | `automation_bulk_messaging`, `spam` | bu string'ler SMB soft-enforcement bildirim `type` değerleridir, `integrity_tags` değil |
+| Flag 2923, 24 sa hesap yaşı toleransı, `dhash` oluşturulması | iddia edildi | 2.26.41.6'da bulunamadı |
+| `integrity_tags` değerleri | `automation_bulk_messaging`, `spam` | bu string'ler SMB soft-enforcement bildiriminin `type` değerleridir, `integrity_tags` değil |
 | SMB soft enforcement | `business_policy_violation` tag'i + JSON `notification_type`/`education_url` | XMPP `biz_integrity_warning_notification > violation{source,type,severity,policy_url,priority,status}`; saklanan JSON anahtarları `source,type,severity,notificationType,policyUrl,status,bannerNotificationTimeStamp,priority`; flag 12840 |
-| SpamFlow indeksleri/sayısı | 92, örn. `odml_scam_alert_bottom_sheet_block` = 65 | 97 girdi (`C9E2`), aynı adlar kaymış indekslerde (70, 71, 76, 85, 89, 94, 96) |
-| `SuspiciousFmxBottomSheetFragment` | 4 veri koşuluyla açılır | FMX kartı düğmelerinden / `C512928n` içinden açılan bilgi sayfası |
-| İtiraz isteği | MEX `submitBanAppeal` mutation'ı | Graph `https://<host>.facebook.com/graphql`, doc_id 38509456535312323 / 5473316762755318 ile, öncesinde `purpose_public_keys` fetch'i; işlem adı bulunamadı |
+| SpamFlow indeksleri/sayısı | 92, örn. `odml_scam_alert_bottom_sheet_block` = 65 | 97 girdi (`C9E2`), kaydırılmış indekslerde aynı adlar (70, 71, 76, 85, 89, 94, 96) |
+| `SuspiciousFmxBottomSheetFragment` | 4 veri koşulu ile açılır | FMX kartı düğmelerinden / `C512928n`'den açılan bilgi sayfası |
+| İtiraz isteği | MEX `submitBanAppeal` mutasyonu | `purpose_public_keys` fetch'inin öncesinde geldiği, doc_id 38509456535312323 / 5473316762755318 ile Graph `https://<host>.facebook.com/graphql`; işlem adı bulunamadı |
 | `wa_biz_integrity_chat_settings` | bulunamadı | bulundu (`AHY`) |
 | XMPP hata token'ları | `policy-violation`, `403` token'ları | sözlükte yok; `forbidden`/`service-unavailable` ve 8.3 metinleri yok |
 
-2.26.41.6'da hâlâ açık: `wfac_ban_violation_source` 0/1/2 arkasındaki kategori adları; flag 20278 ve flag 12840'ın tüketicisi; yardımcı `N5r.A01`'in semantiği; WaFA raporlarının içeriği; kısıtlı hesaplar için IQ başına hata işleme (8.3); FMX kartında hesap yaşı gösterimi; `C1P2.A01()` arkasındaki flag.
+2.26.41.6'da hâlâ açık: `wfac_ban_violation_source` 0/1/2'nin arkasındaki kategori adları; flag 20278 ve flag 12840'ın tüketicisi; yardımcı `N5r.A01`'in semantiği; WaFA raporlarının içeriği; kısıtlı hesaplar için IQ başına hata işlenmesi (8.3); FMX kartında hesap yaşı gösterimi; `C1P2.A01()`'in arkasındaki flag.

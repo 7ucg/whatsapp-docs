@@ -1,4 +1,4 @@
-<!-- src-sha1: 84ea5bd809c6118cf8363e58c56bee3ba607d23e -->
+<!-- src-sha1: 8651b8d090e77403eb4a371175327e71510f2e61 -->
 # WhatsApp Ban-System — Full RE Report
 **Version:** 2.26.41.6 | **Datum:** 2026-10-17
 **Umfang:** Ban-Flow, WFAC-Lebenszyklus, Erfassung von Spam-Signalen, GraphQL-Protokoll, Appeal-System, Suspicious-Markierung, Prävention
@@ -583,6 +583,20 @@ Die vier Trigger-Bedingungen des früheren Reports (`is_suspicious == 1`, `is_su
 | `WfacUnbanDecisionFragment` | Bestätigung nach dem Appeal |
 
 Trigger (geändert): `Main.A5D()` existiert nicht mehr; sein Äquivalent ist `Main.A5W()`, das `wfac_ban_state` beim Start liest (Switch auf "UNBANNED" / "BANNED" / "CHECKPOINTED", Registration State 21, Log "main/me/wfac ban") und `WfacBanActivity` über `HBC` startet. Es wurde kein SharedPreferences-Change-Listener gefunden. `wfac_ban_state` wird vom Ban-Status-Fetch-Handler und von `WfacBanActivity.onCreate` geschrieben (2.3). Der Login-Failure-Pfad (403) öffnet stattdessen die ältere `com.whatsapp.userban.ui.BanAppealActivity` (`HBB`). 2.26.41.6: Klassen jetzt in `com.whatsapp.waffle.wfac.ui` (auch `WfacBanBaseFragment`); Activity wird über den Intent-Helper `HBC` und den Screen-Übergang `I1T` (`transitionToScreen`) geöffnet.
+
+#### 7.3a Play-Integrity-Attestation-Prewarm beim Ban-Appeal (neu in 2.26.45.10, found)
+
+`com.whatsapp.userban.ui.BanAppealActivity` (der Appeal-Screen des Login-Failure-Pfads, oben) stößt jetzt als Teil ihres eigenen Lebenszyklus ein **Play-Integrity-Attestation-Prewarm** an, noch vor der eigentlichen Appeal-Einreichung — drei neue Klassen unter `com.whatsapp.userban.signals`:
+
+| Klasse | Rolle |
+|-------|------|
+| `BanAppealPlayIntegrityPrewarmer` (`$prewarm$1` Coroutine-Body) | Fordert frühzeitig ein Google-Play-Integrity-Token an / bereitet es vor, noch bevor der Nutzer das Appeal-Formular ausfüllt |
+| `BanAppealSignalsAggregator` | Kombiniert das vorgewärmte Token mit weiteren asynchronen Signalquellen (jede über ein eigenes `LX/05b;`-typisiertes Deferred aufgelöst) zu einem Aggregat |
+| `BanAppealExistRequester` | Prüft, ob ein Appeal/Ban existiert, und ist der Ort, an dem `appeal_token`, `backup_token` und der `ban_appeal`-Request selbst leben (`no_appeal_token` als geloggter Fehlerfall) |
+
+`BanAppealActivity` erzeugt `BanAppealPlayIntegrityPrewarmer$prewarm$1` direkt innerhalb ihrer Resume-Pfad-Methode (in smali umbenannt zu `A44`) und startet es auf einem Coroutine-Scope — d. h. der Prewarm beginnt, sobald der Appeal-Screen geöffnet wird, nicht erst beim Absenden, sodass das Token bereits vorbereitet ist, wenn `BanAppealExistRequester` den Appeal postet. Der Prewarmer loggt vier benannte Fehlerausgänge als reine Strings: `"BanAppealPlayIntegrityPrewarmer/prewarm nonpositive_timeout"`, `"...prepare_failed"`, `"...api_error"`, `"...unavailable"` — der einzige strukturierte Beleg für seine eigenen Fehlermodi; kein entsprechendes Success-Path-String-Literal wurde gefunden (vermutlich nur ein gecachtes Token-Objekt ohne Log-Zeile).
+
+**Nicht unabhängig erreichbar**: Play Integrity liefert ein von Google attestiertes, pro Gerät/pro App gültiges Token, das ein Drittanbieter-Client nicht für ein anderes Gerät fälschen oder wiederverwenden kann — das erhöht die Hürde für Appeal-Automatisierung, öffnet aber keine neue Appeal-Angriffsfläche. Die `unbanReasonData`/`IN_REVIEW`-Ban-States und der Rest des Appeal-Flows (7.3, Tabelle in 7.3) sind in ihrer Art unverändert; nur der Einreichungspfad hat diesen Attestation-Schritt hinzugewonnen.
 
 ### 7.4 SMB Soft Enforcement
 
