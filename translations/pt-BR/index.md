@@ -1,4 +1,4 @@
-<!-- src-sha1: 0094087e762aaaacf3afdb1e20a7cc458c89eb52 -->
+<!-- src-sha1: 95f06223c2f0866c871a46423557a61a3acb0584 -->
 ---
 hide:
   - navigation
@@ -266,6 +266,46 @@ Documentação por engenharia reversa dos componentes internos do **WhatsApp And
     Links de chamada para convidados, handshake link_query/link_join, sala de espera, atribuição de JID do convidado, entrega de relay/chave.
 
     `APK 2.26.41.6`
+
+-   :material-account-group: **[Grupos e comunidades](WA_GROUPS_AND_COMMUNITIES.md)**
+
+    ---
+
+    Estrutura de grupo vs. comunidade, `w:g2`/`w:gp2`, catálogo completo de operações MEX de grupo+comunidade, convites, configurações de admin, aprovação de entrada em comunidade.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-domain: **[Contas de organização](WA_ORG_ACCOUNTS.md)**
+
+    ---
+
+    Modelo de entidade de conta de organização, fluxo de entrada por link de convite + OTP por e-mail, operações `GraphQlOrgApi`/`OrgEmailCodeClient`, distinção em relação a Conta gerenciada e delegação de Business API.
+
+    `APK 2.26.45.10`
+
+-   :material-robot-outline: **[Agente de IA Hatch/Muse](WA_HATCH_MUSE.md)**
+
+    ---
+
+    Transporte de VM de gateway Noise com atestação, atestação nativa de carrier + SEV-SNP, stream noVNC do navegador do agente, workspace, identidade OPAQUE do Vesta/recuperação de PIN, tier pago, veredito de reachability.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-briefcase-outline: **[App empresarial](WA_BUSINESS_APP.md)**
+
+    ---
+
+    Diff estrutural do APK Business vs. WhatsApp de consumidor — raízes de pacote exclusivas, a stack React Native, diff de libs nativas, assimetria de doc_id GraphQL/MEX.
+
+    `APK 2.26.45.7 / 2.26.45.10`
+
+-   :material-account-child-outline: **[Contas de adolescentes](WA_TEEN_ACCOUNTS.md)**
+
+    ---
+
+    Fluxo de revisão do responsável para a conta de um menor, modelo de navegação, gate de verificação de idade, resultados aprovar/recusar/não é possível revisar.
+
+    `APK 2.26.45.10`
 
 </div>
 

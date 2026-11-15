@@ -1,4 +1,4 @@
-<!-- src-sha1: 0094087e762aaaacf3afdb1e20a7cc458c89eb52 -->
+<!-- src-sha1: 95f06223c2f0866c871a46423557a61a3acb0584 -->
 ---
 hide:
   - navigation
@@ -266,6 +266,46 @@ hide:
     Misafir arama bağlantıları, link_query/link_join el sıkışması, bekleme odası, misafir JID ataması, relay/anahtar teslimi.
 
     `APK 2.26.41.6`
+
+-   :material-account-group: **[Gruplar ve Topluluklar](WA_GROUPS_AND_COMMUNITIES.md)**
+
+    ---
+
+    Grup vs. topluluk yapısı, `w:g2`/`w:gp2`, grup+topluluk için eksiksiz MEX işlem kataloğu, davetler, yönetici ayarları, topluluk katılım onayı.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-domain: **[Organizasyon Hesapları](WA_ORG_ACCOUNTS.md)**
+
+    ---
+
+    Organizasyon hesabı varlık modeli, davet bağlantısı + e-posta OTP katılım akışı, `GraphQlOrgApi`/`OrgEmailCodeClient` işlemleri, Yönetilen Hesap ve Business API devrinden farkı.
+
+    `APK 2.26.45.10`
+
+-   :material-robot-outline: **[Hatch/Muse Yapay Zeka Ajanı](WA_HATCH_MUSE.md)**
+
+    ---
+
+    Attested Noise-gateway VM aktarımı, yerel carrier + SEV-SNP attestation, ajan-tarayıcı noVNC akışı, workspace, Vesta OPAQUE kimliği/PIN kurtarma, ücretli katman, erişilebilirlik kararı.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-briefcase-outline: **[İşletme Uygulaması](WA_BUSINESS_APP.md)**
+
+    ---
+
+    Business APK'sının tüketici WhatsApp'ına karşı yapısal diff'i — özel paket kökleri, React Native yığını, native-lib diff'i, GraphQL/MEX doc_id asimetrisi.
+
+    `APK 2.26.45.7 / 2.26.45.10`
+
+-   :material-account-child-outline: **[Genç Hesapları](WA_TEEN_ACCOUNTS.md)**
+
+    ---
+
+    Bir reşit olmayanın hesabı için ebeveyn/veli onay akışı, navigasyon modeli, yaş doğrulama kapısı, onayla/reddet/incelenemiyor sonuçları.
+
+    `APK 2.26.45.10`
 
 </div>
 

@@ -266,6 +266,46 @@ Reverse-engineered documentation of **WhatsApp Android** internals. Static analy
 
     `APK 2.26.41.6`
 
+-   :material-account-group: **[Groups & Communities](WA_GROUPS_AND_COMMUNITIES.md)**
+
+    ---
+
+    Group vs. community structure, `w:g2`/`w:gp2`, full group+community MEX op catalog, invites, admin settings, community join approval.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-domain: **[Org Accounts](WA_ORG_ACCOUNTS.md)**
+
+    ---
+
+    Org-account entity model, invite-link + email-OTP join flow, `GraphQlOrgApi`/`OrgEmailCodeClient` ops, distinction from Managed Account and Business API delegation.
+
+    `APK 2.26.45.10`
+
+-   :material-robot-outline: **[Hatch/Muse AI Agent](WA_HATCH_MUSE.md)**
+
+    ---
+
+    Attested Noise-gateway VM transport, native carrier + SEV-SNP attestation, agent-browser noVNC stream, workspace, Vesta OPAQUE identity/PIN recovery, paid tier, reachability verdict.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-briefcase-outline: **[Business App](WA_BUSINESS_APP.md)**
+
+    ---
+
+    Structural diff of the Business APK vs. consumer WhatsApp — exclusive package roots, the React Native stack, native-lib diff, GraphQL/MEX doc_id asymmetry.
+
+    `APK 2.26.45.7 / 2.26.45.10`
+
+-   :material-account-child-outline: **[Teen Accounts](WA_TEEN_ACCOUNTS.md)**
+
+    ---
+
+    Parent/guardian sponsor-review flow for a minor's account, navigation model, age-verification gate, approve/decline/cannot-review outcomes.
+
+    `APK 2.26.45.10`
+
 </div>
 
 !!! info "Coming soon"

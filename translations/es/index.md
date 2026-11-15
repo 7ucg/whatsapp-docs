@@ -1,4 +1,4 @@
-<!-- src-sha1: 0094087e762aaaacf3afdb1e20a7cc458c89eb52 -->
+<!-- src-sha1: 95f06223c2f0866c871a46423557a61a3acb0584 -->
 ---
 hide:
   - navigation
@@ -266,6 +266,46 @@ Documentación de ingeniería inversa de los componentes internos de **WhatsApp 
     Enlaces de llamada para invitados, handshake link_query/link_join, sala de espera, asignación de JID de invitado, entrega de relay/clave.
 
     `APK 2.26.41.6`
+
+-   :material-account-group: **[Grupos y comunidades](WA_GROUPS_AND_COMMUNITIES.md)**
+
+    ---
+
+    Estructura de grupo vs. comunidad, `w:g2`/`w:gp2`, catálogo completo de operaciones MEX de grupo+comunidad, invitaciones, ajustes de administrador, aprobación de unión a comunidad.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-domain: **[Cuentas de organización](WA_ORG_ACCOUNTS.md)**
+
+    ---
+
+    Modelo de entidad de cuenta de organización, flujo de unión por enlace de invitación + OTP por correo, operaciones `GraphQlOrgApi`/`OrgEmailCodeClient`, distinción respecto a Cuenta gestionada y delegación de Business API.
+
+    `APK 2.26.45.10`
+
+-   :material-robot-outline: **[Agente de IA Hatch/Muse](WA_HATCH_MUSE.md)**
+
+    ---
+
+    Transporte de VM de gateway Noise con atestación, atestación nativa de carrier + SEV-SNP, stream noVNC del navegador del agente, workspace, identidad OPAQUE de Vesta/recuperación de PIN, nivel de pago, veredicto de alcanzabilidad.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-briefcase-outline: **[App de empresa](WA_BUSINESS_APP.md)**
+
+    ---
+
+    Diff estructural del APK de Business frente a WhatsApp de consumidor — raíces de paquete exclusivas, el stack de React Native, diff de libs nativas, asimetría de doc_id de GraphQL/MEX.
+
+    `APK 2.26.45.7 / 2.26.45.10`
+
+-   :material-account-child-outline: **[Cuentas de adolescentes](WA_TEEN_ACCOUNTS.md)**
+
+    ---
+
+    Flujo de revisión por parte del padre/tutor para la cuenta de un menor, modelo de navegación, puerta de verificación de edad, resultados aprobar/rechazar/no se puede revisar.
+
+    `APK 2.26.45.10`
 
 </div>
 

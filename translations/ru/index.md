@@ -1,4 +1,4 @@
-<!-- src-sha1: 0094087e762aaaacf3afdb1e20a7cc458c89eb52 -->
+<!-- src-sha1: 95f06223c2f0866c871a46423557a61a3acb0584 -->
 ---
 hide:
   - navigation
@@ -266,6 +266,46 @@ hide:
     Гостевые ссылки на звонок, рукопожатие link_query/link_join, зал ожидания, выделение JID гостю, передача relay/ключа.
 
     `APK 2.26.41.6`
+
+-   :material-account-group: **[Группы и сообщества](WA_GROUPS_AND_COMMUNITIES.md)**
+
+    ---
+
+    Структура группы vs. сообщества, `w:g2`/`w:gp2`, полный каталог MEX-операций для групп и сообществ, приглашения, настройки админа, подтверждение вступления в сообщество.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-domain: **[Аккаунты организаций](WA_ORG_ACCOUNTS.md)**
+
+    ---
+
+    Модель сущности аккаунта организации, flow вступления по invite-ссылке + email-OTP, операции `GraphQlOrgApi`/`OrgEmailCodeClient`, отличие от Managed Account и делегирования Business API.
+
+    `APK 2.26.45.10`
+
+-   :material-robot-outline: **[ИИ-агент Hatch/Muse](WA_HATCH_MUSE.md)**
+
+    ---
+
+    Транспорт VM через Noise-gateway с аттестацией, нативная carrier- + SEV-SNP-аттестация, noVNC-стрим агент-браузера, workspace, OPAQUE-идентичность Vesta/восстановление PIN, платный уровень, вердикт достижимости.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-briefcase-outline: **[Бизнес-приложение](WA_BUSINESS_APP.md)**
+
+    ---
+
+    Структурный diff Business APK vs. потребительского WhatsApp — эксклюзивные package roots, стек React Native, diff нативных библиотек, асимметрия GraphQL/MEX doc_id.
+
+    `APK 2.26.45.7 / 2.26.45.10`
+
+-   :material-account-child-outline: **[Аккаунты подростков](WA_TEEN_ACCOUNTS.md)**
+
+    ---
+
+    Flow проверки родителем/опекуном аккаунта несовершеннолетнего, модель навигации, gate верификации возраста, исходы approve/decline/cannot-review.
+
+    `APK 2.26.45.10`
 
 </div>
 

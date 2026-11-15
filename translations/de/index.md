@@ -1,4 +1,4 @@
-<!-- src-sha1: 0094087e762aaaacf3afdb1e20a7cc458c89eb52 -->
+<!-- src-sha1: 95f06223c2f0866c871a46423557a61a3acb0584 -->
 ---
 hide:
   - navigation
@@ -266,6 +266,46 @@ Reverse-engineerte Dokumentation der **WhatsApp-Android**-Interna. Statische Ana
     Gast-Anruf-Links, link_query/link_join-Handshake, Warteraum, Gast-JID-Zuteilung, Relay-/Schlüssel-Übergabe.
 
     `APK 2.26.41.6`
+
+-   :material-account-group: **[Gruppen & Communities](WA_GROUPS_AND_COMMUNITIES.md)**
+
+    ---
+
+    Gruppen- vs. Community-Struktur, `w:g2`/`w:gp2`, vollständiger Group+Community-MEX-Op-Katalog, Einladungen, Admin-Einstellungen, Community-Join-Approval.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-domain: **[Org-Accounts](WA_ORG_ACCOUNTS.md)**
+
+    ---
+
+    Org-Account-Entitätsmodell, Invite-Link- + E-Mail-OTP-Join-Flow, `GraphQlOrgApi`/`OrgEmailCodeClient`-Ops, Abgrenzung von Managed Account und Business-API-Delegation.
+
+    `APK 2.26.45.10`
+
+-   :material-robot-outline: **[Hatch/Muse-KI-Agent](WA_HATCH_MUSE.md)**
+
+    ---
+
+    Attestiertes Noise-Gateway-VM-Transport, native Carrier- + SEV-SNP-Attestation, Agent-Browser-noVNC-Stream, Workspace, Vesta-OPAQUE-Identität/PIN-Recovery, Paid-Tier, Reachability-Verdict.
+
+    `APK 2.26.41.6 / 2.26.45.10`
+
+-   :material-briefcase-outline: **[Business-App](WA_BUSINESS_APP.md)**
+
+    ---
+
+    Struktureller Diff der Business-APK vs. Consumer-WhatsApp — exklusive Package-Roots, der React-Native-Stack, Native-Lib-Diff, GraphQL/MEX-doc_id-Asymmetrie.
+
+    `APK 2.26.45.7 / 2.26.45.10`
+
+-   :material-account-child-outline: **[Teenager-Accounts](WA_TEEN_ACCOUNTS.md)**
+
+    ---
+
+    Eltern/Sponsor-Review-Flow für das Konto eines Minderjährigen, Navigationsmodell, Age-Verification-Gate, Approve/Decline/Cannot-Review-Outcomes.
+
+    `APK 2.26.45.10`
 
 </div>
 
