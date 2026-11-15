@@ -1,4 +1,4 @@
-<!-- src-sha1: 5cbe81a4c1568d0ea9b8c065d2d8dc0fbf7e1afc -->
+<!-- src-sha1: b2ac7dbf48489274b14d9be53feb100201882f2a -->
 # WhatsApp Çağrı Bağlantıları — Full RE Report
 **Sürüm:** 2.26.41.6 | **Tarih:** 2026-11-02
 **Kapsam:** Misafir çağrı bağlantıları (`call.whatsapp.com/{voice|video}/{token}`): `link_query` / `link_join` el sıkışması, bekleme odası, misafir katılımcı / JID tahsis modeli ve misafire kabul anında verilen röle ve anahtar materyali. Bu rapor sadece bağlantı/bekleme-odası/misafir katmanını kapsar; genel `<call>` zarf dilbilgisi, offer/accept/terminate, çağrı anahtarı, röle seçim mantığı ve medya yolu [WA_CALL_SIGNALING.md](WA_CALL_SIGNALING.md) içinde ele alınır ve burada sadece referans verilir, tekrar edilmez.
@@ -217,7 +217,7 @@ Kabul edildikten sonra, trafik aynı call-id JID'inde normal bir çağrıdan ay�
 | Roster teslimi | offer içinde veya daha sonraki bir güncellemede `group_info` | `<call-id>@call`'dan bir `group_update`/`group_info` push'u, aynı stanza'da `<relay>` ve `<voip_settings>` ile paketlenmiş |
 | JID adresleme | baştan sona eş/grup JID'i | call-id oluşana kadar çıplak `call` alanı, sonra `<call-id>@call` |
 
-Misafir için eksik olan cihaz-başına çağrı anahtarı (satır 2) en önemli farktır ve sadece bu yakalamada bir yokluk olarak **tested**'dir — bir protokol kuralı olarak doğrulanmamıştır; bu, WA_CALL_SIGNALING.md §9.2'nin grup offer'larının cihaz-başına anahtar taşımadığı ve anahtarların bant-dışı yeniden paylaşıldığı (`enc_rekey`) notuyla da tutarlıdır. Bir misafirin hiç `enc_rekey` alıp almadığı, burada kullanılan iki yakalama penceresinde de gözlemlenmedi.
+Misafir için eksik olan cihaz-başına çağrı anahtarı (satır 2) en önemli farktır ve sadece bu yakalamada bir yokluk olarak **tested**'dir — bir protokol kuralı olarak doğrulanmamıştır; bu, WA_CALL_SIGNALING.md §9.2'nin grup offer'larının cihaz-başına anahtar taşımadığı ve anahtarların bant-dışı yeniden paylaşıldığı (`enc_rekey`) notuyla da tutarlıdır. Bir misafirin hiç `enc_rekey` alıp almadığı, ve hatta bunun kullanılabilir olup olmadığı, §15.1'de çözülür: ikisine de yanıt evet — her diğer katılımcınınki gibi şifresi çözülür ve medya motoruna kurulur.
 
 ---
 
@@ -318,7 +318,44 @@ Kayıtlı misafir kimliği, [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md)'de za
 
 Bunun eklediği bir proto-seviyesi gerçek: `ClientPayload`, paylaşılan WhatsApp proto şemasında zaten bir `AccountType` alanı tanımlıyor (`DEFAULT = 0`, `GUEST = 1`). [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md) bu alanı Android'de mevcut ama yazılmamış olarak buldu (hiçbir kod yolu onu ayarlamıyor — Android asla bir misafir değildir). Bir tarayıcı misafir oturumu bunu gerçekten ayarlayan istemcidir: `accountType = GUEST`, bir misafir ile normal bir istemci girişi arasındaki, kimliğin normal telefon kaydı yerine `guest_reg`'den (§14) gelmesinin ve hiçbir cihaz-eşleştirme verisi taşımamasının üzerine eklenen, tek `ClientPayload` farkıdır.
 
-Daha derin fonksiyon-başına detay (bir misafir `ClientPayload`'ı oluşturan tam kod ve `guest_reg` yanıt gövdesi) sayfayla birlikte süresi dolan, lazy-load edilen, oturuma-bağlı betik paketlerinde oturuyor; bunu elde etmek betik-kaynağı erişimli taze bir canlı yakalama gerektirir, statik bir fetch değil. Yukarıda zaten saptanan — taşımanın değiştirilmemiş Noise XX olduğu, kimlik paketinin normal bir kayıt paketi olduğu ve işaretlenen tek alanın `accountType = GUEST` olduğu — o kaynağı geri kazanmaya bağlı değildir.
+İkinci, bağımsız bir misafir oturumu bu daha derin fonksiyon-seviyesi detayı doğrudan ortaya çıkardı: taze bir misafir oturumu sırasında gerçekten çalıştırılan 106 betik (`Debugger.getScriptSource` üzerinden çekilen 21 MB, statik bir fetch değil — §14'ün yakalamasının erişemediği lazy/worker paketleri) misafir `ClientPayload`'ının literal kurucusunu içeriyor (**found**, harfiyen kaynak kodu):
+
+```js
+{
+  product:     WAWebProtobufsWa6.pb.ClientPayload$Product.WHATSAPP_LID,
+  accountType: WAWebProtobufsWa6.pb.ClientPayload$AccountType.GUEST
+}
+```
+
+bu da enum'u `AccountType = {DEFAULT: 0, GUEST: 1}` ve `Product.WHATSAPP_LID = 4` olarak doğruluyor. Bu pakette `Wa6.pb`, yukarıda referans verilen paylaşılan proto şemasının aynısıdır.
+
+Aynı dump, el sıkışmanın ardındaki modül zincirini çözüyor, hepsi found olarak çalıştırılan kodda düz bağımlılık bildirimleri, davranıştan çıkarsanmamış:
+
+```
+WAComms                — top-level connection manager (Smax ping RPCs, retry loop)
+ └ WAWebWatchedSocket  — holds both WS URLs: wss://web.whatsapp.com/ws/chat and the :5222 fallback
+    └ WANoiseHandshake — Noise XX
+       └ WANoiseSocket — AES-GCM record layer
+          └ WAFrameSocket — 3-byte length framing
+             └ WASocketTransport — raw WebSocket
+```
+
+Bu, sıradan (misafir olmayan) bir istemcinin kullandığı aynı yığındır — misafir oturumunu derleyen ve ardından onu `WAWebGuestCoreBackendApi` (socket/kimlik/VoIP için ayrı bridge uygulamaları dahil 80'den fazla bridge fonksiyonu) üzerinden sıradan `WAComms`/`WAWebClientPayload` boru hattına besleyen modül olan `WAWebGuestCoreBackendBootstrap`'ın altında misafire özel bir taşıma dalı yok. Misafir çağrı sinyalizasyonu `WAWebGuestCallingVoipBridge` → `WAWebVoipBridgeSignalingHandlers` üzerinden geçer, bu da normal bir çağrının kullandığı aynı `WAWebHandleVoipCall`/`WAWebVoipStackInterface`'e teslim eder — yani misafir yolu, sıradan istemci içlerinin önünde ince bir bootstrap/bridge katmanıdır, paralel bir uygulama değil.
+
+Yukarıdaki iki tarayıcı oturumunun çözemediği şey: `guest_reg`'in HTTP yanıt gövdesi — ikisi de bunu yakalamadı, bu yüzden ikisi de kimliği sadece tel üzerinde *kullanıldığı* şekliyle tarif edebildi, sunucunun onun için geri döndürdüğü şeyi değil.
+
+### 15.1 `guest_reg` yanıtı ve login `ClientPayload`'ı, canlı bir istemci katılımıyla çözüldü (tested)
+
+Üçüncü bir kaynak bu boşluğu kapatıyor: velowa (bu deponun rapor örneklerinin yazıldığı aktif istemci projesi — bkz. CLAUDE.md'deki "Conventions") §14-§15'te tarif edilen misafir akışını uyguluyor ve gerçek, kendi oluşturduğu bir çağrı bağlantısına karşı canlı olarak çalıştırıldı — kendi `guest_reg` çağrısı, kendi Noise girişi, kendi `link_query`/`link_join`'i, aynı istemci tarafından şifresi çözülüp decode edildi (§2'nin yakalamalarıyla aynı "tested" ölçütü: kendi oturumunu okuyan bir istemci, dinleme değil). Yukarıdaki tarayıcı yakalamalarının gösteremediği iki gerçek:
+
+- **`guest_reg`'in yanıt gövdesi**, bir `200`'de, JSON'dır: `{ "ent_access_token": "<token>", "ent_canonical_fbid": "<digits>", "lid": "<digits>@lid", "status": "ok" }`. `lid`, misafirin kendi JID numarasıdır — §14'ün (bu gövdeyi hiç görmemiş olan tek tarayıcı yakalamasından çalışarak) varsaymak zorunda kaldığı gibi sadece çağrı kabulünde değil, **`guest_reg` anında atanır**. §16'nın buna ilişkin açık sorusu, zamanlama açısından çözülmüş durumda; `ent_access_token`/`ent_canonical_fbid`, Graph API şeklinde görünüyor (§2'deki `graphql/` çağrısındaki `access_token=WA|...` ile karşılaştırın), ama bir misafir istemcisinin bunlarla ne yapması gerektiği, eğer bir şey yapması gerekiyorsa, denenmedi.
+- **Login `ClientPayload`'ının, o `lid`'in numarasına ayarlanmış bir `username`'e gereksinimi var.** Sadece `accountType = GUEST` / `product = WHATSAPP_LID` (§15'in döküm literali, ki — kaynak kodda kısmi bir nesne olduğundan, tam yük değil — hikayenin tamamı olmadığı ortaya çıkıyor) ile giriş yapmak Noise el sıkışmasını normal şekilde tamamlıyor, ama sunucu bundan hemen sonra WebSocket'i doğrudan kapatıyor (close frame yok, anormal kapanış). `username = <guest_reg lid'inin numarası>` eklemek bunu düzeltti: bağlantı açık kalıyor ve `link_query`/`link_join` ondan başarılı oluyor.
+
+Her iki düzeltmeyle birlikte, §13'teki tam akış gerçek bir bağlantıda baştan sona, tekrar tekrar çalıştı: kayıtlı → Noise girişi → `link_query` → `link_join` → bekleme odasında tutuldu (`inWaitingRoom: true`) → host tarafından kabul edildi → host ve misafiri (`account_kind="guest"`, seçilen ad) yan yana listeleyen bir `group_update` roster'ı → `<call-id>@call` üzerinde sıradan çağrı-içi trafik (`mute_v2`, `transport`, `relaylatency`, `enc_rekey`) → host'un kendi bir sonraki roster push'unun bir kesinti değil `state="terminated"` olarak gösterdiği temiz bir çıkış (çağrı süresiyle `terminate`, ardından `group_call_duration`). Bu dizideki hiçbir şey §4-§8'in tarayıcıyla yakalanan şekillerinden farklı değil.
+
+Bu çalıştırmanın sinyalizasyon şekillerinin ötesinde çözdüğü bir şey: **bir misafirin `enc_rekey`'i gerçek, şifresi çözülebilir Signal-sarmalanmış bir çağrı anahtarıdır**, boş bir formalite değil. §10, bir misafirin hiç bunu alıp almadığını gözlemlenmemiş olarak işaretlemişti; burada misafir, host'un cihazından `enc_rekey` zarfının şifresini çözdü, ortaya çıkan anahtarı medya motoruna kurdu ve röle bağlantısı ayağa kalktı — paylaşılan anahtar uygulanmış şekilde (sadece tel üzerinde mevcut olmaktan ibaret değil) canlı bir medya oturumuyla `status: 'connected'`. Bu, bir misafirin gerçek çağrı içeriği için normal bir katılımcının sahip olduğu her şeye sahip olduğu anlamına gelir, sadece sinyalizasyon için değil: §10'un "cihaz-başına çağrı anahtarı yok" notu sadece kabul el sıkışmasını tarif eder, azaltılmış kapasiteli bir medya yolunu değil.
+
+Aynı çalıştırmalardan, WhatsApp protokolünün kendisiyle ilgisi olmayan, altyapı seviyesinde bir gözlem: gerçekçi bir tarayıcı başlık seti ile `guest_reg`'e isabet eden düz bir HTTP istemcisi (Node'un `fetch`'i), boş gövdeli bir `HTTP 408`'den önce ~30 saniye boyunca hâlâ aralıklı olarak yanıt almıyordu, aynı zamanda `curl` üzerinden aynı istek sürekli olarak 2-3 saniyede yanıt veriyordu. Sebep belirlenmedi (TLS/HTTP2 parmak izi belirgin şüpheli, doğrulanmadı); burada sadece aksi halde `guest_reg`'in kendisinin dengesiz göründüğü için not edildi.
 
 ---
 
@@ -327,12 +364,14 @@ Daha derin fonksiyon-başına detay (bir misafir `ClientPayload`'ı oluşturan t
 | Öğe | Durum |
 |------|--------|
 | Token üretim yeri (istemci-üretimli vs. sunucu-atanmış) | `createCallLink` çağrı noktasının token argümanı yok (found); gerçek köken native'dir (unknown) |
-| Gerçekten hesapsız bir tarayıcı oturumunun aynı decode edilmiş stanza dizisini üretip üretmediği | kısmen çözüldü (§14–§15): oturum `guest_reg` üzerinden kaydoluyor ve `ClientPayload.accountType = GUEST` ile aynı Noise XX taşıması üzerinden giriş yapıyor; o oturum için decode edilmiş `link_query`/`link_join` içeriğinin kendisi yakalanmadı |
+| Gerçekten hesapsız bir tarayıcı oturumunun aynı decode edilmiş stanza dizisini üretip üretmediği | çözüldü (§15.1): misafir tarafındaki bir istemci, kendi oturumunun şifresini çözerek §4'teki ile aynı `link_query`/`link_join` ack şekillerini, `ClientPayload.accountType = GUEST` ile aynı Noise XX taşıması üzerinden aldı |
+| `guest_reg`'in HTTP yanıt gövdesi (misafire geri döndürülen kimlik bilgisi şekli) | çözüldü (§15.1): JSON `{ent_access_token, ent_canonical_fbid, lid, status:"ok"}`; misafirin kendi `lid`'i sadece kabulde değil, burada atanıyor |
 | Host-tarafı kabul eylemi (`waiting_room_toggle`/`_admit`) tel şekli | bu yakalamada yok (tek-uçlu); sadece WA_CALL_SIGNALING.md §10.3 statiklerinden anlatılır |
 | Kabulün görülen tek heartbeat'ten neden bu kadar hızlı geldiği | uyanık host mu yoksa bir otomatik-kabul koşulu mu — bu kanıttan ayırt edilemiyor |
 | Misafir JID ömrü / tekrarlanan katılımlar arasında yeniden kullanım | gözlemlenmedi |
-| Bir misafirin hiç `enc_rekey` veya herhangi bir Signal-sarmalanmış çağrı anahtarı alıp almadığı | her iki yakalama penceresinde de gözlemlenmedi |
+| Bir misafirin hiç `enc_rekey` veya herhangi bir Signal-sarmalanmış çağrı anahtarı alıp almadığı | çözüldü (§15.1): evet — bir misafir onu alır, şifresini çözer ve anahtar medya motoruna kurulur; röle/medya bağlantısı onunla ayağa kalkar |
 | `<relay>` altındaki `<participant pid jid>` eşleştirmesi | bu 2-taraflı yakalamada yok; misafirli grup çağrılarının onu kullanıp kullanmadığı unknown |
 | `<key>`/`<hbh_key>`'de çift base64 kodlamasının amacı, ham `<token>`/`<auth_token>`'a kıyasla | unknown |
 | `connected-limit`'in istemci tarafından ayarlanabilir bir sınır mı yoksa her zaman sunucu tarafından mı atandığı | istemci tarafı setter bulunamadı (found: sadece sunucu tarafından döndürülür) |
 | Bağlantı oluşturma veya misafir katılımlarında hız sınırları / kötüye kullanım kontrolleri | istemci tarafında hiçbir şey bulunamadı; sunucu davranışı unknown |
+</content>

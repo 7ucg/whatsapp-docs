@@ -1,4 +1,4 @@
-<!-- src-sha1: 5cbe81a4c1568d0ea9b8c065d2d8dc0fbf7e1afc -->
+<!-- src-sha1: b2ac7dbf48489274b14d9be53feb100201882f2a -->
 # WhatsApp Links de Chamada — Full RE Report
 **Versão:** 2.26.41.6 | **Data:** 2026-11-02
 **Escopo:** Links de chamada para convidados (`call.whatsapp.com/{voice|video}/{token}`): o handshake `link_query` / `link_join`, a sala de espera, o modelo de participante convidado / alocação de JID, e o material de relay e de chave entregue a um convidado na admissão. Este relatório cobre apenas a camada de link/sala-de-espera/convidado; a gramática genérica do envelope `<call>`, offer/accept/terminate, a chave da chamada, a lógica de seleção de relay e o caminho de mídia são cobertos em [WA_CALL_SIGNALING.md](WA_CALL_SIGNALING.md) e apenas referenciados aqui, sem repetição.
@@ -217,7 +217,7 @@ Nenhuma outra diferença de protocolo foi observada entre os dois; o tipo de mí
 | Entrega do roster | `group_info` dentro do offer ou uma atualização posterior | push `group_update`/`group_info` de `<call-id>@call`, agrupado com `<relay>` e `<voip_settings>` na mesma stanza |
 | Endereçamento de JID | JID de peer/grupo durante toda a chamada | domínio puro `call` até existir um call-id, depois `<call-id>@call` |
 
-A chave de chamada por dispositivo ausente para o convidado (linha 2) é a diferença mais significativa e é **tested** apenas como uma ausência nesta captura — não confirmada como regra de protocolo; é também consistente com a nota do WA_CALL_SIGNALING.md §9.2 de que offers de grupo não carregam chave por dispositivo e chaves são reenviadas fora de banda (`enc_rekey`). Se um convidado algum dia recebe um `enc_rekey` não foi observado em nenhuma das duas janelas de captura usadas aqui.
+A chave de chamada por dispositivo ausente para o convidado (linha 2) é a diferença mais significativa e é **tested** apenas como uma ausência nesta captura — não confirmada como regra de protocolo; é também consistente com a nota do WA_CALL_SIGNALING.md §9.2 de que offers de grupo não carregam chave por dispositivo e chaves são reenviadas fora de banda (`enc_rekey`). Se um convidado algum dia recebe um `enc_rekey`, e se ele é sequer utilizável, isso é resolvido na §15.1: sim para ambos — ele é decifrado e instalado no motor de mídia como o de qualquer outro participante.
 
 ---
 
@@ -318,7 +318,44 @@ A identidade de convidado registrada faz login sobre o **mesmo** transporte já 
 
 Um fato em nível de proto que isto adiciona: `ClientPayload` já define um campo `AccountType` (`DEFAULT = 0`, `GUEST = 1`) no esquema de proto compartilhado do WhatsApp. O [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md) encontrou esse campo presente, mas nunca escrito no Android (nenhum caminho de código o define — o Android nunca é um convidado). Uma sessão de convidado no navegador é o cliente que de fato o define: `accountType = GUEST` é a única diferença de `ClientPayload` entre um convidado e um login normal de cliente, além de a identidade vir de `guest_reg` (§14) em vez do registro normal por telefone e não carregar nenhum dado de pareamento de dispositivo.
 
-O detalhe mais fino, por função (o código exato que monta um `ClientPayload` de convidado, e o corpo da resposta de `guest_reg`) está em bundles de script carregados de forma lazy e vinculados à sessão, que expiram com a página; obtê-lo exige uma nova captura ao vivo com acesso ao código-fonte do script, não uma busca estática. O que já foi estabelecido acima — o transporte é Noise XX sem modificação, o pacote de identidade é um pacote de registro normal, e o único campo marcado é `accountType = GUEST` — não depende de recuperar esse código-fonte.
+Uma segunda sessão de convidado independente recuperou esse detalhe mais fino, por função, diretamente: 106 scripts de fato executados durante uma sessão de convidado nova (21 MB, extraídos via `Debugger.getScriptSource`, não uma busca estática — os bundles lazy/de worker que a captura da §14 não conseguiu alcançar) incluem o construtor literal do `ClientPayload` de convidado (**found**, código-fonte literal):
+
+```js
+{
+  product:     WAWebProtobufsWa6.pb.ClientPayload$Product.WHATSAPP_LID,
+  accountType: WAWebProtobufsWa6.pb.ClientPayload$AccountType.GUEST
+}
+```
+
+confirmando o enum como `AccountType = {DEFAULT: 0, GUEST: 1}` e `Product.WHATSAPP_LID = 4`. `Wa6.pb` neste bundle é o mesmo esquema de proto compartilhado referenciado acima.
+
+O mesmo dump resolve a cadeia de módulos por trás do handshake, tudo found como simples declarações de dependência no código executado, não inferido do comportamento:
+
+```
+WAComms                — top-level connection manager (Smax ping RPCs, retry loop)
+ └ WAWebWatchedSocket  — holds both WS URLs: wss://web.whatsapp.com/ws/chat and the :5222 fallback
+    └ WANoiseHandshake — Noise XX
+       └ WANoiseSocket — AES-GCM record layer
+          └ WAFrameSocket — 3-byte length framing
+             └ WASocketTransport — raw WebSocket
+```
+
+Esta é a mesma stack que um cliente ordinário (não convidado) usa — não há um ramo de transporte específico de convidado abaixo de `WAWebGuestCoreBackendBootstrap`, o módulo que monta a sessão de convidado e depois a alimenta na pipeline ordinária `WAComms`/`WAWebClientPayload` através de `WAWebGuestCoreBackendApi` (mais de 80 funções-ponte, incluindo implementações separadas de ponte de socket/identidade/VoIP). A sinalização de chamada de convidado roda por `WAWebGuestCallingVoipBridge` → `WAWebVoipBridgeSignalingHandlers`, que entrega para a mesma `WAWebHandleVoipCall`/`WAWebVoipStackInterface` que uma chamada normal usa — ou seja, o caminho de convidado é uma camada fina de bootstrap/ponte na frente dos internals ordinários do cliente, não uma implementação paralela.
+
+O que as duas sessões de navegador acima não resolveram: o corpo da resposta HTTP de `guest_reg` — nenhuma das duas capturou isso, então ambas só puderam descrever a identidade como ela é *usada* na rede, não o que o servidor devolve para ela.
+
+### 15.1 Resposta de `guest_reg` e o `ClientPayload` de login, resolvidos por uma entrada de cliente ao vivo (tested)
+
+Uma terceira fonte fecha essa lacuna: a velowa (o projeto de cliente ativo para o qual os exemplos de relatório deste repositório são escritos — ver "Conventions" no CLAUDE.md) implementa o fluxo de convidado descrito nas §14-§15 e foi executada ao vivo contra um link de chamada real, criado pelo próprio usuário — sua própria chamada a `guest_reg`, seu próprio login Noise, seu próprio `link_query`/`link_join`, decifrados e decodificados por esse mesmo cliente (o mesmo padrão "tested" das capturas da §2: um cliente lendo sua própria sessão, não interceptação). Dois fatos que as capturas de navegador acima não conseguiram mostrar:
+
+- **O corpo de resposta de `guest_reg`**, em um `200`, é JSON: `{ "ent_access_token": "<token>", "ent_canonical_fbid": "<digits>", "lid": "<digits>@lid", "status": "ok" }`. O `lid` é o próprio número de JID do convidado — **atribuído no momento do `guest_reg`**, não só na admissão à chamada como a §14 (trabalhando apenas a partir da captura de navegador, que nunca viu esse corpo) teve de assumir. A questão aberta da §16 sobre isto é resolvida no que diz respeito ao timing; `ent_access_token`/`ent_canonical_fbid` parecem ter formato de Graph API (compare com o `access_token=WA|...` na chamada `graphql/` da §2), mas o que um cliente convidado deveria fazer com eles, se é que algo, não foi testado.
+- **O `ClientPayload` de login precisa de `username` definido com o número desse `lid`.** Fazer login apenas com `accountType = GUEST` / `product = WHATSAPP_LID` (o literal despejado da §15, que — sendo um objeto parcial no código-fonte, não o payload completo — acaba não sendo toda a história) completa o handshake Noise normalmente, mas o servidor então fecha o WebSocket por completo (sem frame de fechamento, encerramento anormal) imediatamente depois. Adicionar `username = <o número do lid do guest_reg>` corrigiu isso: a conexão permanece ativa, e `link_query`/`link_join` têm sucesso a partir dela.
+
+Com ambas as correções, o fluxo completo da §13 rodou de ponta a ponta em um link real, repetidamente: registrado → login Noise → `link_query` → `link_join` → mantido na sala de espera (`inWaitingRoom: true`) → admitido pelo host → um roster `group_update` listando o host e o convidado (`account_kind="guest"`, o nome escolhido) lado a lado → tráfego ordinário em chamada (`mute_v2`, `transport`, `relaylatency`, `enc_rekey`) em `<call-id>@call` → uma saída limpa (`terminate` com a duração da chamada, depois `group_call_duration`) que o próximo push de roster do host mostra como `state="terminated"`, não como uma queda. Nada nessa sequência difere das formas capturadas por navegador das §4-§8.
+
+Uma coisa que esta execução resolve além das formas de sinalização: **o `enc_rekey` de um convidado é uma chave de chamada embrulhada em Signal real e decifrável**, não uma formalidade vazia. A §10 marcava se um convidado algum dia recebe uma como não observado; aqui o convidado decifrou o envelope `enc_rekey` do dispositivo do host, instalou a chave resultante em seu motor de mídia, e a conexão de relay subiu — `status: 'connected'` com uma sessão de mídia ativa, a chave compartilhada aplicada (não apenas presente na rede). Isso significa que um convidado tem tudo o que um participante normal tem para o conteúdo real da chamada, não só para a sinalização: a nota da §10 sobre "sem chave de chamada por dispositivo" descreve apenas o handshake de admissão, não um caminho de mídia de capacidade reduzida.
+
+Uma observação em nível de infraestrutura das mesmas execuções, sem relação com o protocolo do WhatsApp em si: um cliente HTTP simples (o `fetch` do Node) acessando `guest_reg` com um conjunto de headers de navegador realista continuava, intermitentemente, sem receber resposta por ~30s antes de um `HTTP 408` de corpo vazio, enquanto a requisição idêntica via `curl` respondia consistentemente em 2-3s. Causa não estabelecida (fingerprinting de TLS/HTTP2 é o suspeito óbvio, não confirmado); anotado aqui só porque, de outra forma, poderia parecer que o próprio `guest_reg` é instável.
 
 ---
 
@@ -327,11 +364,12 @@ O detalhe mais fino, por função (o código exato que monta um `ClientPayload` 
 | Item | Status |
 |------|--------|
 | Local de geração do token (gerado pelo cliente vs. atribuído pelo servidor) | o ponto de chamada de `createCallLink` não carrega argumento de token (found); a origem real é nativa (unknown) |
-| Se uma sessão de navegador genuinamente sem conta produz a mesma sequência de stanzas decifradas | parcialmente resolvido (§14–§15): a sessão se registra via `guest_reg` e faz login sobre o mesmo transporte Noise XX com `ClientPayload.accountType = GUEST`; o conteúdo decifrado de `link_query`/`link_join` em si não foi capturado para essa sessão |
+| Se uma sessão de navegador genuinamente sem conta produz a mesma sequência de stanzas decifradas | resolvido (§15.1): um cliente do lado do convidado, decifrando sua própria sessão, obteve as mesmas formas de ack de `link_query`/`link_join` da §4, sobre o mesmo transporte Noise XX com `ClientPayload.accountType = GUEST` |
+| Corpo da resposta HTTP de `guest_reg` (formato de credencial devolvido ao convidado) | resolvido (§15.1): JSON `{ent_access_token, ent_canonical_fbid, lid, status:"ok"}`; o próprio `lid` do convidado é atribuído aqui, não só na admissão |
 | Forma na rede da ação de admit do lado do host (`waiting_room_toggle`/`_admit`) | não está nesta captura (unilateral); descrita apenas a partir dos dados estáticos do WA_CALL_SIGNALING.md §10.3 |
 | Por que a admissão seguiu o único heartbeat observado tão rápido | host atento vs. condição de auto-admissão — não distinguível a partir desta evidência |
 | Tempo de vida / reutilização do JID de convidado entre entradas repetidas | não observado |
-| Se um convidado algum dia recebe `enc_rekey` ou qualquer chave de chamada embrulhada em Signal | não observado em nenhuma das duas janelas de captura |
+| Se um convidado algum dia recebe `enc_rekey` ou qualquer chave de chamada embrulhada em Signal | resolvido (§15.1): sim — um convidado o recebe, decifra, e a chave é instalada no motor de mídia; a conexão de relay/mídia sobe com ela |
 | Mapeamento `<participant pid jid>` sob `<relay>` | não presente nesta captura de 2 partes; unknown se chamadas em grupo com convidados o usam |
 | Propósito da codificação dupla em base64 em `<key>`/`<hbh_key>` vs. `<token>`/`<auth_token>` bruto | unknown |
 | `connected-limit` como limite configurável pelo cliente vs. sempre atribuído pelo servidor | nenhum setter do lado do cliente encontrado (found: apenas retornado pelo servidor) |

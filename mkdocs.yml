@@ -82,6 +82,11 @@ plugins:
             Events: "Events"
             Call Links: "Anruf-Links"
             USync: "USync"
+            Groups & Communities: "Gruppen & Communities"
+            Org Accounts: "Org-Accounts"
+            Hatch/Muse AI Agent: "Hatch/Muse-KI-Agent"
+            Business App: "Business-App"
+            Teen Accounts: "Teenager-Accounts"
         - locale: es
           name: Español
           build: true
@@ -121,6 +126,11 @@ plugins:
             Events: "Eventos"
             Call Links: "Enlaces de llamada"
             USync: "USync"
+            Groups & Communities: "Grupos y comunidades"
+            Org Accounts: "Cuentas de organización"
+            Hatch/Muse AI Agent: "Agente de IA Hatch/Muse"
+            Business App: "App de empresa"
+            Teen Accounts: "Cuentas de adolescentes"
         - locale: pt-BR
           name: Português (BR)
           build: true
@@ -160,6 +170,11 @@ plugins:
             Events: "Eventos"
             Call Links: "Links de chamada"
             USync: "USync"
+            Groups & Communities: "Grupos e comunidades"
+            Org Accounts: "Contas de organização"
+            Hatch/Muse AI Agent: "Agente de IA Hatch/Muse"
+            Business App: "App empresarial"
+            Teen Accounts: "Contas de adolescentes"
         - locale: ru
           name: Русский
           build: true
@@ -199,6 +214,11 @@ plugins:
             Events: "События"
             Call Links: "Ссылки на звонок"
             USync: "USync"
+            Groups & Communities: "Группы и сообщества"
+            Org Accounts: "Аккаунты организаций"
+            Hatch/Muse AI Agent: "ИИ-агент Hatch/Muse"
+            Business App: "Бизнес-приложение"
+            Teen Accounts: "Аккаунты подростков"
         - locale: ar
           name: العربية
           build: true
@@ -238,6 +258,11 @@ plugins:
             Events: "الفعاليات"
             Call Links: "روابط المكالمات"
             USync: "USync"
+            Groups & Communities: "المجموعات والمجتمعات"
+            Org Accounts: "حسابات المؤسسات"
+            Hatch/Muse AI Agent: "وكيل الذكاء الاصطناعي Hatch/Muse"
+            Business App: "تطبيق الأعمال"
+            Teen Accounts: "حسابات المراهقين"
         - locale: tr
           name: Türkçe
           build: true
@@ -277,6 +302,11 @@ plugins:
             Events: "Etkinlikler"
             Call Links: "Arama bağlantıları"
             USync: "USync"
+            Groups & Communities: "Gruplar ve Topluluklar"
+            Org Accounts: "Organizasyon Hesapları"
+            Hatch/Muse AI Agent: "Hatch/Muse Yapay Zeka Ajanı"
+            Business App: "İşletme Uygulaması"
+            Teen Accounts: "Genç Hesapları"
 markdown_extensions:
   - tables
   - admonition
@@ -348,3 +378,8 @@ nav:
     - Events: WA_EVENTS.md
     - Call Links: WA_CALL_LINKS.md
     - USync: WA_USYNC.md
+    - Groups & Communities: WA_GROUPS_AND_COMMUNITIES.md
+    - Org Accounts: WA_ORG_ACCOUNTS.md
+    - Hatch/Muse AI Agent: WA_HATCH_MUSE.md
+    - Business App: WA_BUSINESS_APP.md
+    - Teen Accounts: WA_TEEN_ACCOUNTS.md
