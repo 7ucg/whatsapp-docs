@@ -55,6 +55,7 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA Stickers](./WA_STICKERS.md) | 2.26.41.6 | sticker/lottie/pack message types, third-party pack intent & content-provider contract |
 | [WA Events](./WA_EVENTS.md) | 2.26.41.6 | calendar-style events, encrypted RSVP responses, lifecycle, visibility model |
 | [WA Call Links](./WA_CALL_LINKS.md) | 2.26.41.6 | guest call links, link_query/link_join handshake, waiting room, guest JID allocation, relay/key handoff |
+| [WA Groups & Communities](./WA_GROUPS_AND_COMMUNITIES.md) | 2.26.41.6 | parent/linked/default sub-groups, addressing, w:g2/w:gp2, group+community MEX ops, invites, admin settings, community join approval |
 
 ## Scope
 
