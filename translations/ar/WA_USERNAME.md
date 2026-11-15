@@ -1,70 +1,70 @@
-<!-- src-sha1: a1b0d0e9f7c1a5fa3cd781b21b55668d3205ba24 -->
+<!-- src-sha1: 73855f4f8148d9b0ef853f43cef4adbe0cb996a5 -->
 # WhatsApp اسم المستخدم — Full RE Report
 **الإصدار:** 2.26.41.6 | **التاريخ:** 2026-10-17
-**النطاق:** فحص اسم المستخدم / تعيينه / حجزه / حذفه، ومفتاح اسم المستخدم (PIN)، والعلاقة مع LID، والخصوصية والظهور، وعمليات GraphQL ‏w:mex (doc_ids، والمتغيرات، والاستجابات)، والإشعارات، والبحث عبر USync، وقواعد التحقق، وأعلام الميزات، وملاحظات Baileys
+**النطاق:** فحص/ضبط/حجز/حذف اسم المستخدم، مفتاح اسم المستخدم (PIN)، العلاقة بـLID، الخصوصية والظهور، عمليات w:mex GraphQL (doc_ids، المتغيرات، الاستجابات)، الإشعارات، بحث USync، قواعد التحقق، أعلام الميزات، ملاحظات Baileys
 
 ---
 
-## 1. ما هو اسم المستخدم (من الناحية التقنية)
+## 1. ما هو اسم المستخدم (تقنياً)
 
-اسم المستخدم هو معرّف على جهة الخادم مرتبط بحساب، يُستخدم ليتمكن أحد من الوصول إلى جهة اتصال دون كشف رقم الهاتف. جميع العبارات هي نتيجة تحليل ساكن لـ APK المفكوك. المستوى: **found** = قُرئ في الشيفرة أو الأصول، **inferred** = مستنتَج من الشيفرة، **unknown** = لم يُحسم.
+اسم المستخدم مُعرِّف من جهة الخادم مرتبط بحساب، يُستخدَم لإمكانية الوصول إلى جهة اتصال دون كشف رقم الهاتف. كل العبارات تحليل ساكن للـAPK المفكَّك. المستوى: **found** = مقروء في الكود أو الموارد، **inferred** = مُستنتَج من الكود، **unknown** = غير محسوم.
 
-تقوم الميزة على ثلاث طبقات:
+تُبنى الميزة على ثلاث طبقات:
 
-| الطبقة | النقل | الاستخدام |
+| الطبقة | النقل | تُستخدَم لـ |
 |-------|-----------|----------|
-| الإدارة الذاتية | ‏`w:mex` IQ، وGraphQL مخزَّن (الإعداد `whatsapp-android-mex`) | الفحص، والتعيين / الحجز / الحذف، والجلب، وتعيين / حذف المفتاح (PIN)، والفحص المتعدد |
-| البحث عن الآخرين | ‏USync (`xmlns="usync"`) ونسخة MEX ‏`UsyncQuery` | تحويل `@username` (+ المفتاح) إلى LID، وجلب اسم المستخدم لـ JID معروف |
-| الدفع | إشعارات MEX | `UsernameSetNotification` و`UsernameUpdateNotification` و`UsernameDeleteNotification` |
-| عبر الأجهزة | مزامنة حالة التطبيق (`SyncActionValue`) | ‏`username_chat_start_mode` و`lid_contact_action` (يحمل `username`) |
+| إدارة الذات | IQ من نوع `w:mex`، GraphQL دائم (إعداد `whatsapp-android-mex`) | الفحص، الضبط/الحجز/الحذف، الجلب، ضبط/حذف المفتاح (PIN)، الفحص المتعدد |
+| البحث عن الآخرين | USync (`xmlns="usync"`) ونسخة MEX `UsyncQuery` | حل `@username` (+ المفتاح) إلى LID، جلب اسم مستخدم JID معروف |
+| الدفع | إشعارات MEX | `UsernameSetNotification`، `UsernameUpdateNotification`، `UsernameDeleteNotification` |
+| عبر الأجهزة | مزامنة حالة التطبيق (`SyncActionValue`) | `username_chat_start_mode`، `lid_contact_action` (يحمل `username`) |
 
 | الكيان | الاسم في 2.26.41.6 | الدور |
 |--------|----------------|------|
-| مدير اسم المستخدم | `C122815Lj` | استدعاءات `UsernameGet` و`UsernameSet`، وتحديث الحالة المحلية، وخطّاف تحديد المعدل |
-| فحص التوفر | `C67402tT` | استدعاء `UsernameCheck` + ربط الاستجابة |
-| الفحص المتعدد | `C76333Kg` | ‏`UsernameCheckMulti`، بدفعات من 10 |
-| واجهة المفتاح | `MexUsernamePinProtocolApi` | ‏`UsernamePinSet` (تعيين / حذف المفتاح) |
-| الحالة المحلية / التفضيلات | `C5Q8` | ‏`username_reservation_state` و`username_pin` و`is_username_revoked` |
-| تعداد الحالة | `C4DU` | ‏`UNSET` و`RESERVED` و`ACTIVATED` و`CREATED` |
-| وضع الأهلية | `C224069kP.A00()` -> `C9SR` | ‏`CREATION` و`RESERVATION` و`COMPANION_READ_ONLY` و`DISABLED` |
-| مخزن تحديد المعدل | `C67942uO` | التراجع بعد 429 / 503 / 529 |
-| المدقّق المحلي | `C82003fB.A04`، `C1187754z` | الطول، ومجموعة المحارف، وقواعد النقطة، وregex |
-| مدقّق المفتاح | `C1176550d` (+ `AbstractC111284pZ`) | صيغة المفتاح |
-| VM إدخال المفتاح | `UsernamePinEntryViewModel` | إرسال مفتاح لاسم مستخدم أجنبي |
-| عميل USync | `C23638AId` (`querySyncUsernameWithErrorInfo`)، `C18670m9` | باني / محلل stanza ‏usync الكلاسيكي |
-| MEX USync | `C229259vZ`، `O0F` | ‏`UsyncQuery` مع `include_username` |
-| معالجات الإشعارات | `C49822Lvi`، `C49821Lvh`، صنف مجهول `X.2YG` في `AbstractC20380p4` | تعيين / حذف / تحديث |
+| مدير اسم المستخدم | `C122815Lj` | استدعاءات `UsernameGet`، `UsernameSet`، تحديث الحالة المحلية، خطّاف تحديد المعدَّل |
+| فحص التوافر | `C67402tT` | استدعاء `UsernameCheck` + تعيين الاستجابة |
+| الفحص المتعدد | `C76333Kg` | `UsernameCheckMulti`، أجزاء من 10 |
+| واجهة المفتاح | `MexUsernamePinProtocolApi` | `UsernamePinSet` (ضبط/حذف المفتاح) |
+| الحالة/التفضيلات المحلية | `C5Q8` | `username_reservation_state`، `username_pin`، `is_username_revoked` |
+| تعداد الحالة | `C4DU` | `UNSET`، `RESERVED`، `ACTIVATED`، `CREATED` |
+| وضع الأهلية | `C224069kP.A00()` ← `C9SR` | `CREATION`، `RESERVATION`، `COMPANION_READ_ONLY`، `DISABLED` |
+| مخزن تحديد المعدَّل | `C67942uO` | تأخير تصاعدي بعد 429 / 503 / 529 |
+| المُحقِّق المحلي | `C82003fB.A04`، `C1187754z` | الطول، مجموعة الأحرف، قواعد النقطة، التعبير النمطي |
+| مُحقِّق المفتاح | `C1176550d` (+ `AbstractC111284pZ`) | شكل المفتاح |
+| نموذج عرض إدخال المفتاح | `UsernamePinEntryViewModel` | إرسال مفتاح لاسم مستخدم خارجي |
+| عميل USync | `C23638AId` (`querySyncUsernameWithErrorInfo`)، `C18670m9` | باني/مُحلِّل stanza usync الكلاسيكي |
+| MEX USync | `C229259vZ`، `O0F` | `UsyncQuery` بـ`include_username` |
+| معالِجات الإشعارات | `C49822Lvi`، `C49821Lvh`، مجهول `X.2YG` في `AbstractC20380p4` | الضبط/الحذف/التحديث |
 
-التسمية: الاسم الذي يراه المستخدم للـ PIN هو **username key** (السلاسل "Username key" و"Add a username key to control who can contact you"). أما في الشبكة والشيفرة فيُسمّى `pin`.
+التسمية: الاسم الظاهر للمستخدم لـPIN هو **مفتاح اسم المستخدم** (سلاسل "Username key"، "Add a username key to control who can contact you"). السلك والكود يقولان `pin`.
 
 ---
 
 ## 2. عمليات MEX (doc_ids)
 
-### 2.1 أين توجد doc_ids
+### 2.1 أين تعيش قيم doc_id
 
-doc_ids ليست قيمًا حرفية في `java_src`. يرسل العميل اسم العملية (`"UsernameSet"`، ...) مع اسم الإعداد `"whatsapp-android-mex"` (found، `C16880is`). يُقرأ المعرّف الرقمي من `assets/whatsapp-android-mex_client_persist_ids.json`: يربط `EnumC17010j7.WHATSAPP_ANDROID_MEX` بذلك الملف، ويعيد `C17040jA.CMg(op)` الحقل `doc_id`، ويعيد `AGb(op)` الحقل `client_doc_id` (found). أي من الدالتين تملأ السمة `query_id` لم يُتتبَّع حتى النهاية (unknown)؛ وتُظهر التقاطات سابقة على 2.26.26.4 أن `query_id` يساوي `doc_id`.
+قيم doc_id ليست سلاسل حرفية في `java_src`. يرسل العميل اسم العملية (`"UsernameSet"`، ...) باسم الإعداد `"whatsapp-android-mex"` (found، `C16880is`). يُقرأ المعرّف العددي من `assets/whatsapp-android-mex_client_persist_ids.json`: يُخطِّط `EnumC17010j7.WHATSAPP_ANDROID_MEX` إلى ذلك الملف، يُعيد `C17040jA.CMg(op)` حقل `doc_id`، و`AGb(op)` حقل `client_doc_id` (found). أي من الوصولين يُغذِّي سمة `query_id` لم يُتعقَّب حتى النهاية (unknown)؛ التقاطات سابقة على 2.26.26.4 تُظهر `query_id` يساوي `doc_id`.
 
-doc_ids أدناه **found** في أصل 2.26.41.6:
+قيم doc_id أدناه **found** في موارد 2.26.41.6:
 
-| العملية | doc_id | النوع | موضع الاستدعاء | صنف الاستجابة |
+| العملية | doc_id | النوع | موقع الاستدعاء | صنف الاستجابة |
 |-----------|--------|------|-----------|----------------|
 | `UsernameCheck` | `26124072630599518` | query | `C67402tT.A00` | `C2IG` |
 | `UsernameCheckMulti` | `27134626522840286` | query | `C76333Kg.A00` | `C2IE` |
 | `UsernameGet` | `32618050064506055` | query | `C122815Lj.A02` | `C87173nz` |
 | `UsernameSet` | `27108705368767936` | mutation | `C122815Lj.A00` | `C87183o0` |
 | `UsernamePinSet` | `25529696019976770` | mutation | `MexUsernamePinProtocolApi.A00` | `C48557LJz` |
-| `UsernameGetRecommendationsQuery` | `26077456248616957` | query | لم يُعثر على شيء | unknown |
+| `UsernameGetRecommendationsQuery` | `26077456248616957` | query | لا شيء مُعثور عليه | unknown |
 | `UsyncQuery` | `38635300486116501` | query | `C229259vZ.A01` | `C2IQ` |
 
 ملاحظات:
-- ‏`UsernameGetRecommendationsQuery`: يرد الاسم فقط في JSON الأصل. لا يشير إليه أي صنف في `java_src` بسلسلة (found). المتغيرات والاستجابة unknown.
-- أسماء الإشعارات الثلاثة (`UsernameSetNotification` و`UsernameUpdateNotification` و`UsernameDeleteNotification`) ليس لها مدخل في أصل persist-id. هي أنواع إشعارات لا طلبات (انظر 7).
-- يحتوي الأصل على `operation_name_hash` و`operation_text_hash` و`client_doc_id` لكل عملية. مثال `UsernameSet`: ‏`client_doc_id` هو `427995565715419341100134328918` (found).
+- `UsernameGetRecommendationsQuery`: الاسم يظهر فقط في JSON الموارد. لا صنف في `java_src` يشير إليه بسلسلة (found). المتغيرات والاستجابة غير معروفة.
+- أسماء الإشعارات الثلاثة (`UsernameSetNotification`، `UsernameUpdateNotification`، `UsernameDeleteNotification`) لا إدخال لها في موارد معرّفات الديمومة. إنها أنواع إشعارات، لا طلبات (انظر 7).
+- يحمل مورد الموارد `operation_name_hash`، `operation_text_hash` و`client_doc_id` لكل عملية. مثال `UsernameSet`: `client_doc_id` `427995565715419341100134328918` (found).
 
 ### 2.2 الغلاف
 
-يُبنى في `C19370nI` / `C19310nC` (found):
+مبني في `C19370nI` / `C19310nC` (found):
 
 ```xml
 <iq to="[server jid]" xmlns="w:mex" type="get" id="...">
@@ -72,15 +72,15 @@ doc_ids أدناه **found** في أصل 2.26.41.6:
 </iq>
 ```
 
-| الحقل | القاعدة (الشيفرة) |
+| الحقل | القاعدة (الكود) |
 |-------|-------------|
 | `xmlns` | `w:mex` |
-| `type` | ‏`get` لكل عملية، بما فيها mutations |
-| السمة `query_id` | تُضبط فقط إذا كانت من 1 إلى 20 محرفًا |
-| الجسم | ‏JSON ‏`{"queryId": ..., "variables": {...}}`، من 1 إلى 8448000 بايت |
-| متغيرات null | ‏`C16770ig.A03(k, null)` و`A02(k, null)` يتخطيان المفتاح، فغياب القيمة يعني أن المفتاح لا يُرسَل |
+| `type` | `get` لكل عملية، بما فيها الطفرات |
+| سمة `query_id` | تُضبَط فقط إذا كانت من 1 إلى 20 حرفاً |
+| الجسم | JSON `{"queryId": ..., "variables": {...}}`، من 1 إلى 8448000 بايت |
+| متغيرات فارغة | `C16770ig.A03(k, null)` و`A02(k, null)` تتجاوز المفتاح، فقيمة غائبة تعني أن المفتاح غير مُرسَل |
 
-لا تُعاد هنا stanzas الشبكة لجلسات حيّة؛ حُلّل هذا البناء بشكل ساكن فقط.
+لا تُستنسَخ stanzas السلك لجلسات حية هنا؛ هذا البناء حُلِّل ساكناً فقط.
 
 ---
 
@@ -92,123 +92,123 @@ doc_ids أدناه **found** في أصل 2.26.41.6:
 
 | المتغير | النوع | الشرط |
 |----------|------|-----------|
-| `username` | string | دائمًا |
-| `include_suggestions` | bool | دائمًا (تمرر واجهة المستخدم `false` في مسار الفحص المكتوب `C64H` الحالة 21) |
-| `source` | string | فقط إذا لم يكن null |
-| `session_id` | string | فقط إذا لم يكن null |
+| `username` | string | دائماً |
+| `include_suggestions` | bool | دائماً (تُمرِّر الواجهة `false` في مسار الفحص المُحدَّد النوع `C64H` الحالة 21) |
+| `source` | string | فقط إذا غير فارغ |
+| `session_id` | string | فقط إذا غير فارغ |
 
-ربط `source` (`AbstractC78993Wd.A0U`): العدد 1 -> `FB`، 2 -> `IG`، 3 -> `USER_INPUT`، 4 -> `SUGGESTION`، غير ذلك -> null (لا يُرسَل).
+تعيين `source` (`AbstractC78993Wd.A0U`): int 1 ← `FB`، 2 ← `IG`، 3 ← `USER_INPUT`، 4 ← `SUGGESTION`، غيرها ← null (لا تُرسَل).
 
-مسار الاستجابة (found، الفرع الافتراضي في `C77183Np`): ‏`data.xwa2_username_check`
+مسار الاستجابة (found، فرع `C77183Np` الافتراضي): `data.xwa2_username_check`
 
 | الحقل | النوع | الاستخدام |
 |-------|------|-----|
-| `result` | تعداد `EnumC59782gh` | ‏`UNSET_OR_UNRECOGNIZED_ENUM_VALUE` و`INVALID` و`SUCCESS` |
-| `suggestions` | list<string> | يُقرأ فقط عند `INVALID` |
-| `rejection_reasons` | قائمة من `C4G8` | تُقرأ فقط عند `INVALID` |
-| `suggestions_eligible` | bool | القيمة الافتراضية `true` حين يكون الحقل null |
+| `result` | تعداد `EnumC59782gh` | `UNSET_OR_UNRECOGNIZED_ENUM_VALUE`، `INVALID`، `SUCCESS` |
+| `suggestions` | list<string> | تُقرأ فقط عند `INVALID` |
+| `rejection_reasons` | قائمة `C4G8` | تُقرأ فقط عند `INVALID` |
+| `suggestions_eligible` | bool | تبقى `true` افتراضياً عندما يكون الحقل فارغاً |
 
-قيم `C4G8` (found): ‏`UNSET_OR_UNRECOGNIZED_ENUM_VALUE` و`ALREADY_TAKEN` و`REQUIRE_FB_ACCOUNT_LINKING` و`REQUIRE_FB_CONSUMER_ACCOUNT_LINKING` و`REQUIRE_IG_ACCOUNT_LINKING` و`REQUIRE_IG_CONSUMER_ACCOUNT_LINKING`.
+قيم `C4G8` (found): `UNSET_OR_UNRECOGNIZED_ENUM_VALUE`، `ALREADY_TAKEN`، `REQUIRE_FB_ACCOUNT_LINKING`، `REQUIRE_FB_CONSUMER_ACCOUNT_LINKING`، `REQUIRE_IG_ACCOUNT_LINKING`، `REQUIRE_IG_CONSUMER_ACCOUNT_LINKING`.
 
-الربط: ‏`SUCCESS` -> `C76283Kb` (متاح)؛ ‏`INVALID` -> `C76303Kd` (غير متاح، يحمل الاقتراحات + الأسباب)؛ ‏`UNSET` -> لا يعيّن أي فرع نتيجة (يحصل الاستدعاء على المتغير السابق/null؛ السلوك unknown). التراجع المحلي النشط -> `C76293Kc` (خطأ برمز تحديد المعدل من التفضيلات، انظر 5.3)؛ لم يُقرأ استدعاء الفشل للطلب نفسه.
+التعيين: `SUCCESS` ← `C76283Kb` (متاح)؛ `INVALID` ← `C76303Kd` (غير متاح، يحمل الاقتراحات + الأسباب)؛ `UNSET` ← لا فرع يُعيِّن نتيجة (يحصل رد النداء على المتغير السابق/الفارغ؛ السلوك غير معروف). تأخير تصاعدي محلي نشط ← `C76293Kc` (خطأ برمز تحديد معدَّل من التفضيلات، انظر 5.3)؛ رد نداء فشل الطلب نفسه لم يُقرأ.
 
-تقود أسباب الرفض نص ربط الحسابات ("This username matches an account on Facebook/Instagram. To use it ... add your accounts to Accounts Center"، `C82003fB`). في `C82003fB` أي سبب غير `UNSET` يطلق مسار الخطأ المحلي بالرمز 40601 (`A08(40601L)`)؛ أما القائمة الفارغة أو التي تحوي `UNSET` فقط فتعرض "Username isn't allowed." تدفّق التحكم حول الحلقة مفكوك جزئيًا فقط (inferred).
+تُحرِّك أسباب الرفض نص ربط الحساب ("This username matches an account on Facebook/Instagram. To use it ... add your accounts to Accounts Center"، `C82003fB`). في `C82003fB` أي سبب غير `UNSET` يُحفِّز مسار خطأ محلي برمز 40601 (`A08(40601L)`)؛ قائمة فارغة أو تحتوي `UNSET` فقط تُظهر "Username isn't allowed." مسار التحكم الدقيق حول الحلقة مُفكَّك جزئياً فقط (مستنتج).
 
 ### 3.2 UsernameCheckMulti
 
 | المتغير | النوع | ملاحظات |
 |----------|------|-------|
-| `usernames` | **list<string>** | مصفوفة عبر `A00.A0B("usernames", list)`؛ كتالوج doc_id يصنّفه `str`، بينما الشيفرة ترسل قائمة |
+| `usernames` | **list<string>** | مصفوفة عبر `A00.A0B("usernames", list)`؛ يُصنِّفه فهرس doc_id كـ`str`، لكن الكود يرسل قائمة |
 
-التجزئة (`C76333Kg.AG5`): تُقسَّم القائمة إلى أول 10 والباقي؛ ويُعالَج الباقي بعد تأخير قدره العلم **29327** (الافتراضي 60، الوحدة لم تُحسم). القائمة الفارغة تعيد خريطة فارغة دون طلب.
+التجزيء (`C76333Kg.AG5`): تُقسَّم القائمة إلى أول 10 والباقي؛ تُعالَج البقية بعد تأخير علم **29327** (الافتراضي 60، الوحدة غير محسومة). قائمة فارغة تُعيد خريطة فارغة دون طلب.
 
-مسار الاستجابة `data.xwa2_username_check_multi.results[]` (found): لكل عنصر `username` و`response.result` (نفس `EnumC59782gh`). الربط: ‏`SUCCESS` -> متاح، `INVALID` -> غير متاح (دون اقتراحات، `suggestions_eligible=false`)، وأي شيء آخر -> خطأ. الأسماء الغائبة عن النتيجة تُوسم كخطأ.
+مسار الاستجابة `data.xwa2_username_check_multi.results[]` (found): كل إدخال يحمل `username` و`response.result` (نفس `EnumC59782gh`). التعيين: `SUCCESS` ← متاح، `INVALID` ← غير متاح (لا اقتراحات، `suggestions_eligible=false`)، أي شيء آخر ← خطأ. الأسماء الغائبة عن النتيجة تُوسَم كخطأ.
 
-المستهلك: يخزّن `UsernameAvailabilityCache` القيمة `EnumC59192fk` (`UNKNOWN` و`AVAILABLE` و`UNAVAILABLE`) لكل اسم. الغرض (جلب مسبق لاقتراحات أسماء المستخدمين من Facebook / Instagram، السلسلة `foa_username_prefetch_cache`) هو inferred.
+المستهلك: `UsernameAvailabilityCache` يخزِّن `EnumC59192fk` (`UNKNOWN`، `AVAILABLE`، `UNAVAILABLE`) لكل اسم. الغرض (جلب مسبق لاقتراحات اسم مستخدم Facebook/Instagram، سلسلة `foa_username_prefetch_cache`) مستنتج.
 
-### 3.3 UsernameSet (إنشاء / تغيير / حجز / حذف)
+### 3.3 UsernameSet (الإنشاء/التغيير/الحجز/الحذف)
 
 المتغيرات (found، `C122815Lj.A00`):
 
 | المتغير | النوع | الشرط |
 |----------|------|-----------|
-| `username` | string | يُحذف عند null (**delete**) |
-| `reserved` | bool | يُرسَل دائمًا |
-| `session_id` | string | فقط إذا لم يكن فارغًا (`C1YW.A08`) |
-| `source` | string | فقط إذا كان عدد المصدر غير null (انظر 3.1) |
-| `pin` | string | فقط إذا لم يكن null |
+| `username` | string | يُحذَف عندما يكون فارغاً (**الحذف**) |
+| `reserved` | bool | يُرسَل دائماً |
+| `session_id` | string | فقط إذا غير فارغ (`C1YW.A08`) |
+| `source` | string | فقط إذا كان عدد المصدر غير فارغ (انظر 3.1) |
+| `pin` | string | فقط إذا غير فارغ |
 
-‏`reserved` محسوب وليس ثابتًا (found). الوسيط `z` (force) = true يعطي `false`. وإلا: الحالة الحالية `ACTIVATED` أو `CREATED` تعطي `false`؛ والحالة الحالية `RESERVED` أو وضع الأهلية `RESERVATION` تعطي `true`؛ وكل الحالات الأخرى تعطي `false`. فلا يُرسَل `reserved:true` إلا للحسابات في وضع الحجز أو التي تحتفظ بحجز مسبقًا.
+`reserved` محسوبة، لا ثابتة (found). المعطى `z` (القسر) = true يُعطي `false`. وإلا: الحالة الحالية `ACTIVATED` أو `CREATED` تُعطي `false`؛ الحالة الحالية `RESERVED` أو وضع الأهلية `RESERVATION` تُعطي `true`؛ كل الحالات الأخرى تُعطي `false`. فتُرسَل `reserved:true` فقط للحسابات في وضع الحجز أو التي تحمل حجزاً أصلاً.
 
-الحذف وضع من العملية نفسها: ‏`username == null` -> وسم السجل `delete`، وإلا `set` (وكذلك في `MexUsernamePinProtocolApi` للمفتاح). مع username يساوي null لا يوجد المفتاح `username` في المتغيرات (found).
+الحذف نمط من نفس العملية: `username == null` ← وسم سجل `delete`، وإلا `set` (أيضاً في `MexUsernamePinProtocolApi` للمفتاح). باسم مستخدم فارغ لا يكون المفتاح `username` في المتغيرات (found).
 
-حارس من جهة العميل: قبل الإرسال، إذا أبلغ مخزن تحديد المعدل عن تراجع نشط، يفشل الاستدعاء محليًا بالرمز `username_creation_rate_limit_error_code` والنص "rate limit expiration time not reached" (found، `C122815Lj.A03`).
+حارس من جانب العميل: قبل الإرسال، إذا أفاد مخزن تحديد المعدَّل بتأخير تصاعدي نشط، يفشل الاستدعاء محلياً برمز `username_creation_rate_limit_error_code` ونص "rate limit expiration time not reached" (found، `C122815Lj.A03`).
 
 معالجة النجاح (`C122815Lj.A01`، found):
 
 | الشرط | الحالة المحلية المكتوبة (`username_reservation_state`) |
 |-----------|----------------------------------------------------|
-| username يساوي null أو فارغ | ‏`UNSET`، ويُمسح تفضيل المفتاح |
-| كان `reserved` صحيحًا | `RESERVED` |
+| اسم مستخدم فارغ أو خالٍ | `UNSET`، تُمحى تفضيلة المفتاح |
+| كانت `reserved` صحيحة | `RESERVED` |
 | علم التفعيل | `ACTIVATED` |
-| غير ذلك | ‏`ACTIVATED` إذا كانت الحالة `ACTIVATED` وساوى الاسم الاسم المخزَّن، وإلا `CREATED` |
-| العدد `source` هو 1 أو 2 | التفضيل `username_set_via_account_linking` = (int == 2) |
-| أُرسل `pin` | يُحدَّث التفضيل `username_pin` |
-| علم المراهق | التفضيل `is_teen_account` = true |
+| غير ذلك | `ACTIVATED` إذا كانت الحالة `ACTIVATED` والاسم يساوي الاسم المخزَّن، وإلا `CREATED` |
+| عدد `source` هو 1 أو 2 | تفضيلة `username_set_via_account_linking` = (عدد == 2) |
+| `pin` مُرسَل | تُحدَّث تفضيلة `username_pin` |
+| علم القاصر | تفضيلة `is_teen_account` = true |
 
-كتابة التفضيل هي `Voip.REJECT_REASON_DECLINED`، وهي السلسلة الفارغة `""` في هذا البناء (found).
+كتابة التفضيلة هي `Voip.REJECT_REASON_DECLINED`، وهي السلسلة الفارغة `""` في هذا البناء (found).
 
-معالجة الأخطاء (`C138725uA` الحالة 2):
+معالجة الخطأ (`C138725uA` الحالة 2):
 
-| الرمز الشبيه بـ HTTP | إجراء العميل |
+| رمز شبيه بـHTTP | إجراء العميل |
 |----------------|---------------|
-| 429، 503، 529 | يُخزَّن التراجع (5.3) |
-| 304 | يُعامَل كنجاح ("not modified")، وتُحدَّث الحالة المحلية مع ذلك |
-| لا اتصال (`C213639Bb`) | نتيجة `C4BO` ‏"no network" |
-| غير ذلك | ‏`C4BN(code, message)` |
+| 429، 503، 529 | يُخزَّن التأخير التصاعدي (5.3) |
+| 304 | يُعامَل كنجاح ("not modified")، تُحدَّث الحالة المحلية مع ذلك |
+| لا اتصال (`C213639Bb`) | نتيجة `C4BO` "no network" |
+| غيره | `C4BN(code, message)` |
 
 ### 3.4 UsernameGet
 
-المتغيرات: لا شيء (يبني الاستدعاء مجموعة متغيرات فارغة، found، `C122815Lj.A02`). موسوم `@Deprecated`، ومستبدل بنسخة suspend.
+المتغيرات: لا شيء (يبني الاستدعاء مجموعة متغيرات فارغة، found، `C122815Lj.A02`). مُوسَم `@Deprecated`، استُبدِل بنسخة مُعلَّقة (suspend).
 
-الاستجابة (found، `C138815uJ` الحالة 34): ‏`data.xwa2_username_get.username_info`
+الاستجابة (found، `C138815uJ` الحالة 34): `data.xwa2_username_get.username_info`
 
 | الحقل | الاستخدام |
-|-------|-----|
-| `username` | يُخزَّن؛ سلسلة فارغة إن غاب |
-| `state` | ‏`C4FC`: ‏`UNSET_OR_UNRECOGNIZED_ENUM_VALUE` و`ACTIVE` و`RESERVED` |
-| `pin` | **يُعاد المفتاح بنص صريح ويُخزَّن في التفضيل `username_pin`**؛ سلسلة فارغة إن غاب |
+|-------|------|
+| `username` | يُخزَّن؛ سلسلة فارغة إذا غائب |
+| `state` | `C4FC`: `UNSET_OR_UNRECOGNIZED_ENUM_VALUE`، `ACTIVE`، `RESERVED` |
+| `pin` | **المفتاح يُعاد صِرفاً ويُخزَّن في تفضيلة `username_pin`**؛ سلسلة فارغة إذا غائب |
 
-ربط الحالة: ‏`RESERVED` -> `C4DU.RESERVED`؛ ‏`ACTIVE` -> `ACTIVATED` إذا ساوى اسم المستخدم المخزَّن المُعاد وكانت الحالة المحلية `RESERVED` أو `ACTIVATED`، وإلا `CREATED`؛ الحالة null أو `username_info` يساوي null -> `UNSET`.
+تعيين الحالة: `RESERVED` ← `C4DU.RESERVED`؛ `ACTIVE` ← `ACTIVATED` إذا كان اسم المستخدم المخزَّن يساوي المُعاد والحالة المحلية كانت `RESERVED` أو `ACTIVATED`، وإلا `CREATED`؛ حالة فارغة أو `username_info` فارغ ← `UNSET`.
 
-الخطأ 404 من الخادم يمسح اسم المستخدم المحلي والمفتاح والحالة (السجل `clearSelfUsernameData NOT_FOUND`).
+حالة خطأ 404 من الخادم تمحو اسم المستخدم المحلي، المفتاح والحالة (سجل `clearSelfUsernameData NOT_FOUND`).
 
-هل يُستخدم الاستدعاء كنبضة حياة (heartbeat): unknown؛ والملاحظة القديمة "polling heartbeat" غير مدعومة بشيفرة هذا البناء.
+ما إذا كان الاستدعاء يُستخدَم كنبضة قلب غير معروف؛ الملاحظة القديمة "polling heartbeat" لا يدعمها كود هذا البناء.
 
 ### 3.5 UsernamePinSet (مفتاح اسم المستخدم)
 
-المتغيرات (found): ‏`pin` (string)، يُحذف عند null.
+المتغيرات (found): `pin` (string)، يُحذَف عندما يكون فارغاً.
 
 | الإجراء | المتغيرات |
 |--------|-----------|
-| تعيين المفتاح | `{"pin": "<key>"}` |
-| حذف المفتاح | `{}` (يستدعي `A02` الدالة `A00(null)`) |
+| ضبط المفتاح | `{"pin": "<key>"}` |
+| حذف المفتاح | `{}` (`A02` يستدعي `A00(null)`) |
 
-اسم العملية في الحالتين `UsernamePinSet`؛ ولا توجد عملية تحقق منفصلة. التحقق من مفتاح أجنبي يتم في USync (4). غير متصل: يعيد `C213639Bb("UsernamePinSet")` دون طلب.
+اسم العملية لكليهما هو `UsernamePinSet`؛ لا توجد عملية تحقق منفصلة. التحقق من مفتاح خارجي يتم في USync (4). غير مُتَّصل: يُعيد `C213639Bb("UsernamePinSet")` دون طلب.
 
-يمكن أيضًا أن يسافر المفتاح داخل `UsernameSet` (المتغير `pin`). يستخدم `C81793ej.A0x` العملية `UsernameSet` مع اسم المستخدم الموجود و`pin` الجديد حين يكون اسم المستخدم مخزَّنًا محليًا (`A00 != null`)، و`UsernamePinSet` خلاف ذلك (found).
+يمكن للمفتاح أيضاً الانتقال في `UsernameSet` (المتغير `pin`). يستخدم `C81793ej.A0x` `UsernameSet` باسم المستخدم الموجود والـ`pin` الجديد عندما يكون اسم مستخدم مخزَّناً محلياً أصلاً (`A00 != null`)، و`UsernamePinSet` وإلا (found).
 
-لا يملك صنف الاستجابة `C48557LJz` أي وصول إلى حقول في الملفات المقروءة؛ شكل الاستجابة unknown.
+لا يوجد وصول حقل لصنف الاستجابة `C48557LJz` في الملفات المقروءة؛ شكل الاستجابة غير معروف.
 
 ---
 
 ## 4. البحث عن مستخدمين آخرين
 
-### 4.1 USync الكلاسيكي حسب اسم المستخدم (مسار المفتاح)
+### 4.1 USync الكلاسيكي باسم المستخدم (تدفق المفتاح)
 
-يُبنى في `C18670m9.A06` (فشل jadx في هذه الدالة، قُرئت من smali ‏`X/0m9.smali`). لكل مدخل طلب `C222649hm`: الحقل `A0C` = اسم المستخدم، و`A0D` = المفتاح، و`A05` = LID.
+مبني في `C18670m9.A06` (فشل jadx على هذه الدالة، قُرئت من smali `X/0m9.smali`). لكل إدخال طلب `C222649hm`: الحقل `A0C` = اسم المستخدم، `A0D` = المفتاح، `A05` = LID.
 
-سمات العنصر الابن contact (found في smali): ‏`username` دائمًا؛ و`lid` حين يكون LID معروفًا محليًا؛ و`pin` حين يكون المفتاح مضبوطًا. السمات الإضافية يتحكم بها العلم **12402** (الافتراضي `false`): حين يكون العلم مغلقًا يُكتب `username` فقط (found). اسم العقدة `contact` هو inferred من محلل الاستجابة الذي يقرأ العنصر الابن `contact` وسمته `username` (`C18670m9` الأسطر ~969-975).
+سمات عنصر جهة الاتصال الفرعي (مُعثور عليه في smali): `username` دائماً؛ `lid` عندما يكون LID معروفاً محلياً؛ `pin` عند ضبط مفتاح. السمات الإضافية مضبوطة بالعلم **12402** (الافتراضي `false`): عندما يكون العلم مُعطَّلاً، يُكتَب فقط `username` (found). اسم العقدة `contact` مستنتج من مُحلِّل الاستجابة، الذي يقرأ العنصر الفرعي `contact` وسمته `username` (`C18670m9` السطور ~969-975).
 
 ```xml
 <iq xmlns="usync" to="[server]" type="get">
@@ -221,91 +221,91 @@ doc_ids أدناه **found** في أصل 2.26.41.6:
 </iq>
 ```
 
-نقطة الدخول: ‏`C23638AId.A0G(username, key)` (`querySyncUsernameWithErrorInfo`)، يستدعيها `submitPinForUsername`. نوع المزامنة `EnumC21760rz.A0J`، المهلة 32000 ms. مجموعة السمات `contact` و`pin` و`username` موجودة في مجموعات حجب السجلات لـ `AbstractC40921lc` (found).
+نقطة الدخول: `C23638AId.A0G(username, key)` (`querySyncUsernameWithErrorInfo`)، تُستدعى من `submitPinForUsername`. نوع المزامنة `EnumC21760rz.A0J`، مهلة 32000 ms. مجموعة السمات `contact`، `pin`، `username` موجودة في مجموعات تنقية السجل الخاصة بـ`AbstractC40921lc` (found).
 
-الحل المحلي المسبق: يبحث `A0M.Aol(username)` عن `lid_row_id` في الجدول `lid_display_name` حيث `UPPER(username) = UPPER(?)`، الأحدث صفًا أولًا (found، `C1S0`). يدخل LID، إن عُرف، في السمة `lid`.
+حل محلي مسبق: يبحث `A0M.Aol(username)` عن `lid_row_id` في جدول `lid_display_name` حيث `UPPER(username) = UPPER(?)`، الصف الأحدث أولاً (found، `C1S0`). يدخل LID، إن عُرف، في سمة `lid`.
 
 ### 4.2 تقييم النتيجة (إدخال المفتاح)
 
-‏`UsernamePinEntryViewModel$submitPinForUsername$1` (found):
+`UsernamePinEntryViewModel$submitPinForUsername$1` (found):
 
 | النتيجة | الشرط |
-|---------|-----------|
-| مفتاح صحيح | ‏`UserJid` في النتيجة هو LID (`C14080dr`) |
-| مفتاح خاطئ | لا LID في النتيجة: السجل `[un-pin] incorrect PIN`، ونص الخطأ "Wrong key entered" |
-| لا شبكة | ‏`C9qA` الرمز 1 |
-| خطأ بنية تحتية عام | ‏`C9qA` الرمز 2 |
-| تحديد معدل الطالب | ‏`C225769os.A01` صحيح: "Too many attempts made. Try later." |
-| تحديد معدل المطلوب | ‏`C225769os.A00` صحيح: "This account can't be reached with their key right now..." |
+|---------|---------|
+| مفتاح صحيح | النتيجة `UserJid` هي LID (`C14080dr`) |
+| مفتاح خاطئ | النتيجة لا تحمل LID: سجل `[un-pin] incorrect PIN`، نص خطأ "Wrong key entered" |
+| لا شبكة | `C9qA` الرمز 1 |
+| خطأ بنية تحتية عام | `C9qA` الرمز 2 |
+| تحديد معدَّل طالب الطلب | `C225769os.A01` صحيح: "Too many attempts made. Try later." |
+| تحديد معدَّل المطلوب | `C225769os.A00` صحيح: "This account can't be reached with their key right now..." |
 
-يعمل فحص تحديد المعدل المخزَّن مؤقتًا في العميل أولًا حين يكون العلم **16033** مفعّلًا ويكون إعداد JSON ‏**21995** فيه `enable_key_rate_limit` صحيحًا (الافتراضي صحيح): ‏`C30P.A00` على LID الخاص وعلى اسم المستخدم المستهدف. يُجرَّد اسم المستخدم من `@` (`C0CX.A0i(username, '@')`).
+يُشغَّل فحص تحديد معدَّل مخزَّن مؤقتاً من جانب العميل أولاً عندما يكون العلم **16033** مُفعَّلاً وإعداد JSON **21995** يحمل `enable_key_rate_limit` صحيحاً (الافتراضي صحيح): `C30P.A00` مقابل LID الخاص ومقابل اسم المستخدم الهدف. يُزال `@` من اسم المستخدم (`C0CX.A0i(username, '@')`).
 
-عند النجاح تكون النتيجة **LID**، ثم تُوجَّه المحادثة إلى LID (inferred من فحص `C14080dr`؛ خطوة فتح المحادثة لم تُتتبَّع).
+عند النجاح النتيجة **LID**، وتُعالَج الدردشة بعد ذلك إلى LID (مستنتج من فحص `C14080dr`؛ خطوة فتح الدردشة لم تُتعقَّب).
 
-### 4.3 جلب اسم مستخدم LID معروف
+### 4.3 جلب اسم مستخدم لـLID معروف
 
-يبني `C23638AId` (الأسطر ~600-650) usync بالشكل `<list><user jid="LID"/></list><query><contact/><username/></query>`، والوضع/السياق من `EnumC21760rz.A0J` (found). يقرأ المحلل `username` كعنصر ابن لنتيجة `<usync>` (`C18670m9` السطر 586، فقط حين طلب الطلب ذلك).
+يبني `C23638AId` (السطر ~600-650) usync بـ`<list><user jid="LID"/></list><query><contact/><username/></query>`، نمط/سياق من `EnumC21760rz.A0J` (found). يقرأ المُحلِّل `username` كعنصر فرعي من نتيجة `<usync>` (`C18670m9` السطر 586، فقط عندما طلبها الطلب).
 
 ### 4.4 MEX USync (`UsyncQuery`)
 
-يبني `C229259vZ.A01` العملية `UsyncQuery` (doc_id أعلاه). الأجزاء ذات الصلة (found):
+يبني `C229259vZ.A01` `UsyncQuery` (doc_id أعلاه). الأجزاء ذات الصلة (found):
 
 | المتغير | الاستخدام |
 |----------|-----|
-| `query_input[]` | مدخل لكل مستخدم: JID (`C493020r.A0C`)، و`client_known_username` اختياري (فقط حين يُطلب اسم المستخدم ولا يكون فارغًا) |
-| `include_username` | bool، يُضبط حين يطلب أي مدخل اسم المستخدم |
+| `query_input[]` | إدخال واحد لكل مستخدم: JID (`C493020r.A0C`)، `client_known_username` اختياري (فقط عندما يُطلَب اسم المستخدم وغير فارغ) |
+| `include_username` | bool، يُضبَط عندما يطلب أي إدخال اسم المستخدم |
 | `include_lid` | bool، يطلب `lid_info` |
-| `telemetry.context` | سياق USync بأحرف صغيرة |
+| `telemetry.context` | سياق USync بحروف صغيرة |
 
-الاستجابة لكل مستخدم: ‏`jid` و`username_info` و`lid_info` (`O0F`). ‏`username_info` متعدد الأشكال حسب تجزئة النوع: نوع قيمة يحمل `username`، أو نوع حالة فيه `status` من `EnumC216389Tz`: ‏`EMPTY` و`NOT_ALLOWED` و`NO_CHANGE` (+ unset). يُسجَّل `NOT_ALLOWED` كـ "username not allowed to be queried" ويمسح اسم المستخدم المخزَّن؛ ويُبقيه `NO_CHANGE`. يحمل `lid_info.lid_jid` الـ LID.
+الاستجابة لكل مستخدم: `jid`، `username_info`، `lid_info` (`O0F`). `username_info` متعدد الأشكال بتجزئة النوع: نوع قيمة يحمل `username`، أو نوع حالة بـ`status` من `EnumC216389Tz`: `EMPTY`، `NOT_ALLOWED`، `NO_CHANGE` (+ غير مضبوط). تُسجَّل `NOT_ALLOWED` كـ"username not allowed to be queried" وتمحو اسم المستخدم المخزَّن؛ `NO_CHANGE` تحتفظ به. يحمل `lid_info.lid_jid` الـLID.
 
-البوابة: يرفض `ContactSyncHelper` مسار MEX بالسجل "cantUseMex as username ab prop is off" ما لم يكن العلم **8421** مفعّلًا حين يُطلب اسم المستخدم (found؛ الافتراضي `false`).
+البوّابة: يرفض `ContactSyncHelper` مسار MEX بالسجل "cantUseMex as username ab prop is off" إلا إذا كان العلم **8421** مُفعَّلاً عند طلب اسم مستخدم (found؛ الافتراضي `false`).
 
 ---
 
 ## 5. التحقق والحدود والأخطاء
 
-### 5.1 صيغة اسم المستخدم (محلي)
+### 5.1 شكل اسم المستخدم (محلي)
 
-المدقّق `C82003fB.A04` (found)، فحوصه بهذا الترتيب:
+مُحقِّق `C82003fB.A04` (found)، فحوصات بهذا الترتيب:
 
 | الترتيب | الفحص | معرّف الخطأ (`C02U`) | سلسلة الرسالة |
 |-------|-------|-------------------|----------------|
-| 1 | كل محرف في `[A-Za-z0-9_.]` | 2 | "must start with a letter and can only contain letters, digits, periods and underscores" |
+| 1 | كل حرف في `[A-Za-z0-9_.]` | 2 | "must start with a letter and can only contain letters, digits, periods and underscores" |
 | 2 | الطول >= الأدنى (العلم **20494**، الافتراضي 3) | 0 | "Use between %1$d-%2$d characters" |
-| 3 | الطول <= الأقصى (العلم **20459**، الافتراضي 35) | 1 | السلسلة نفسها |
-| 4 | لا `.` في البداية ولا في النهاية ولا `..` | 3 | "can't start or end with a period or have 2 periods in a row" |
+| 3 | الطول <= الأعلى (العلم **20459**، الافتراضي 35) | 1 | نفس السلسلة |
+| 4 | لا `.` بادئة، لا `.` خاتمة، لا `..` | 3 | "can't start or end with a period or have 2 periods in a row" |
 | 5 | حرف ASCII واحد على الأقل | 4 | "Choose a username with at least one letter" |
-| 6 | ‏regex (أدناه) | ينجح أو يفشل بالرمز 2 | غير متاح |
+| 6 | تعبير نمطي (أدناه) | ينجح أو يفشل برمز 2 | لا ينطبق |
 
-الـ regex الذي يبنيه `C1187754z.A02()` (found):
+التعبير النمطي المبني بواسطة `C1187754z.A02()` (found):
 
 ```
 ^(?!.*\.\.)(?=.*[a-zA-Z])[a-zA-Z0-9_][a-zA-Z0-9_.]{MIN-1,MAX-1}(?<![.])$
 ```
 
-لا يوحّد المدقّق حالة الأحرف؛ والبحث المحلي `Aol` يقارن بـ `UPPER()`، فالمطابقة غير حساسة لحالة الأحرف محليًا (found). هل يعامل الخادم الأسماء دون حساسية لحالة الأحرف: unknown. تسمح regex بشرطة سفلية في البداية؛ بينما يقول نص الواجهة "start with a letter"، وهو أشد من regex (found، عدم اتساق).
+لا تُطبِّع حالة الأحرف بواسطة المُحقِّق؛ البحث المحلي `Aol` يُقارِن بـ`UPPER()`، فالمطابقة غير حسّاسة لحالة الأحرف محلياً (found). ما إذا كان الخادم يعامل الأسماء دون حساسية لحالة الأحرف غير معروف. الشرطة السفلية البادئة مسموحة بالتعبير النمطي؛ نص الواجهة يقول "يبدأ بحرف"، وهذا أشد من التعبير النمطي (found، عدم تطابق).
 
-ترفض الواجهة أيضًا الروابط: "Enter only your username, not a web link" (السلسلة موجودة، الفحص لم يُتتبَّع).
+ترفض الواجهة أيضاً روابط الويب: "Enter only your username, not a web link" (السلسلة موجودة، الفحص لم يُتعقَّب).
 
-### 5.2 صيغة مفتاح اسم المستخدم
+### 5.2 شكل مفتاح اسم المستخدم
 
-‏`C1176550d.A00` (found): العلم **34350** سلسلة regex، افتراضيها `^([0-9]{4}|[A-Z0-9]{6})$`. إذا كانت سلسلة العلم فارغة فالاحتياطي هو أربعة أرقام بالضبط. regex غير صالح يسجّل `[un-pin] invalid username_key_regex` ويقبل أي شيء. حدا الطول، العلمان **34347** (الأدنى، 4) و**34348** (الأقصى، 6)، يغذيان فقط مسار رسالة الخطأ في `UsernamePinEntryViewModel.A0w`. قواعد جهة الخادم unknown.
+`C1176550d.A00` (found): العلم **34350** سلسلة تعبير نمطي، الافتراضي `^([0-9]{4}|[A-Z0-9]{6})$`. إذا كانت سلسلة العلم فارغة، يكون الحل البديل أربعة أرقام بالضبط. تعبير نمطي غير صالح يُسجِّل `[un-pin] invalid username_key_regex` ويقبل أي شيء. أعلام حدود الطول **34347** (الأدنى، 4) و**34348** (الأعلى، 6) تُغذِّي فقط مسار رسالة الخطأ في `UsernamePinEntryViewModel.A0w`. قواعد الخادم غير معروفة.
 
-لذا فالملاحظة القديمة "4-digit PIN" غير كاملة: الافتراضي المشحون يقبل أربعة أرقام أو ستة أحرف وأرقام كبيرة.
+فالملاحظة القديمة "PIN من 4 أرقام" ناقصة: الافتراضي المشحون يقبل أربعة أرقام أو ستة أحرف/أرقام كبيرة.
 
-### 5.3 تحديد المعدل والتراجع
+### 5.3 تحديد المعدَّل والتأخير التصاعدي
 
-‏`C67942uO` (found)، نشط فقط مع العلم **28678** (الافتراضي `false`):
+`C67942uO` (found)، نشط فقط بالعلم **28678** (الافتراضي `false`):
 
-| البند | القيمة |
+| العنصر | القيمة |
 |------|-------|
-| المحفِّز | خطأ `UsernameSet` ‏429 أو 503 أو 529 |
-| المدة | سلسلة شبيهة بـ `Retry-After` تُحلَّل كعدد صحيح من الثواني (`C23680AJt.A00`)، وإلا العلم **28127** (الافتراضي 30) ثانية |
-| التخزين | التفضيلات `username_creation_rate_limit_backoff_expiry` (ms) و`username_creation_rate_limit_error_code` |
-| الأثر | تفشل `UsernameCheck` و`UsernameCheckMulti` و`UsernameSet` محليًا حتى الانتهاء |
+| المُحفِّز | خطأ `UsernameSet` 429، 503 أو 529 |
+| المدة | سلسلة شبيهة بـ`Retry-After` تُحلَّل كثوانٍ عدد صحيح (`C23680AJt.A00`)، وإلا العلم **28127** (الافتراضي 30) ثانية |
+| التخزين | تفضيلتا `username_creation_rate_limit_backoff_expiry` (ms)، `username_creation_rate_limit_error_code` |
+| الأثر | يفشل `UsernameCheck`، `UsernameCheckMulti`، `UsernameSet` محلياً حتى الانتهاء |
 
-### 5.4 من رمز الخطأ إلى الرسالة (`C82003fB.A02`, found)
+### 5.4 تعيين رمز الخطأ إلى رسالة (`C82003fB.A02`، found)
 
 | الرمز | الرسالة |
 |------|---------|
@@ -316,66 +316,66 @@ doc_ids أدناه **found** في أصل 2.26.41.6:
 | 406، 40601 | "This username is not available." |
 | 40602 | "You can't make more changes to your username. Try again later." |
 | 40603 | "You can't make changes to your username right now. Try again later." |
-| غير ذلك | "We couldn't complete your request. Try again." |
+| غيره | "We couldn't complete your request. Try again." |
 
-الرموز 40601 إلى 40603 ضمن المجموعة المسموح بها `AbstractC111104pH.A01` (يظهر 40603 فقط في الشيفرة المقروءة). دلالاتها على الخادم unknown فيما وراء نص العميل.
+40601 إلى 40603 موجودة في المجموعة المسموحة `AbstractC111104pH.A01` (فقط 40603 مُعثور عليها في الكود المقروء). دلالاتها من جهة الخادم غير معروفة بما يتجاوز نص العميل.
 
 ---
 
-## 6. العلاقة مع LID
+## 6. العلاقة بـLID
 
-الكل found ما لم يُوسم خلاف ذلك.
+الكل found إلا إذا أُشير إلى غيره.
 
-| الواقعة | الدليل |
-|------|----------|
-| تُحل عمليات البحث عن اسم المستخدم إلى **LID** لا إلى JID الهاتف | اختبار نجاح المفتاح `userJid instanceof C14080dr` (صنف LID)؛ و`lid_info.lid_jid` في MEX usync |
-| الخريطة المحلية من اسم المستخدم إلى LID | الجدول `lid_display_name` (الأعمدة `username` و`lid_row_id`)، والاستعلام في `C1S0` |
-| تعرّف الإشعارات المستخدم بالـ LID | تحلل معالجات التعيين / الحذف `LidUserJid` (نص الخطأ "Failed to parse LidUserJid") |
-| قد يحمل إشعار الحذف JID هاتف | يفحص المعالج `isPnPresent`؛ مع وجود PN يحوّل إلى PN JID ويتصرف، وبدونه يعود |
-| إجراء مزامنة جهات الاتصال | ‏`ContactAction` فيه `username` (6) بجانب `lid_jid` (3) و`pn_jid` (5)؛ وكذلك `LidContactAction` (‏`lid_contact`، الحقل 61 في SyncActionValue) |
-| وضع بدء المحادثة | حقل SyncActionValue رقم **59** ‏`username_chat_start_mode`، التعداد `EnumC50053M6w`: ‏`LID` = 1، `PN` = 2. وُجد فقط مرمّز المزامنة؛ لا مستهلك في شيفرة الواجهة (unknown) |
-| سلسلة ميزة المرافق | عند ربط جهاز مرافق يضيف الأساسي `username_supported` (العلم 4745 أو 20189)، و`username_reservation_only_mode` (20189 فقط)، و`username_account_linking_enabled` (العلم 21199) إلى قائمة ميزاته (`C25056AqU`) |
+| الحقيقة | الدليل |
+|------|------|
+| تحل بحوث اسم المستخدم إلى **LID**، لا إلى JID هاتف | فحص نجاح المفتاح `userJid instanceof C14080dr` (صنف LID)؛ `lid_info.lid_jid` في usync MEX |
+| خريطة محلية اسم المستخدم ← LID | جدول `lid_display_name` (أعمدة `username`، `lid_row_id`)، استعلام في `C1S0` |
+| تُعرِّف الإشعارات المستخدم بـLID | معالِجا الضبط/الحذف يُحلِّلان `LidUserJid` (نص خطأ "Failed to parse LidUserJid") |
+| قد يحمل إشعار الحذف JID هاتف | يفحص المعالِج `isPnPresent`؛ مع وجود PN يحوِّل JID لهاتف ويتصرف، دون PN يُعيد |
+| إجراء مزامنة جهة الاتصال | يحمل `ContactAction` `username` (6) إلى جوار `lid_jid` (3)، `pn_jid` (5)؛ أيضاً `LidContactAction` (`lid_contact`، حقل SyncActionValue 61) |
+| نمط بدء الدردشة | حقل SyncActionValue **59** `username_chat_start_mode`، تعداد `EnumC50053M6w`: `LID` = 1، `PN` = 2. فقط المُرمِّز المُزامِن مُعثور عليه؛ لا مستهلك في كود الواجهة (غير معروف) |
+| سلسلة ميزة الرفيق | عند ربط رفيق يُضيف الحساب الأساسي `username_supported` (العلم 4745 أو 20189)، `username_reservation_only_mode` (العلم 20189 فقط)، `username_account_linking_enabled` (العلم 21199) إلى قائمة ميزاته (`C25056AqU`) |
 
-Inferred: المستخدم الموجود فقط كاسم مستخدم لا يمكن الوصول إليه إلا عبر LID حتى يشارك المالك رقم الهاتف؛ والسلسلة "If you continue, your phone number will show in existing username chats and calls" (حوار الحذف) تدعم ذلك، لكن مسار كشف PN لم يُتتبَّع.
+مستنتج: مستخدم موجود فقط كاسم مستخدم قابل للوصول إلا عبر LID حتى يشارك المالك رقم الهاتف؛ تدعم ذلك السلاسل "If you continue, your phone number will show in existing username chats and calls" (حوار الحذف) لكن مسار كشف PN لم يُتعقَّب.
 
 ---
 
 ## 7. الإشعارات
 
-تمدّد المعالجات `AbstractC23194A0r` وتُسجَّل في `AbstractC20380p4` (found):
+تمتد المعالِجات من `AbstractC23194A0r` وتُسجَّل في `AbstractC20380p4` (found):
 
-| الإشعار | المعالج | السلوك |
+| الإشعار | المعالِج | السلوك |
 |--------------|---------|-----------|
-| `UsernameSetNotification` | `C49822Lvi` | الحمولة `xwa2_notify_username_on_change`: يقرأ LID (تجزئة الحقل 107143) واسم المستخدم؛ ويخزّن عبر `InterfaceC11470Yz.BNU(lid, username)`؛ وإذا كانت جهة الاتصال موجودة ومن النوع المطابق يحدّثها (`C12440bB.A0W`) |
-| `UsernameDeleteNotification` | `C49821Lvh` | الحمولة `xwa2_notify_username_delete`: يقرأ LID وPN (التجزئة -983979708)؛ ومع وجود PN يشغّل تحديث الحذف (`C53594Nzh`) |
-| `UsernameUpdateNotification` | صنف مجهول `X.2YG` | يقرأ تجزئة base64 من الحمولة، ويبني طلب USync بالسبب `USERNAME_UPDATE_NOTIFICATION` و`EnumC21760rz.A0Q` (سياق `NOTIFICATION_SIDELIST`، الوضع `query`؛ انظر WA_USYNC.md)، والسجل `usync triggered for hash` |
+| `UsernameSetNotification` | `C49822Lvi` | الحمولة `xwa2_notify_username_on_change`: تقرأ LID (تجزئة الحقل 107143) واسم المستخدم؛ تُخزَّن عبر `InterfaceC11470Yz.BNU(lid, username)`؛ إذا كانت جهة الاتصال موجودة ومن النوع المطابق، تُحدِّث جهة الاتصال (`C12440bB.A0W`) |
+| `UsernameDeleteNotification` | `C49821Lvh` | الحمولة `xwa2_notify_username_delete`: تقرأ LID وPN (تجزئة -983979708)؛ مع وجود PN تُشغِّل تحديث الحذف (`C53594Nzh`) |
+| `UsernameUpdateNotification` | مجهول `X.2YG` | تقرأ تجزئة base64 من الحمولة، تبني طلب USync بسبب `USERNAME_UPDATE_NOTIFICATION` و`EnumC21760rz.A0Q` (سياق `NOTIFICATION_SIDELIST`، نمط `query`؛ انظر WA_USYNC.md)، سجل `usync triggered for hash` |
 
-النص المعروض للمستخدم: "Your username has changed"، "WhatsApp has assigned you a new username (%1$s)"، أي أن الخادم يمكنه إعادة تعيين اسم مستخدم (الإلغاء، والتفضيل `is_username_revoked`، و`revocation_banner_dismissed_<username>`).
+النص الظاهر للمستخدم: "Your username has changed"، "WhatsApp has assigned you a new username (%1$s)"، أي أن الخادم يستطيع إعادة تعيين اسم مستخدم (إبطال، تفضيلة `is_username_revoked`، `revocation_banner_dismissed_<username>`).
 
 ---
 
 ## 8. أعلام الميزات
 
-معرّفات الأعلام هي معرّفات AB-prop تُقرأ عبر `C08J` (القيم الافتراضية من جداول `C08J`). جميع القيم الافتراضية أدناه قُرئت من هذا البناء.
+معرّفات الأعلام هي معرّفات خاصية AB تُقرأ عبر `C08J` (الافتراضيات من جداول `C08J`). كل الافتراضيات أدناه قُرئت من هذا البناء.
 
 | العلم | النوع | الافتراضي | يتحكم في |
 |------|------|---------|----------|
-| **4745** | bool | false | الأساسي: إنشاء اسم المستخدم (وضع `CREATION`)؛ ويُعلَن أيضًا كـ `username_supported` |
-| **20189** | bool | false | الأساسي: وضع الحجز فقط (`RESERVATION`)؛ و`username_supported` |
-| **23817** | bool | false | المرافق: ميزات اسم المستخدم أصلًا (وإلا `DISABLED`) |
-| **21199** | bool | false | تفعيل ربط الحسابات (FB / IG)، ويُعلَن كـ `username_account_linking_enabled` |
-| **16033** | bool | false | البوابة الرئيسية لميزات المفتاح (`C79343Xx.A00`): تحديد معدل المفتاح، وترويج المفتاح، وعرض WABI لاسم المستخدم |
-| **21995** | JSON | `{}` | ‏`enable_key_rate_limit` و`enable_key_upsell_flows` و`enable_wabi_username_view` (كلها صحيحة افتراضيًا حين يغيب مفتاح JSON) |
-| **8421** | bool | false | يسمح بـ MEX ‏`UsyncQuery` لطلبات اسم المستخدم |
-| **12402** | bool | false | يضيف السمتين `lid` و`pin` إلى عقدة usync ‏`contact` |
-| **20494** / **20459** | int | 3 / 35 | الحد الأدنى / الأقصى لطول اسم المستخدم |
-| **34350** | string | `^([0-9]{4}\|[A-Z0-9]{6})$` | regex المفتاح |
-| **34347** / **34348** | int | 4 / 6 | حدا طول المفتاح (رسالة الخطأ) |
-| **28678** | bool | false | يفعّل مخزن تراجع تحديد المعدل |
-| **28127** | int | 30 | ثواني التراجع الافتراضية |
+| **4745** | bool | false | الأساسي: إنشاء اسم مستخدم (وضع `CREATION`)؛ يُعلَن أيضاً كـ`username_supported` |
+| **20189** | bool | false | الأساسي: وضع الحجز فقط (`RESERVATION`)؛ `username_supported` |
+| **23817** | bool | false | الرفيق: ميزات اسم المستخدم كلياً (وإلا `DISABLED`) |
+| **21199** | bool | false | ربط الحساب (FB / IG) مُفعَّل، يُعلَن كـ`username_account_linking_enabled` |
+| **16033** | bool | false | البوّابة الرئيسية لميزات المفتاح (`C79343Xx.A00`): تحديد معدَّل المفتاح، ترقية المفتاح، عرض اسم مستخدم WABI |
+| **21995** | JSON | `{}` | `enable_key_rate_limit`، `enable_key_upsell_flows`، `enable_wabi_username_view` (كلها افتراضياً صحيحة عندما يكون مفتاح JSON غائباً) |
+| **8421** | bool | false | يسمح بـ`UsyncQuery` من MEX لطلبات اسم المستخدم |
+| **12402** | bool | false | يضيف سمتي `lid` و`pin` إلى عقدة `contact` الخاصة بـusync |
+| **20494** / **20459** | int | 3 / 35 | أدنى/أعلى طول اسم مستخدم |
+| **34350** | string | `^([0-9]{4}\|[A-Z0-9]{6})$` | تعبير نمطي للمفتاح |
+| **34347** / **34348** | int | 4 / 6 | حدود طول المفتاح (رسالة الخطأ) |
+| **28678** | bool | false | يُفعِّل مخزن التأخير التصاعدي لتحديد المعدَّل |
+| **28127** | int | 30 | ثواني التأخير التصاعدي الافتراضية |
 | **29327** | int | 60 | التأخير قبل الدفعة الثانية من `UsernameCheckMulti` |
 
-أهلية المرافق (`C224069kP.A00`، قراءة على مستوى bytecode):
+أهلية الرفيق (`C224069kP.A00`، قراءة على مستوى البايت كود):
 
 ```
 companion (identity of the A02 check inferred from the "open WhatsApp on your primary device" strings):
@@ -389,7 +389,7 @@ primary:
   4745 on -> CREATION;  else 20189 on -> RESERVATION;  else DISABLED
 ```
 
-التفضيلات الثلاثة `*_on_primary` تُقرأ هنا فقط؛ ولم يُعثر على موضع كتابتها (unknown).
+التفضيلات الثلاث `*_on_primary` مقروءة فقط هنا؛ أين تُكتَب لم يُعثر عليه (غير معروف).
 
 ---
 
@@ -397,24 +397,78 @@ primary:
 
 | الجانب | النتيجة | المستوى |
 |--------|---------|------|
-| الغرض | "Keep your phone number private with a username"؛ من لا يحفظون الرقم يرون اسم المستخدم بدلًا منه | found (سلاسل) |
-| أول تواصل | مع ضبط مفتاح، على الأشخاص الذين "you haven't interacted with" إدخال المفتاح قبل التواصل مع اسم المستخدم | found (سلاسل) |
-| مشاركة المفتاح | قد يتضمن إجراء مشاركة اسم المستخدم المفتاح (التفضيل `username_share_include_pin`، رُحّل بعيدًا في `C138535tr`)؛ السلاسل "Share your username and key" | found |
-| أين يُخفى الرقم | يرى مديرو المجتمعات ومديرو القنوات الرقم ما لم يُضبط اسم مستخدم؛ ولا يرى متابعو القنوات أيًّا منهما | found (سلاسل) |
-| قياس المجموعات / الخيوط عن بُعد | الحقول `has_username` و`has_username_pin` و`is_username_thread` في قياس إرسال الرسائل (`DZ1`، `RQG`) | found |
-| المفتاح في حالة السكون | يُعاد المفتاح الخاص من `UsernameGet` ويُخزَّن في التفضيلات النصية الصريحة `username_pin` | found |
-| محادثات الأطراف الثالثة | "Usernames and contacts added to third-party chats will not save to your phone" | found (سلسلة) |
-| الأعمال | يظهر "This username is only available on WhatsApp Business" كنص رفض | found (سلسلة) |
-| من يمكنه الاستعلام | حالة MEX usync ‏`NOT_ALLOWED` تُظهر أن الخادم يمكنه رفض كشف اسم المستخدم لكل طالب | found (تعداد)، القاعدة unknown |
-| القاصرون | التفضيل `is_teen_account`؛ ونصوص الوالدين "Your child created the username ..." | found |
+| الغرض | "Keep your phone number private with a username"؛ من لا يحمل الرقم محفوظاً يرى اسم المستخدم بدلاً منه | found (سلاسل) |
+| أول تواصل | بمفتاح مضبوط، من "لم تتفاعل معهم" يجب أن يُدخلوا المفتاح قبل التواصل مع اسم المستخدم | found (سلاسل) |
+| مشاركة المفتاح | إجراء مشاركة اسم المستخدم يمكن أن يشمل المفتاح (تفضيلة `username_share_include_pin`، رُحِّلت بعيداً في `C138535tr`)؛ سلاسل "Share your username and key" | found |
+| أين يُخفى الرقم | يرى مشرفو المجتمع ومشرفو القناة الرقم إلا إذا ضُبط اسم مستخدم؛ لا يرى متابعو القناة أياً منهما | found (سلاسل) |
+| قياس عن بُعد للمجموعة/الخيط | حقول `has_username`، `has_username_pin`، `is_username_thread` في قياس إرسال الرسائل عن بُعد (`DZ1`، `RQG`) | found |
+| المفتاح في حالة السكون | يُعيد `UsernameGet` المفتاح الخاص ويُخزَّن في تفضيلات صِرفة `username_pin` | found |
+| دردشات طرف ثالث | "Usernames and contacts added to third-party chats will not save to your phone" | found (سلسلة) |
+| الأعمال | "This username is only available on WhatsApp Business" يظهر كنص رفض | found (سلسلة) |
+| من يمكنه الاستعلام | حالة usync MEX `NOT_ALLOWED` تُظهر أن الخادم يستطيع رفض كشف اسم المستخدم حسب الطالب | found (تعداد)، القاعدة غير معروفة |
+| القاصرون | تفضيلة `is_teen_account`؛ نصوص الوالد "Your child created the username ..." | found |
 
-قواعد الظهور التي يفرضها الخادم (من يحق له حل اسم مستخدم، وتحديد معدل المفتاح، وإعادة التعيين) unknown من جهة العميل.
+قواعد الظهور التي يفرضها الخادم (من يستطيع حل اسم مستخدم، حدود معدَّل المفتاح، إعادة التعيين) غير معروفة من العميل.
+
+### 9أ. ضوابط جمهور مشاركة رقم الهاتف (جديدة في 2.26.45.10، found)
+
+تتحكم حزمة منفصلة `com.whatsapp.pnsharing` فيمن يمكنه رؤية رقم هاتف الحساب، مستقلة عن قواعد ظهور اسم المستخدم نفسه في 9. عمليتا `whatsapp-android-mex` جديدتان، كلاهما `found` من سلاسل `const-string` صِرفة في smali (لا حاجة إلى فك تجميع، `PnSharingAudienceUpdater.smali` / `PnSharingListFetcher.smali` / `PnSharingListUpdater.smali`):
+
+| العملية | doc_id | النوع |
+|-----------|--------|------|
+| `UsernamePhoneNumberPrivacyUpdateMutation` | `28835748819379698` | mutation |
+| `UsernamePhoneNumberPrivacyGetQuery` | `29264643203229836` | query |
+
+إعداد الجمهور واحد من 4 قيم للتعداد المشترَك غير الخاص بـpnsharing `LX/BWW` (13 عضواً إجمالاً، فقط هذه الأربعة قابلة للوصول من مسار هذا الاستدعاء):
+
+| الترتيب (ordinal) | عضو `LX/BWW` | قيمة `setting` |
+|---|---|---|
+| 0 | `A02` | `ALL` |
+| 1 | `A07` | `MYCONTACTS` |
+| 2 | `A08` | `MYCONTACTSEXCEPT` |
+| 3 | `A09` | `NONE` |
+
+**`UsernamePhoneNumberPrivacyUpdateMutation` تدريجية، لا استبدال كامل.** موقعا استدعاء يُغذِّيانها:
+
+- `PnSharingAudienceUpdater.A00` — تغيير الإعداد على المستوى الأعلى فقط، دون إدخالات قائمة.
+- `PnSharingListUpdater.A01` — إضافة/إزالة لكل إدخال مقابل واحدة من ثلاث قوائم جمهور.
+
+الحقول على المستوى الأعلى (found):
+
+| الحقل | النوع | المعنى |
+|-------|------|------|
+| `setting` | string | `ALL` / `MYCONTACTS` / `MYCONTACTSEXCEPT` / `NONE`، انظر الجدول أعلاه |
+| `input` | object | حمولة متداخلة، انظر أدناه |
+
+حقول `input` (found، متداخلة تحت `allow_list` / `contact_exclude_list` / `deny_list` تبعاً لأي من الإعدادات الثلاثة غير `MYCONTACTS` نشط — `MYCONTACTS` لا تُرسِل مفتاح قائمة):
+
+| الحقل | النوع | المعنى |
+|-------|------|------|
+| `dhash` | string | تجزئة محتوى قائمة الجمهور، تُستخدَم لإبطال التخزين المؤقت/اكتشاف التعارض (سلسلة سجل "...changed since it was read" مجاورة لها) |
+| `entries` | قائمة أجسام | إدخالات ADD/DEL تدريجية، لا استبدال قائمة كامل |
+
+حقول عنصر `entries[]` (found، مبنية بواسطة `PnSharingListUpdater.A00(Integer, Integer)`):
+
+| الحقل | النوع | المعنى |
+|-------|------|------|
+| `entry_type` | string | `USER` أو `GROUP` |
+| `operation` | string | `ADD` أو `DEL` |
+| `group_jid` | string، قابل للفراغ | يُضبَط فقط عندما `entry_type=GROUP` |
+| `pn_jid` | string، قابل للفراغ | يُضبَط عندما يكون الإدخال رقم هاتف خام (`PhoneUserJid`) |
+| `user_jid` | string، قابل للفراغ | يُضبَط عندما يكون الإدخال `Jid` جهة اتصال مُحلَّلة |
+| `username` | string، قابل للفراغ | الحقل موجود في المخطط لكن لا موقع استدعاء مرصود يملؤه؛ الغرض `inferred`: إقران رقم هاتف ليس جهة اتصال بعد باسم عرض، بما يتسق مع استثناءات بنمط `UsernameSet` — `unknown` ما إذا كان أي مُستدعٍ يضبطه فعلياً |
+
+تُملأ واحدة فقط من `group_jid` / `pn_jid` / `user_jid` لكل إدخال (found)؛ تبقى الأخريان فارغتين.
+
+`UsernamePhoneNumberPrivacyGetQuery` هي نظيرة القراءة (found، `PnSharingListFetcher.smali`): رحلة ذهاب وعودة مُجمَّعة واحدة تجلب كل القوائم الثلاث دفعة واحدة، كل منها مُفهرَسة بـ`dhash` خاصة بها (تجزئة مخزَّنة محلياً مؤقتاً، أو السلسلة الحرفية `"none"` إذا غائبة) للتحقق من التخزين المؤقت.
+
+**doc_id غير محسوم:** يُدرِج فهرس الاستعلام الدائم أيضاً `PnSharingPhoneNumberFetch` (doc_id `29229648029980096`، النوع query). بحث grep في شجرة smali الكاملة المُفكَّكة لـ2.26.45.10 (كل الأجزاء، لا فقط `com/whatsapp/pnsharing/`) عن هذه السلسلة الحرفية لا يُظهر موقع استدعاء — فقط مورد `whatsapp-android-mex_client_persist_ids.json` المشحون يُشير إليها. من يستدعيها وماذا ترسل **غير معروف**. المرشَّح الأرجح بالاسم فقط (**مستنتج**، لا أكثر): جلب ظهور رقم هاتف لكل جهة اتصال/مجموعة، أي نظيرة العنصر الواحد لاستعلام القوائم الثلاث المُجمَّع أعلاه — غير مؤكَّد.
 
 ---
 
 ## 10. ملاحظات Baileys
 
-الغلاف في 2.2 عام؛ ويمكن لعميل Baileys بناؤه. هذا **inferred** وليس مُختبَرًا هنا.
+الغلاف في 2.2 عام؛ يستطيع عميل Baileys بناءه. هذا **مستنتج**، لم يُختبَر هنا.
 
 ```ts
 const variables = { username: 'name', include_suggestions: false, source: 'USER_INPUT', session_id: uuid }
@@ -428,10 +482,10 @@ await sock.query({
 
 | الخطر | السبب |
 |------|--------|
-| انجراف doc_id | المعرّفات تخص أصل هذا البناء؛ وقد تختلف في بناءات أخرى (unknown) |
-| `session_id` | ترسله الشيفرة حين يوجد؛ هل يشترط الخادم القيمة نفسها للفحص والتعيين unknown |
-| سمات المفتاح | ‏`lid` / `pin` على `contact` خلف العلم 12402؛ وقد يتجاهلها الخادم للعملاء دون العلم (unknown) |
-| القواعد المحلية | قواعد الطول ومجموعة المحارف والنقطة جهة العميل؛ وقواعد الخادم unknown |
+| انحراف doc_id | المعرّفات خاصة بموارد هذا البناء؛ قد تختلف البناءات الأخرى (غير معروف) |
+| `session_id` | يرسله الكود عند وجوده؛ ما إذا كان الخادم يتطلب نفس القيمة للفحص والضبط غير معروف |
+| سمات المفتاح | `lid` / `pin` على `contact` محجوبة بالعلم 12402؛ قد يتجاهلها الخادم لعملاء دون العلم (غير معروف) |
+| القواعد المحلية | الطول، مجموعة الأحرف وقواعد النقطة من جانب العميل؛ قواعد الخادم غير معروفة |
 
 ---
 
@@ -439,20 +493,20 @@ await sock.query({
 
 | لا تخلط بين | الفرق |
 |----------------|------------|
-| مفتاح اسم المستخدم وPIN الحساب / 2FA | مفتاح اسم المستخدم (`pin` في `UsernamePinSet`، والتفضيل `username_pin`) يضبط أول تواصل عبر اسم المستخدم. ولا علاقة له بـ 2FA التسجيل |
-| المتغير `reserved` و`UsernamePinSet` | ‏`reserved` ينتمي إلى `UsernameSet` ويعلّم حجزًا؛ وللمفتاح عمليته الخاصة |
-| الحالة `RESERVED` | ‏`C4DU.RESERVED` المحلية / `state=RESERVED` على الخادم هو اسم محجوز لم يصبح قابلًا للاستخدام بعد؛ أما `ACTIVATED` و`CREATED` فقابلان للاستخدام |
-| الحذف | لا توجد عملية حذف؛ ‏`UsernameSet` بلا `username` يحذف؛ وحذف المفتاح هو `UsernamePinSet` مع `{}` |
-| نتيجة الفحص `INVALID` | تشمل المأخوذ، وما يتطلب الربط، ومشكلات الصيغة؛ والتفصيل في `rejection_reasons` |
-| اسم المستخدم مقابل LID | اسم المستخدم معرّف عرض؛ وهوية العنونة هي LID |
-| أعداد `source` | ‏1 `FB`، 2 `IG`، 3 `USER_INPUT`، 4 `SUGGESTION`؛ وليست نفس أعداد معرّفات خطأ `C02U` |
-| doc_id مقابل `client_doc_id` | كلاهما في الأصل؛ والمعرّفات الملتقطة تساوي `doc_id` |
-| الإشعارات مقابل العمليات | أنواع `Username*Notification` الثلاثة معالجات دفع لا طلبات |
-| تسميات عبر المستودعات | ‏`25975613018777537` غائب عن أصل persist-id في هذا البناء؛ و`25741205615468935` هو `GetTextStatusList` في هذا البناء. وليس أيٌّ منهما عملية اسم مستخدم هنا |
+| مفتاح اسم المستخدم مقابل PIN الحساب / 2FA | مفتاح اسم المستخدم (`pin` في `UsernamePinSet`، تفضيلة `username_pin`) يحجب أول تواصل عبر اسم المستخدم. غير مرتبط بـ2FA التسجيل |
+| متغير `reserved` مقابل `UsernamePinSet` | `reserved` ينتمي لـ`UsernameSet` ويُعلِّم حجزاً؛ المفتاح له عمليته الخاصة |
+| حالة `RESERVED` | `C4DU.RESERVED` المحلية / `state=RESERVED` من الخادم اسم محجوز غير قابل للاستخدام بعد؛ `ACTIVATED` و`CREATED` قابلتان للاستخدام |
+| الحذف | لا توجد عملية حذف؛ `UsernameSet` دون `username` تحذف؛ حذف المفتاح هو `UsernamePinSet` بـ`{}` |
+| نتيجة الفحص `INVALID` | تغطي الأخذ، الحاجة للربط ومشكلات الشكل؛ التفصيل في `rejection_reasons` |
+| اسم المستخدم مقابل LID | اسم المستخدم معرِّف؛ هوية العنونة هي LID |
+| أعداد `source` | 1 `FB`، 2 `IG`، 3 `USER_INPUT`، 4 `SUGGESTION`؛ ليست نفس أعداد معرّفات خطأ `C02U` |
+| doc_id مقابل `client_doc_id` | كلاهما في الموارد؛ المعرّفات المُلتقَطة تساوي `doc_id` |
+| الإشعارات مقابل العمليات | أنواع `Username*Notification` الثلاثة معالِجات دفع، لا طلبات |
+| تسميات عابرة للمستودعات | `25975613018777537` غائب عن موارد معرّفات الديمومة في هذا البناء؛ `25741205615468935` هو `GetTextStatusList` في هذا البناء. لا أحدهما عملية اسم مستخدم هنا |
 
 ---
 
-## 12. المسار الكامل
+## 12. التدفق من البداية إلى النهاية
 
 ```
 [User]                [Client]                              [Server]
@@ -493,17 +547,17 @@ await sock.query({
 
 ---
 
-## 13. المجهولات
+## 13. المجاهيل
 
 | الموضوع | السبب |
 |-------|--------|
-| الدالة الفعلية التي تغذي `query_id` | لم يُتتبَّع مستهلك `doc_id` مقابل `client_doc_id` حتى باني IQ |
-| شكل استجابة `UsernamePinSet` و`UsernameSet` | لا وصول إلى حقول في أصناف الاستجابة في الشيفرة المقروءة |
-| `UsernameGetRecommendationsQuery` | لا موضع استدعاء ولا متغيرات |
-| قواعد اسم المستخدم والمفتاح على الخادم | يتحقق العميل محليًا فقط |
-| معنى 40601-40603 على الخادم | لم تُوجد سوى نصوص العميل |
-| مصدر تفضيلات `*_on_primary` | لم يُعثر على كاتب |
-| أثر `username_chat_start_mode` | لم يُعثر على مستهلك |
-| نمط استخدام `UsernameGet` (heartbeat) | غير مدعوم بالشيفرة المقروءة |
-| خطوة فتح المحادثة بعد مفتاح صحيح | لم تُتتبَّع بعد فحص LID |
-| حركة الشبكة الفعلية | تحليل ساكن فقط |
+| الوصول الدقيق الذي يُغذِّي `query_id` | مستهلك `doc_id` مقابل `client_doc_id` لم يُتعقَّب إلى باني IQ |
+| شكل استجابة `UsernamePinSet`، `UsernameSet` | أصناف الاستجابة لا وصول حقل لها في الكود المقروء |
+| `UsernameGetRecommendationsQuery` | لا موقع استدعاء، لا متغيرات |
+| قواعد اسم المستخدم والمفتاح من جهة الخادم | العميل يُحقِّق محلياً فقط |
+| معنى 40601-40603 على الخادم | فقط سلاسل العميل مُعثور عليها |
+| أصل تفضيلات `*_on_primary` | لا كاتب مُعثور عليه |
+| أثر `username_chat_start_mode` | لا مستهلك مُعثور عليه |
+| نمط استخدام `UsernameGet` (نبضة قلب) | لا يدعمه الكود المقروء |
+| خطوة فتح الدردشة بعد مفتاح صحيح | لم تُتعقَّب بعد فحص LID |
+| الحركة الفعلية | تحليل ساكن فقط |

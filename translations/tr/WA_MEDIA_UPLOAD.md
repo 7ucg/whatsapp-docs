@@ -1,43 +1,43 @@
-<!-- src-sha1: a94958787eccb3db407fbb92cf700d9a4d424f4a -->
-# WhatsApp Media Upload — Full RE Report
+<!-- src-sha1: a12736ca9c475f1c7c0195dbae0d18d5725a4440 -->
+# WhatsApp Medya Yükleme — Full RE Report
 **Sürüm:** 2.26.41.6 | **Tarih:** 2026-10-23
-**Kapsam:** Android medya aktarımı: `media_conn` IQ (host'lar, auth, ttl, bucket'lar, fallback host'lar), yükleme ve indirme URL'sinin oluşturulması ve HTTP parametreleri, HKDF info string'leriyle medya türü tablosu, medya anahtarının üretimi ve türetilmesi, AES-CBC + HMAC şifreleme, fileSha256 / fileEncSha256, mediaKeyTimestamp, direct path, küçük resimler (thumbnail), video / ses / aşamalı (progressive) görüntüler için streaming sidecar'lar, devam ettirilebilir (resumable) yükleme, route seçimi, yeniden deneme ve backoff, yükleme ve indirme hata kodları, medya retry receipt'i ve `mediaretry` bildirimi, tek seferlik görüntülenen (view-once) ve durum (status) medyası, newsletter (kanal) medyası, express path, medya parser'larının istemci tarafı native sertleştirmesi, Baileys karşılaştırması
+**Kapsam:** Android medya transferi: `media_conn` IQ'su (host'lar, auth, ttl, bucket'lar, fallback host'ları), yükleme ve indirme URL inşası ve HTTP parametreleri, HKDF info string'leriyle medya tipi tablosu, medya key üretimi ve türetimi, AES-CBC + HMAC şifreleme, fileSha256 / fileEncSha256, mediaKeyTimestamp, direct path, küçük resimler, video / ses / progressive görüntü için streaming sidecar'ları, resumable upload, route seçimi, retry ve backoff, yükleme ve indirme hata kodları, medya retry receipt'i ve `mediaretry` bildirimi, view-once ve status medyası, newsletter (kanal) medyası, express path, medya parser'larının istemci-tarafı native sağlamlaştırması, Baileys karşılaştırması
 
 ---
 
-## 1. Nedir (teknik olarak)
+## 1. Teknik olarak ne
 
-Medya hiçbir zaman chatd akışı içinde taşınmaz (bkz. [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md)). Mesaj yalnızca bir protobuf referansı (anahtar, hash'ler, `directPath`) taşır; baytlar medya host'larına açılan ayrı HTTPS bağlantılarıyla gider. chatd tek bir şey sağlar: host adlarını ve kısa ömürlü bir yükleme auth token'ını dağıtan `media_conn` IQ'su. Tüm ifadeler çözülmüş (decompile edilmiş) APK'nın ve açılmış native kütüphanelerin statik analizinden gelir; ağ üzerinde hiçbir şey yakalanmadı. Kademeler: **found** = kodda veya string'lerde okundu, **inferred** = çıkarım, **unknown** = çözülemedi.
+Medya, hiçbir zaman chatd stream'i içinde seyahat etmez (bkz [WA_NOISE_TRANSPORT.md](WA_NOISE_TRANSPORT.md)). Bir mesaj sadece bir protobuf referansı taşır (key, hash'ler, `directPath`); byte'lar medya host'larına ayrı HTTPS bağlantıları üzerinden gider. Chatd tek bir şey sağlar: host adlarını ve kısa-ömürlü bir yükleme auth token'ını veren `media_conn` IQ'su. Tüm ifadeler decompile edilmiş APK'nın ve açılmış native kütüphanelerin statik analizinden gelir; hiçbir şey wire üzerinde yakalanmamıştır. Kademeler: **found** = kod veya string'lerde okundu, **inferred** = çıkarıldı, **unknown** = çözülmedi.
 
 | Katman | 2.26.41.6 adı | Rol |
-|--------|----------------|-----|
-| Route seçici | `RouteSelector` (`C10950Wx`) | mevcut `media_conn` sonucunu, yenileme zamanlayıcısını, throttle'ı ve route factory'sini tutar |
-| `media_conn` parser'ı | `C43951qe` (IQ sonuç handler'ı), `C41561mf` (RoutingResponse), `C41441mT` (RouteHost) | `<media_conn>` / `<host>` öğelerini ayrıştırır |
-| Route supplier | `Mms4RouteSupplier` (`C46433KQw`), `C46435KQy` / `C46436KQz` (statik supplier'lar) | her denemede host seçer, auth token'ını değiştirir |
-| Retry sürücüsü | `TransferRetries` (`C44566Jd2`) | tek bir aktarımın etrafındaki deneme döngüsü |
-| Medya türü tablosu | `MmsType` (`C15530gU`) | tür başına: path string'i, HKDF info baytları, sayısal id |
-| Anahtar sağlayıcı | `MmsImageCipherKeyProvider` (`C59530Qnc`), `MediaCryptoProvider` (`C58155Q5r`) | HKDF 80 bayt, non-E2EE domain anahtarı |
-| Cipher stream'leri | `M2I` (şifreleyerek yaz), `M23` (şifreleyerek oku), `P9N` / `P1X` / `P1Y` (sidecar MAC'leri), `C51101MlN` (aralıklı (ranged) çözme) | AES-CBC + HMAC |
-| Yükleme sürücüsü | `MediaUploadUtils` (`QIh`), `QBE`, `Q52` (anahtar yeniden kullanımı), `C57333Po0` (anahtar üretimi + hash'ler) | hash'ler, sidecar'lar, yükleme orkestrasyonu |
-| Yükleme URL'si | `C43489Iy4` | `/surface/type/hash?...` |
-| İndirme URL'si | `Mms4DownloadUrlGenerator` (`C43488Iy3`) | `directPath?...` |
-| HTTP | yükleme: `HttpsFormPost` (`C43478Ixt`, `K19`); indirme: `PlainDownloadTransfer` (`CallableC60106QxW`), `C17660kC`, `C43481Ixw` (Tigon) | taşıma |
-| Resume probe | `HttpResumeCheck` (`C59524QnW`) | sunucuya kaç baytı olduğunu sorar |
-| Retry receipt | `SendMediaErrorReceiptJob`, `HandlerThreadC21920sG` içindeki writer case 77 ve 327 | gönderenden yeniden yükleme ister |
-| Retry bildirimi | `MediaRetryNotificationHandler` (`C1S0`, bildirim kodu 97) | yanıtı işler |
+|-------|----------------|------|
+| Route selector | `RouteSelector` (`C10950Wx`) | mevcut `media_conn` sonucunu, yenileme zamanlayıcısını, throttle'ı, route factory'sini tutar |
+| `media_conn` parser'ı | `C43951qe` (IQ sonuç handler'ı), `C41561mf` (RoutingResponse), `C41441mT` (RouteHost) | `<media_conn>` / `<host>`'u çözümler |
+| Route sağlayıcısı | `Mms4RouteSupplier` (`C46433KQw`), `C46435KQy` / `C46436KQz` (statik sağlayıcılar) | deneme-başına host seçer, auth token'ını değiştirir |
+| Retry sürücüsü | `TransferRetries` (`C44566Jd2`) | bir transfer etrafındaki deneme döngüsü |
+| Medya tipi tablosu | `MmsType` (`C15530gU`) | tip-başına: path string'i, HKDF info byte'ları, sayısal id |
+| Key sağlayıcısı | `MmsImageCipherKeyProvider` (`C59530Qnc`), `MediaCryptoProvider` (`C58155Q5r`) | HKDF 80 byte, non-E2EE domain key'i |
+| Cipher stream'leri | `M2I` (şifreleme çıkışı), `M23` (şifreleme girişi), `P9N` / `P1X` / `P1Y` (sidecar MAC'leri), `C51101MlN` (ranged decrypt) | AES-CBC + HMAC |
+| Yükleme sürücüsü | `MediaUploadUtils` (`QIh`), `QBE`, `Q52` (key yeniden kullanımı), `C57333Po0` (key üretimi + hash'ler) | hash'ler, sidecar'lar, yükleme orkestrasyonu |
+| Yükleme URL'i | `C43489Iy4` | `/surface/type/hash?...` |
+| İndirme URL'i | `Mms4DownloadUrlGenerator` (`C43488Iy3`) | `directPath?...` |
+| HTTP | `HttpsFormPost` (`C43478Ixt`, `K19`) yükleme; `PlainDownloadTransfer` (`CallableC60106QxW`), `C17660kC`, `C43481Ixw` (Tigon) indirme | transport |
+| Resume probe'u | `HttpResumeCheck` (`C59524QnW`) | sunucuya kaç byte'a sahip olduğunu sorar |
+| Retry receipt'i | `SendMediaErrorReceiptJob`, `HandlerThreadC21920sG`'de writer durumları 77 ve 327 | gönderenden yeniden-yükleme talep eder |
+| Retry bildirimi | `MediaRetryNotificationHandler` (`C1S0`, bildirim kodu 97) | cevabı tüketir |
 | Native | `libwhatsapp.so` (Rust medya crate'leri, RLBox sandbox'ları), `libstatic-webp.so`, `libwa_sandboxed_gifimage.so`, `libdav1d.so` | parser'lar ve decoder'lar |
 
-Raporun geri kalanını belirleyen noktalar:
+Raporun kalanını belirleyen noktalar:
 
-- Android, medya anahtarından 112 değil **80** bayt türetir (IV 16, cipher key 32, MAC key 32) (bölüm 4).
-- HTTP path'i `/{surface}/{type}/{urlSafeFileEncSha256}` biçimindedir; burada `type`, medyanın `MmsType` string'idir (`image`, `ptt`, `md-msg-hist`, ...), kaba bir sınıf değildir (bölüm 8.1).
-- Android yükleme `token`'ı dosya hash'i değildir; kurulum başına bir sır ile dosya hash'i üzerinden alınan SHA-256'dır (bölüm 8.2).
-- Newsletter (kanal) medyası aynı kodu paylaşır ancak `newsletter` surface'ini ve rastgele bir token kullanır; şifrelenmemiştir (artwork yolu için found, geri kalanı için inferred, bölüm 13).
-- İndirme host'ları, dosya hash'inden türetilen bir bucket ile filtrelenir (bölüm 9.2).
+- Android, medya key'inden **80** byte türetir (IV 16, cipher key 32, MAC key 32), 112 değil (bölüm 4).
+- HTTP path'i `/{surface}/{type}/{urlSafeFileEncSha256}`'dir, `type` medyanın `MmsType` string'idir (`image`, `ptt`, `md-msg-hist`, ...), kaba bir sınıf değil (bölüm 8.1).
+- Android yükleme `token`'ı dosya hash'i değildir; kurulum-başına bir sır ile dosya hash'i üzerinden bir SHA-256'dır (bölüm 8.2).
+- Newsletter (kanal) medyası aynı kodu paylaşır ama `newsletter` surface'ini ve rastgele bir token kullanır; şifrelenmemiştir (artwork path'i için found, kalan için inferred, bölüm 13).
+- İndirme host'ları, dosya hash'inden türetilen bir bucket'a göre filtrelenir (bölüm 9.2).
 
 ---
 
-## 2. `media_conn` IQ
+## 2. `media_conn` IQ'su
 
 ### 2.1 İstek (found, `RouteSelector.A07`)
 
@@ -47,55 +47,55 @@ Raporun geri kalanını belirleyen noktalar:
 </iq>
 ```
 
-Timeout 32000 ms. Aynı anda yalnızca bir istek uçuştadır (`inFlightMediaRoutingRequestTime`); ikinci çağrı `not sending request` loglar ve geri döner. Genel bir throttle (`ChatdMediaThrottleManager`) çağrıyı bastırabilir (`routeselector/requestupdatedroutinginfo throttled`).
+Timeout 32000 ms. Sadece bir istek uçuşta (`inFlightMediaRoutingRequestTime`); ikinci bir çağrı `not sending request` loglar ve döner. Küresel bir throttle (`ChatdMediaThrottleManager`) çağrıyı bastırabilir (`routeselector/requestupdatedroutinginfo throttled`).
 
 ### 2.2 Yanıt (found, `C43951qe.CFS`)
 
-| Node / öznitelik | Tür | Kullanım |
-|------------------|-----|----------|
-| `media_conn@auth` | string, zorunlu | yükleme auth token'ı (`auth` query parametresi) |
-| `@ttl` | saniye | bağlantı ömrü; sona erme = gönderim zamanı + ttl * 1000 |
-| `@auth_ttl` | saniye | auth token ömrü; sona erme = gönderim zamanı + auth_ttl * 1000 |
-| `@max_buckets` | long, varsayılan 0 | indirme bucket'ı için modül (bölüm 9.2) |
-| `@is_new` | int, varsayılan 1 | 1 = host listesini değiştir; aksi halde önceki host'ları koru ve yalnızca token ile ttl'i al (`previous hosts retained`) |
-| `@id` | string | `last_id` olarak saklanır, sonraki istekte geri gönderilir |
-| `@max_auto_download_retry` | int, varsayılan 3 | otomatik indirmeler için yeniden deneme bütçesi |
-| `@max_manual_retry` | int, varsayılan 3 | manuel indirmeler için yeniden deneme bütçesi |
-| `@ip_token`, `@set_ip_token` | string, "0"/"1" | ayrıştırılır ve önbelleğe alınır; `ip_token` yalnızca flag **12149** açıksa ve `set_ip_token` true ise kullanılır (tüketim noktası: unknown) |
-| `host` (tekrarlı) | node | bir route girdisi |
+| Node / attribute | Tip | Kullanım |
+|------------------|------|-----|
+| `media_conn@auth` | string, gerekli | yükleme auth token'ı (`auth` query parametresi) |
+| `@ttl` | saniye | bağlantı ömrü; süre dolumu = gönderme zamanı + ttl * 1000 |
+| `@auth_ttl` | saniye | auth token ömrü; süre dolumu = gönderme zamanı + auth_ttl * 1000 |
+| `@max_buckets` | long, varsayılan 0 | indirme bucket'ı için modulus (bölüm 9.2) |
+| `@is_new` | int, varsayılan 1 | 1 = host listesini değiştir; aksi halde önceki host'ları tut ve sadece token ile ttl'i al (`previous hosts retained`) |
+| `@id` | string | `last_id` olarak saklanır, bir sonraki istekte geri gönderilir |
+| `@max_auto_download_retry` | int, varsayılan 3 | otomatik indirmeler için retry bütçesi |
+| `@max_manual_retry` | int, varsayılan 3 | manuel indirmeler için retry bütçesi |
+| `@ip_token`, `@set_ip_token` | string, "0"/"1" | ayrıştırılır ve cache'lenir; `ip_token` sadece flag **12149** açıksa ve `set_ip_token` doğruysa kullanılır (tüketim noktası: unknown) |
+| `host` (tekrarlı) | node | bir route girişi |
 
-`host` öznitelikleri (found): `hostname` (zorunlu), `ip4`, `ip6`, `class`, `fallback_hostname`, `fallback_ip4`, `fallback_ip6`, `fallback_class`, `type` (`primary` veya `fallback`; başka her değer `primary` olur), `force_ip` (`"true"`). Alt öğeler: `<upload>`, `<download>`, `<download_buckets>`; alt etiket adları yetenek (capability) girdileridir. `upload` ve `download`, yalnızca sabit bir 34 medya türü string'i kümesinde görünen etiketleri tutar (`audio`, `image`, `chat-wallpaper-image`, `video`, `ptv`, `kyc-id`, `sticker`, `document`, `ptt`, `gif`, `md-app-state`, `md-msg-hist`, `ppic`, `newsletter-*` ailesi ve `thumbnail-*` ailesi); `download_buckets` filtrelenmeden tutulur.
+`host` attribute'ları (found): `hostname` (gerekli), `ip4`, `ip6`, `class`, `fallback_hostname`, `fallback_ip4`, `fallback_ip6`, `fallback_class`, `type` (`primary` veya `fallback`; başka herhangi bir şey `primary` olur), `force_ip` (`"true"`). Çocuklar: `<upload>`, `<download>`, `<download_buckets>`; çocuk tag isimleri yetenek girdileridir. `upload` ve `download`, sabit 34 medya-tipi-string kümesinde (`audio`, `image`, `chat-wallpaper-image`, `video`, `ptv`, `kyc-id`, `sticker`, `document`, `ptt`, `gif`, `md-app-state`, `md-msg-hist`, `ppic`, `newsletter-*` ailesi ve `thumbnail-*` ailesi) görünen tag'leri sadece tutar; `download_buckets` filtrelenmeden tutulur.
 
-Bir route host'u yalnızca hostname'i `.whatsapp.net` ile bitiyorsa kullanılabilir (`Mms4RouteSupplier.A06`, `fallback_hostname` için de uygulanır).
+Bir route host'u sadece hostname'i `.whatsapp.net` ile bitiyorsa kullanılabilirdir (`Mms4RouteSupplier.A06`, `fallback_hostname`'e de uygulanır).
 
-### 2.3 Önbellekleme ve yenileme (found)
+### 2.3 Cache'leme ve yenileme (found)
 
 | Kural | Değer |
-|-------|-------|
-| Kalıcılık | flag **149** ile sonuç JSON olarak saklanır (`auth_token`, `conn_ttl`, `auth_ttl`, `max_buckets`, `hosts`, `last_id`, `is_new`, `max_autodownload_retry`, `max_manual_retry`, `ip_token`, `set_ip_token`, `send_time_abs_ms`), `route_selector_prefs` / `media_conn` altında; bir kez yüklenir, yalnızca auth henüz süresi dolmamışsa kullanılır |
-| Yenileme kontrolü | aktarımdan önce: bağlantı veya auth 120000 ms içinde sona eriyorsa yeni IQ gönderilir ve 20000 ms'ye kadar beklenir (`requestroutesandwaitforauth`) |
-| Zamanlayıcı | her sonuçtan sonra `auth expiry - 60000 ms`; foreground (`BgG`) yeniden kurar |
-| Auth hatası | bir aktarımda HTTP 401 veya 403 yenilemeyi tetikler (`onmediatransfererrororresponsecode`), aktarım başına en fazla 2 token değişimi (`JW1.A00 < 2`), ardından deneme yeni `auth` ile tekrarlanır |
-| Denemeden önce auth | `refreshAuthBeforeAttempt`, önbellekteki token'ın sona ermesine 120000 ms kala daha yeni bir token ile değiştirir (flag sembolü `PTU.A0D`) |
+|------|-------|
+| Kalıcılık | flag **149** ile sonuç JSON olarak saklanır (`auth_token`, `conn_ttl`, `auth_ttl`, `max_buckets`, `hosts`, `last_id`, `is_new`, `max_autodownload_retry`, `max_manual_retry`, `ip_token`, `set_ip_token`, `send_time_abs_ms`) `route_selector_prefs` / `media_conn` altında; bir kez yüklenir, sadece auth henüz süresi dolmamışsa kullanılır |
+| Yenileme kontrolü | bir transferden önce: eğer bağlantı veya auth 120000 ms içinde süresi dolacaksa, yeni bir IQ gönder ve en fazla 20000 ms bekle (`requestroutesandwaitforauth`) |
+| Zamanlayıcı | her sonuçtan sonra `auth expiry - 60000 ms`; ön plan (`BgG`) bunu yeniden kurar |
+| Auth başarısızlığı | bir transferde HTTP 401 veya 403 bir yenilemeyi tetikler (`onmediatransfererrororresponsecode`), transfer-başına maks 2 token değişimi (`JW1.A00 < 2`), sonra deneme yeni `auth` ile yeniden yapılır |
+| Deneme öncesi auth | `refreshAuthBeforeAttempt`, cache'lenmiş token süresi dolumuna 120000 ms içindeyken daha yeni bir token değiştirir (flag sembolü `PTU.A0D`) |
 
 ### 2.4 IQ hatası (found, `C43951qe.Brt`)
 
 IQ sonucu içinde `<error code backoff>`:
 
 | Kod | Davranış |
-|-----|----------|
-| 503 | medya throttle'ını sıfırla; sonraki yenilemeyi jitter'lı bir Fibonacci backoff'undan sonra planla (`3/4 * t + rand(t/2)`) |
-| 507, backoff > 0 ile | medya isteklerini `now + min(backoff, 10800) s` zamanına kadar throttle et |
-| diğer / 0 | yok sayılır |
+|------|-----------|
+| 503 | medya throttle'ını sıfırla; jitter'lı bir Fibonacci backoff'u (`3/4 * t + rand(t/2)`) sonrası bir sonraki yenilemeyi planla |
+| 507, backoff > 0 ile | medya isteklerini `now + min(backoff, 10800) s`'ye kadar throttle et |
+| diğer / 0 | göz ardı edilir |
 
 ---
 
-## 3. Medya türleri ve HKDF info string'leri (found, `MmsType` `C15530gU` statik init)
+## 3. Medya tipleri ve HKDF info string'leri (found, `MmsType` `C15530gU` statik init)
 
-Her `MmsType` bir path string'i (`A02`), kısa bir dosya türü etiketi (`A01`, örn. `IMG`), HKDF `info` baytlarını (`A03`) ve bir sayısal id'yi (`A00`) tutar. `info` baytları ham haliyle HKDF info olarak kullanılır (ek önek yok).
+Her `MmsType`, bir path string'i (`A02`), kısa bir dosya-tipi etiketi (`A01`, örn. `IMG`), HKDF `info` byte'ları (`A03`) ve sayısal bir id (`A00`) tutar. `info` byte'ları HKDF info olarak ham şekilde kullanılır (ek bir önek yok).
 
 | HKDF info | `MmsType` path string'leri |
-|-----------|----------------------------|
+|-----------|------------------------|
 | `WhatsApp Image Keys` | `image`, `sticker`, `kyc-id`, `biz-cover-photo`, `biz-flows`, `wamo-image`, `newsletter-image`, `newsletter-image-status`, `newsletter-sticker`, `newsletter-music-artwork` |
 | `WhatsApp Video Keys` | `video`, `ptv`, `gif`, `wamo-video`, `newsletter-video`, `newsletter-video-status`, `newsletter-ptv`, `newsletter-gif`, `newsletter-gif-status` |
 | `WhatsApp Audio Keys` | `audio`, `ptt`, `newsletter-audio`, `newsletter-audio-status`, `newsletter-ptt` |
@@ -116,18 +116,18 @@ Her `MmsType` bir path string'i (`A02`), kısa bir dosya türü etiketi (`A01`, 
 | `PAYMENT_DOC_UPLOAD` | `payment-br-document` |
 | `ads-image` / `ads-video` | `ads-image` / `ads-video` |
 
-Notlar (found): `ptt` ve `audio` aynı Audio info'sunu paylaşır ancak path string'leri farklıdır; `sticker` Image info'sunu kullanır; `gif` ve `ptv` Video info'sunu kullanır; farklı çağrı noktaları için farklı sayısal id'lere sahip birkaç `image` satırı vardır (1, 23, 25, 37, 42, 44, 57; `sticker` 20'dir) (id anlamı unknown); `group-history`, info'su `WhatsApp <X> Keys` biçiminde olmayan tek girdidir. Profil resimleri (`ppic`) yalnızca route capability kümesinde ve indirme generator çağrılarında görünür, `MmsType` olarak yer almaz.
+Notlar (found): `ptt` ve `audio`, Audio info'yu paylaşır ama farklı path string'leridir; `sticker` Image info'yu kullanır; `gif` ve `ptv` Video info'yu kullanır; farklı çağrı noktaları için farklı sayısal id'lere (1, 23, 25, 37, 42, 44, 57; `sticker` 20'dir) sahip birkaç `image` satırı vardır (id anlamı unknown); `group-history`, info'su `WhatsApp <X> Keys` biçiminde olmayan tek girdidir. Profil resimleri (`ppic`), sadece route yetenek kümesinde ve indirme generator çağrılarında görünür, bir `MmsType` olarak değil.
 
 ---
 
-## 4. Medya anahtarı ve türetme
+## 4. Medya key'i ve türetimi
 
-### 4.1 Anahtar üretimi (found)
+### 4.1 Key üretimi (found)
 
 | Öğe | Değer |
-|-----|-------|
-| Medya anahtarı | `SecureRandom`'dan 32 rastgele bayt (`C57333Po0`, `QIh.A0B` `new SecureRandom()`'dır) |
-| Yeniden kullanım | anahtar, saklanan anahtar zaman damgasına göre `172800000 ms + SecureRandom.nextInt(86400000)`'dan (2 ila 3 gün, jitter'lı) gençse `MediaKeyGen/reuse key from message contents`; daha eski anahtarlar atılır (`key expired`) ve yeniden üretilir |
+|------|-------|
+| Medya key'i | `SecureRandom`'dan 32 rastgele byte (`C57333Po0`, `QIh.A0B`, `new SecureRandom()`'dur) |
+| Yeniden kullanım | `MediaKeyGen/reuse key from message contents`, key saklanmış key zaman damgasına karşı ölçülen `172800000 ms + SecureRandom.nextInt(86400000)` (2 ile 3 gün arası, jitter'lı) yaşından küçükse; daha eski key'ler düşürülür (`key expired`) ve yeniden üretilir |
 | Domain | `D5C`: `E2EE` (0), `NON_E2EE` (1), `UNKNOWN` (-1) |
 
 ### 4.2 HKDF (found, `C59530Qnc.AM1` tarafından çağrılan `AbstractC38961i0.A00`)
@@ -141,15 +141,15 @@ cipherKey = okm[16..48)
 macKey    = okm[48..80)
 ```
 
-`N6U.A01` başka her uzunluğu reddeder (`Invalid length of derived secret`). Ciphertext uzunluğu: `N6U.A00(n) = floor(n/16)*16 + 16 + 10` (PKCS#5 dolgulu bloklar artı 10 MAC baytı).
+`N6U.A01`, başka herhangi bir uzunluğu reddeder (`Invalid length of derived secret`). Ciphertext uzunluğu: `N6U.A00(n) = floor(n/16)*16 + 16 + 10` (PKCS#5 padded bloklar artı 10 MAC byte'ı).
 
-### 4.3 Non-E2EE medya anahtarı (found, `MediaCryptoProvider` `C58155Q5r`)
+### 4.3 Non-E2EE medya key'i (found, `MediaCryptoProvider` `C58155Q5r`)
 
 ```
 nonE2eeKey = HKDF(e2eeKey, salt = 32 zero bytes, info = "non-e2ee-media-key", L = 32)
 ```
 
-`ContextInfo.mediaDomainInfo` (alan **74**, mesaj `DQT`) `mediaKeyDomain` (**1**: 0 UNKNOWN, 1 E2EE, 2 NON_E2EE) ve `e2eeMediaKey` (**2**) taşır. Flag **24661** ile alıcı, mesajdaki anahtarın domain ile eşleştiğini kontrol eder (`resolveKeyForDomain: mismatched e2eeMediaKey domain=`); uyuşmazlıkta anahtarı olduğu gibi kullanmaya döner. Hangi ürünlerin NON_E2EE domain'ini kullandığı: unknown.
+`ContextInfo.mediaDomainInfo` (alan **74**, mesaj `DQT`), `mediaKeyDomain`'i (**1**: 0 UNKNOWN, 1 E2EE, 2 NON_E2EE) ve `e2eeMediaKey`'i (**2**) taşır. Flag **24661** ile alıcı, mesajdaki key'in domain'le eşleştiğini kontrol eder (`resolveKeyForDomain: mismatched e2eeMediaKey domain=`); uyuşmazlıkta verildiği gibi key'e geri döner. Hangi ürünlerin NON_E2EE domain'ini kullandığı: unknown.
 
 ---
 
@@ -157,36 +157,36 @@ nonE2eeKey = HKDF(e2eeKey, salt = 32 zero bytes, info = "non-e2ee-media-key", L 
 
 ### 5.1 Cipher (found, `M2I`, `M23`, `N6U`)
 
-| Adım | Ayrıntı |
-|------|---------|
+| Adım | Detay |
+|------|------|
 | Cipher | `AES/CBC/PKCS5Padding`, key = cipherKey, IV = iv |
-| MAC | `HmacSHA256(macKey)`, önce IV ile, sonra her ciphertext baytı ile güncellenir; digest'in ilk **10** baytı ciphertext'in sonuna eklenir |
-| `fileSha256` | düz metin (plaintext) üzerinde SHA-256 (dosya üzerinde `P9M` digest stream'i) |
-| `fileEncSha256` | ciphertext + 10 MAC baytı üzerinde SHA-256 |
+| MAC | `HmacSHA256(macKey)`, önce IV ile güncellenir, sonra her ciphertext byte'ı ile; digest'in ilk **10** byte'ı ciphertext'e eklenir |
+| `fileSha256` | plaintext üzerinde SHA-256 (`P9M` digest stream'i dosya üzerinde) |
+| `fileEncSha256` | ciphertext + 10 MAC byte'ı üzerinde SHA-256 |
 | Çıktı | `ciphertext || mac10`; `Content-Length` = `N6U.A00(plaintextLength)` |
 
-Çözme tarafı (`P9N`, `M23`): MAC, IV + ciphertext üzerinden doğrulanır, ardından sondaki 10 baytla karşılaştırılır. Aralıklı (ranged) çözme (`C51101MlN`): aralık başlangıcı 0 değilse okunan ilk 16 bayt IV olarak kullanılır (önceki ciphertext bloğu); iç chunk'lar `AES/CBC/NoPadding` kullanır, son chunk PKCS#5 kullanır (cipher seçiminden inferred).
+Çözme tarafı (`P9N`, `M23`): MAC, IV + ciphertext üzerinde doğrulanır, sonra son 10 byte ile karşılaştırılır. Ranged decrypt (`C51101MlN`): range başlangıcı 0 değilken okunan ilk 16 byte IV olarak kullanılır (önceki ciphertext bloğu); iç parçalar `AES/CBC/NoPadding` kullanır, son parça PKCS#5 kullanır (cipher seçiminden inferred).
 
 ### 5.2 Zaman damgaları ve path'ler
 
 | Alan | Değer |
-|------|-------|
-| `mediaKeyTimestamp` | anahtar nesnesinde tutulan milisaniye cinsinden yerel saat, protobuf'a saniye olarak yazılır (`C20H.A06` = `/1000`) |
-| `directPath` | sunucunun döndürdüğü path string'i, mesajda ve DB sütunu `direct_path` içinde saklanır; query parametreleri taşıyabilir (örn. `_nc_hot` buradan okunur) |
-| `url` | eski tam URL alanı; proto sınıflarında ve yükleme yanıtında hâlâ bulunur, ancak indirme generator'ı `directPath`'ten veya hash'ten kurulur (bölüm 9.1) |
+|-------|-------|
+| `mediaKeyTimestamp` | key nesnesinde tutulan milisaniye cinsinden yerel saat, protobuf'a saniye olarak yazılır (`C20H.A06` = `/1000`) |
+| `directPath` | sunucunun döndürdüğü path string'i, mesajda ve DB kolonunda `direct_path`'te saklanır; query parametreleri taşıyabilir (örn. `_nc_hot` ondan okunur) |
+| `url` | eski tam URL alanı; hâlâ proto sınıflarında ve yükleme yanıtında mevcut, ama indirme generator'u `directPath`'ten veya hash'ten inşa edilir (bölüm 9.1) |
 
-### 5.3 İyimser (optimistic) hash kontrolleri
+### 5.3 Optimistic hash kontrolleri
 
-Sunucunun bildirdiği hash yerel olarak hesaplananla farklı olduğunda `MediaUpload/optimistic-hash-fail` ve `optimistic-plaintext-hash-fail` (yükleme sonucu 12) loglanır. İyimser yükleme (surface string'i `optimistic`) gönderim kesinleşmeden önce yükler; surface adının ötesindeki protokolü: unknown.
+`MediaUpload/optimistic-hash-fail` ve `optimistic-plaintext-hash-fail` (yükleme sonucu 12), sunucunun raporladığı hash yerel olarak hesaplanandan farklı olduğunda loglanır. Optimistic upload (surface string'i `optimistic`), gönderi commit edilmeden önce yükler; surface adının ötesindeki protokolü: unknown.
 
 ---
 
 ## 6. Medya mesajı alanları
 
-Alan numaraları üretilmiş protobuf sınıflarından okundu. Sınıf adları alan düzenine göre eşleştirildi (inferred); numaralar found.
+Alan numaraları, üretilmiş protobuf sınıflarından okunur. Sınıf adları alan düzenine göre eşleştirilmiştir (inferred); numaralar found'dur.
 
 | Mesaj (sınıf) | Alan numaraları (ad = numara) |
-|---------------|-------------------------------|
+|-----------------|-------------------------------|
 | `ImageMessage` (`C30612DTg`) | url **1**, mimetype **2**, caption **3**, fileSha256 **4**, fileLength **5**, height **6**, width **7**, mediaKey **8**, fileEncSha256 **9**, directPath **11**, mediaKeyTimestamp **12**, jpegThumbnail **16**, contextInfo **17**, firstScanSidecar **18**, firstScanLength **19**, experimentGroupId **20**, scansSidecar **21**, scanLengths **22**, midQualityFileSha256 **23**, midQualityFileEncSha256 **24**, viewOnce **25**, thumbnailDirectPath **26**, thumbnailSha256 **27**, thumbnailEncSha256 **28**, staticUrl **29**, imageSourceType **31**, accessibilityLabel **32**, qrUrl **34** |
 | `VideoMessage` (`C30614DTi`) | url **1**, mimetype **2**, fileSha256 **3**, fileLength **4**, seconds **5**, mediaKey **6**, caption **7**, gifPlayback **8**, height **9**, width **10**, fileEncSha256 **11**, directPath **13**, mediaKeyTimestamp **14**, jpegThumbnail **16**, contextInfo **17**, streamingSidecar **18**, gifAttribution **19**, viewOnce **20**, thumbnailDirectPath **21**, thumbnailSha256 **22**, thumbnailEncSha256 **23**, staticUrl **24**, processedVideos **27**, metadataUrl **30**, videoSourceType **31**, dashManifestUrl **33**, smartThumbnailTs **34** |
 | `AudioMessage` (`DTX`) | url **1**, mimetype **2**, fileSha256 **3**, fileLength **4**, seconds **5**, ptt **6**, mediaKey **7**, fileEncSha256 **8**, directPath **9**, mediaKeyTimestamp **10**, contextInfo **17**, streamingSidecar **18**, waveform **19**, backgroundArgb **20**, viewOnce **21**, accessibilityLabel **22** |
@@ -197,34 +197,34 @@ Alan numaraları üretilmiş protobuf sınıflarından okundu. Sınıf adları a
 | `MediaNotifyMessage` (`DRJ`) | expressPathUrl **1**, fileEncSha256 **2**, fileLength **3** |
 | History bundle (`DT6`) | mimetype **1**, fileSha256 **2**, mediaKey **3**, fileEncSha256 **4**, directPath **5**, mediaKeyTimestamp **6**, contextInfo **7**, messageHistoryMetadata **8** |
 
-`Message` container'ının (`C30628DTw`) numaraları (found): imageMessage **3**, documentMessage **7**, audioMessage **8**, videoMessage **9**, stickerMessage **26**, viewOnceMessage **37**, viewOnceMessageV2 **55**, viewOnceMessageV2Extension **59**, ptvMessage **66**, stickerPackMessage **86**, musicMessage **129**; `mediaNotifyMessage`, `BD3` container'ının alan **21**'idir.
+`Message` konteyner'ı (`C30628DTw`) numaraları (found): imageMessage **3**, documentMessage **7**, audioMessage **8**, videoMessage **9**, stickerMessage **26**, viewOnceMessage **37**, viewOnceMessageV2 **55**, viewOnceMessageV2Extension **59**, ptvMessage **66**, stickerPackMessage **86**, musicMessage **129**; `mediaNotifyMessage`, konteyner `BD3`'ün alanı **21**'dir.
 
-### 6.1 Küçük resimler (thumbnail)
+### 6.1 Küçük resimler
 
-| Tür | Mekanizma (aksi belirtilmedikçe found) |
-|-----|----------------------------------------|
-| Inline | mesajdaki `jpegThumbnail` (**16**) baytları (image, video, document); sticker'larda `pngThumbnail` (**16**) |
-| Yüklenen | `thumbnailDirectPath`, `thumbnailSha256`, `thumbnailEncSha256` (image **26-28**, video **21-23**, document **13-15**); bölüm 3'teki Thumbnail HKDF info'larıyla `MmsType` `thumbnail-*` |
-| Anahtar | proto'da ayrı bir thumbnail anahtar alanı yoktur, dolayısıyla thumbnail kendi mesajının medya anahtarıyla şifrelenir (inferred) |
-| Sunucuda üretilen | yükleme query'si `server_thumb_gen=1`; yükleme yanıtı `thumbnail_info` = JSON `{thumbnail_direct_path, thumbnail_sha256}` döndürebilir |
+| Tür | Mekanizma (işaretlenmediyse found) |
+|------|---------------------------------|
+| Inline | mesaj içindeki `jpegThumbnail` (**16**) byte'ları (görüntü, video, belge); sticker'larda `pngThumbnail` (**16**) |
+| Yüklenmiş | `thumbnailDirectPath`, `thumbnailSha256`, `thumbnailEncSha256` (görüntü **26-28**, video **21-23**, belge **13-15**); bölüm 3'ün Thumbnail HKDF info'larıyla `MmsType` `thumbnail-*` |
+| Key | proto'nun ayrı bir küçük-resim key alanı yok, bu yüzden bir küçük resim kendi mesajının medya key'iyle şifrelenir (inferred) |
+| Sunucu-yapımı | yükleme query'si `server_thumb_gen=1`; yükleme yanıtı `thumbnail_info` = JSON `{thumbnail_direct_path, thumbnail_sha256}` döndürebilir |
 | DB | tablo `mms_thumbnail_metadata` (directPath, mediaKey, mediaKeyTimestampMs, encThumbHash, thumbHash, width, height) |
 
 ---
 
 ## 7. Streaming ve sidecar'lar (found)
 
-Sidecar, ciphertext chunk'ı başına bir tane olmak üzere 10 baytlık MAC'lerin listesidir; bir oynatıcının tüm dosyayı okumadan bir aralığı doğrulamasını sağlar.
+Bir sidecar, bir player'ın tüm dosyayı okumadan bir range'i doğrulamasına izin veren, ciphertext parçası başına bir, 10-byte'lık MAC'lerin bir listesidir.
 
-| Öğe | Ayrıntı |
-|-----|---------|
-| Algoritma | `P9N.read`: her chunk için bir `HmacSHA256(macKey)` **önceki 16 ciphertext baytı** ile (ilk chunk için IV) başlatılır, chunk beslenir ve digest'in ilk 10 baytı saklanır |
-| Birleştirme | `C57228PmG.A00` tüm 10 baytlık MAC'leri tek bir bayt dizisinde birleştirir |
-| Video / ses | `VideoMessage.streamingSidecar` (**18**), `AudioMessage.streamingSidecar` (**18**); chunk boyutu **65536** (`QBE`, `QIh.A00(..., 65536)`) |
-| Aşamalı (progressive) görüntü | `firstScanSidecar` (**18**) ve `firstScanLength` (**19**): `ceil(len/16)*16` baytlık tek chunk; `scansSidecar` (**21**) ve `scanLengths` (**22**): değişken chunk boyutları (`P1Y`) |
-| Sticker | `firstFrameSidecar` (**12**) ve `firstFrameLength` (**11**) |
+| Öğe | Detay |
+|------|------|
+| Algoritma | `P9N.read`: parça başına bir `HmacSHA256(macKey)`, **önceki 16 ciphertext byte'ıyla** (ilk parça için IV) başlatılır, parça beslenir, ve digest'in ilk 10 byte'ı saklanır |
+| Birleştirme | `C57228PmG.A00`, tüm 10-byte'lık MAC'leri bir byte dizisine birleştirir |
+| Video / ses | `VideoMessage.streamingSidecar` (**18**), `AudioMessage.streamingSidecar` (**18**); parça boyutu **65536** (`QBE`, `QIh.A00(..., 65536)`) |
+| Progressive görüntü | `firstScanLength` (**19**) ile `firstScanSidecar` (**18**): `ceil(len/16)*16` byte'lık bir parça; `scanLengths` (**22**) ile `scansSidecar` (**21**): değişken parça boyutları (`P1Y`) |
+| Sticker | `firstFrameLength` (**11**) ile `firstFrameSidecar` (**12**) |
 | Ayarlar | sunucu prop'u `streaming_upload_chunk_size` bir dictionary token'ıdır; etkisi: unknown |
 | Eksik | indirme durumu 30 `failed_no_sidecar` |
-| Sunucu streaming'i | yükleme query'si `stream=1` ve `streaming=riff` birlikte (bölüm 8.1); DASH: yanıttaki `dashManifestUrl` (**33**), `metadataUrl` (**30**) |
+| Sunucu streaming'i | yükleme query'si `stream=1` ve `streaming=riff` birlikte (bölüm 8.1); DASH: yanıtta `dashManifestUrl` (**33**), `metadataUrl` (**30**) |
 
 ---
 
@@ -239,68 +239,68 @@ https://<route authority>/<surface>/<type>/<urlSafeFileEncSha256>
 ```
 
 | Parça | Değer |
-|-------|-------|
-| `surface` | `mms` (normal), `newsletter` (kanallar), `optimistic` (gönderim öncesi yükleme); `AbstractC58025Pzy` |
+|------|------|
+| `surface` | `mms` (normal), `newsletter` (kanallar), `optimistic` (gönderi-öncesi yükleme); `AbstractC58025Pzy` |
 | `type` | `MmsType` path string'i (bölüm 3), örn. `image`, `ptt`, `md-msg-hist` |
-| `urlSafeFileEncSha256` | `fileEncSha256`'nın standart base64'ü, `+` yerine `-` ve `/` yerine `_` ile; `=` dolgusu korunur (`StringUtils.A0B`) |
-| `direct_ip` | authority bir IP ise 1 (`ip4` veya köşeli parantezli `[ip6]`), aksi halde 0 |
-| `auth` | `media_conn` auth token'ı; `K19.A03` tarafından query parametresi olarak eklenir |
-| `stream=1`, `streaming=riff` | istek streaming yüklemesiyse ikisi birlikte ayarlanır (`c59651Qpf.A06()`) |
-| `server_thumb_gen=1` | yalnızca `newsletter-image` / `-status` (flag **11191**) ve `newsletter-video` / `-status` (flag **11192**) için |
-| `server_transcode=1` | istek id'si 10 olan `newsletter-video` ve flag **9096** |
-| `_nc_rmr=1` | newsletter olmayan yüklemeler (istek flag'i `A0N`) |
-| `_nc_cbep=1` | istek izin verdiğinde ve flag **17404** açıkken (anlamı unknown) |
-| `type`, `media_id`, `media_id_upload` | `media_id` = bir yükleme UUID'sinin en anlamlı 63 biti; `media_id_upload` = en az anlamlı 63 bit, yalnızca isteğin ek girdileri varsa; `type` çağıranın verdiği bir string'dir (anlamı: unknown) |
+| `urlSafeFileEncSha256` | `fileEncSha256`'nın `+`'nin `-`'ye ve `/`'nin `_`'ye dönüştürüldüğü standart base64'ü; `=` padding korunur (`StringUtils.A0B`) |
+| `direct_ip` | authority bir IP olduğunda (`ip4` veya köşeli parantezli `[ip6]`) 1, aksi halde 0 |
+| `auth` | `media_conn` auth token'ı; `K19.A03` tarafından bir query parametresi olarak eklenir |
+| `stream=1`, `streaming=riff` | istek stream'lenmiş bir yükleme olduğunda ikisi de ayarlanır (`c59651Qpf.A06()`) |
+| `server_thumb_gen=1` | sadece `newsletter-image` / `-status` (flag **11191**) ve `newsletter-video` / `-status` (flag **11192**) için |
+| `server_transcode=1` | istek id'si 10 ve flag **9096** ile `newsletter-video` |
+| `_nc_rmr=1` | newsletter-olmayan yüklemeler (istek flag'i `A0N`) |
+| `_nc_cbep=1` | istek buna izin verdiğinde ve flag **17404** açıkken (anlamı unknown) |
+| `type`, `media_id`, `media_id_upload` | `media_id` = bir yükleme UUID'sinin en-önemli 63 biti; `media_id_upload` = en-önemsiz 63 bit, sadece istekte ekstra girdiler varsa; `type` bir çağıran string'idir (anlam: unknown) |
 
-`_nc_cbep` ve `_nc_rmr` query adlarının anlamı unknown (yalnızca adlar).
+`_nc_cbep` ve `_nc_rmr` query adlarının anlamı unknown'dır (sadece isimler).
 
 ### 8.2 Token (found, `C43489Iy4.A00`)
 
 | Durum | Token |
-|-------|-------|
-| Newsletter | `urlsafeBase64(SHA-256(32 bytes from java.util.Random))`, istek başına yeni, dosyaya bağlı değil |
-| Diğer | `urlsafeBase64(SHA-256(installSecret(32) || base64decode(fileEncSha256)))`; `installSecret`, `SecureRandom`'dan 32 bayttır, bir kez oluşturulur ve preferences içinde `upload_token_random_bytes` olarak saklanır (base64 no-wrap, no-padding) |
+|------|------|
+| Newsletter | `urlsafeBase64(SHA-256(java.util.Random'dan 32 byte))`, istek-başına taze, dosyaya bağlı değil |
+| Diğer | `urlsafeBase64(SHA-256(installSecret(32) || base64decode(fileEncSha256)))`; `installSecret`, `SecureRandom`'dan 32 byte'tır, bir kez oluşturulur ve tercihlerde `upload_token_random_bytes` olarak saklanır (base64 no-wrap, no-padding) |
 
-`fileEncSha256` çözülemezse token yalnızca `SHA-256(installSecret)` olur. Yapının amacı: yükleyenin hash'i path'te açığa çıkarmadan bildiğini sunucu tarafında kontrol etmek (inferred).
+Eğer `fileEncSha256` çözülemezse token sadece `SHA-256(installSecret)`'tir. İnşasının amacı: yükleyicinin hash'i yolda açığa çıkarmadan bildiğini sunucu-tarafı bir kontrolü olarak inferred.
 
 ### 8.3 HTTP isteği (found, `HttpsFormPost` `C43478Ixt`)
 
 | Öğe | Değer |
-|-----|-------|
+|------|------|
 | Kütüphane | özel bir `SSLSocketFactory` ile `HttpsURLConnection`; işaretçi `http_stack = HttpUrlConnection` |
-| Method | POST (`HttpURLConnection` üzerinde `setDoOutput(true)`; açık method çağrısı yok) |
-| Timeout'lar | connect 15000 ms, read 60000 ms |
-| Header'lar | `Host: <route hostname>` (authority bir IP olabilir), `User-Agent`, `Accept-Encoding: identity`, `X-FB-Request-Analytics-Tags`, isteğe bağlı `Companion_User_Secret` (null olmayan constructor argümanı; companion semantiği inferred) |
-| Gövde (route var) | ham ciphertext stream'i, yalnızca tek dosya (`MMS4 upload only supports a single file`); uzunluk biliniyorsa sabit uzunluklu streaming modu, değilse chunked (`setChunkedStreamingMode(0)`); buffer 16384 bayt |
-| Gövde (route yok) | `Content-Disposition: form-data` parçalarıyla eski `multipart/form-data` |
-| Abort | thread interrupt veya cancel flag'inde stream dolgulanır (`UploadRequest/Post streaming padding bytes=`) ve bildirilen uzunluk tamamlanır (amaç inferred) |
-| Yanıt | en fazla 1 MiB okunur; HTTP >= 400 kodu döndürür, gövde `onError`'a gider |
+| Metod | POST (`HttpURLConnection` üzerinde `setDoOutput(true)`; açık bir metod çağrısı yok) |
+| Timeout'lar | bağlantı 15000 ms, okuma 60000 ms |
+| Header'lar | `Host: <route hostname>` (authority bir IP olabilir), `User-Agent`, `Accept-Encoding: identity`, `X-FB-Request-Analytics-Tags`, opsiyonel `Companion_User_Secret` (non-null constructor argümanı; companion semantiği inferred) |
+| Gövde (route mevcut) | ham ciphertext stream'i, sadece tek dosya (`MMS4 upload only supports a single file`); uzunluk bilindiğinde sabit-uzunluklu streaming modu, aksi halde chunked (`setChunkedStreamingMode(0)`); buffer 16384 byte |
+| Gövde (route yok) | eski `multipart/form-data`, `Content-Disposition: form-data` parçalarıyla |
+| İptal | thread kesintisinde veya iptal flag'inde stream padded edilir (`UploadRequest/Post streaming padding bytes=`) böylece deklare edilen uzunluk tamamlanır (amaç inferred) |
+| Yanıt | 1 MiB'ye kadar okunur; HTTP >= 400 kodu döndürür, gövde `onError`'a gider |
 
 ### 8.4 Yanıt (found, `MediaUploadTransfer` `C59523QnV`)
 
-Okunan JSON anahtarları: `url`, `direct_path`, `handle`, `enc_handle`, `mcs_request_id` (yalnızca `[A-Za-z0-9-]{1,64}` ile eşleşirse kabul edilir), `meta_hmac`, `fbid`, `ts`, `thumbnail_info` (`thumbnail_direct_path`, `thumbnail_sha256` içeren iç içe JSON string'i), `metadata_url`, `dash_manifest_url`. `direct_path` içermeyen bir yanıt bu parser tarafından hata sayılmaz; sonraki aşamalar `FAILED_NO_DIRECT_PATH` (29) ile başarısız olur.
+Okunan JSON key'leri: `url`, `direct_path`, `handle`, `enc_handle`, `mcs_request_id` (sadece `[A-Za-z0-9-]{1,64}` ile eşleşirse kabul edilir), `meta_hmac`, `fbid`, `ts`, `thumbnail_info` (`thumbnail_direct_path`, `thumbnail_sha256` ile nested JSON string'i), `metadata_url`, `dash_manifest_url`. `direct_path` olmayan bir yanıt bu parser tarafından bir hata olarak ele alınmaz; sonraki aşamalar `FAILED_NO_DIRECT_PATH` (29) ile başarısız olur.
 
-### 8.5 Devam ettirilebilir (resumable) yükleme (found)
+### 8.5 Resumable upload (found)
 
-| Adım | Ayrıntı |
-|------|---------|
-| Probe | aynı yükleme URL'si artı `resume=1` (`HttpResumeCheck`); JSON yanıtı `url`, `direct_path` ile `{"resume": "complete"}` (zaten yüklenmiş) veya `{"resume": <offset>}` |
-| Devam | `Content-Range: bytes <offset>-*/*` ile POST, stream önce `<offset>` konumuna atlanır |
-| Fallback'ler | `ResumeCheck/attempting fallback MMS upload form post`, bir WATLS (TLS) hatasından sonra da |
+| Adım | Detay |
+|------|------|
+| Probe | aynı yükleme URL'i artı `resume=1` (`HttpResumeCheck`); JSON cevabı `{"resume": "complete"}`, `url`, `direct_path` ile (zaten yüklenmiş) veya `{"resume": <offset>}` |
+| Devam | `Content-Range: bytes <offset>-*/*` ile POST, stream önce `<offset>`'e atlanır |
+| Fallback'ler | `ResumeCheck/attempting fallback MMS upload form post`, ayrıca bir WATLS (TLS) hatasından sonra |
 | Ayrıştırma hatası | durum `PBY.A03`, yükleme yeniden başlar |
 
-### 8.6 Route supplier ve retry (found, `Mms4RouteSupplier`, `TransferRetries`)
+### 8.6 Route sağlayıcısı ve retry (found, `Mms4RouteSupplier`, `TransferRetries`)
 
-| Kural | Ayrıntı |
-|-------|---------|
-| Deneme döngüsü | `TransferRetries/run attempt = N; route = ...`; route başına bir aktarım; `no routes` döngüyü bitirir |
-| Host seçimi | capability kümesi medya türünü içeren `type=primary` host; ilk iki deneme onu kullanır; sonraki denemeler `type=fallback` girdisini ve onun `fallback_*` alanlarını kullanır (sıra, karışık control flow'dan inferred) |
-| Deneme sayısı | varsayılan 4 (`4 - extra`); flag **12545** ve **12446** ile limit 3. denemeden sonra geçersiz kılınabilir; `max_auto_download_retry` / `max_manual_retry` (her biri varsayılan 3) moda bağlı sayıyı besler (eşleme inferred) |
-| Gecikme | sabit 1000 ms (`RouteSelector.A01`); flag **257** ve ek denemelerle üstel: taban 1000 ms, `2^n`, jitter, üst sınır 3000 ms |
-| Auth hatası 401 / 403 | başarısızlık olarak sayılmaz: daha yeni token beklenir (bütçe `A0J`, varsayılan 20000 ms), değiştirilir, yeniden denenir |
-| Yeniden denenebilir HTTP durumu | `QKS.A08`: < 400 evet; 400-499 hayır, flag **13748** ile 408 hariç; >= 500 evet, 505 ve 507 hariç |
-| Proxy | kullanıcı proxy'si ve flag **4073** ile medya authority'si proxy host'u olur ve port `proxy_media_port`'tan gelir (varsayılan 587) |
-| Sağlık kontrolü | `MediaHealthChecker`: `POST https://<proxy>:<port>/mms/HEALTHCHECK`, `Host: mmg.whatsapp.net`, connect 15000 ms, read 30000 ms |
+| Kural | Detay |
+|------|------|
+| Deneme döngüsü | `TransferRetries/run attempt = N; route = ...`; route-başına bir transfer; `no routes` döngüyü sonlandırır |
+| Host seçimi | yetenek kümesi medya tipini içeren `type=primary` host; ilk iki deneme onu kullanır; sonraki denemeler `type=fallback` girdisini ve onun `fallback_*` alanlarını kullanır (sıra, karmaşık kontrol akışından inferred) |
+| Denemeler | varsayılan 4 (`4 - extra`); flag **12545** ve **12446** ile limit deneme 3'ten sonra override edilebilir; `max_auto_download_retry` / `max_manual_retry` (her biri varsayılan 3) moda-bağlı sayıyı besler (eşleme inferred) |
+| Gecikme | sabit 1000 ms (`RouteSelector.A01`); flag **257** ve ek denemelerle, üstel: taban 1000 ms, `2^n`, jitter, 3000 ms'de sınırlı |
+| Auth hatası 401 / 403 | bir başarısızlık olarak sayılmaz: daha yeni bir token beklenir (bütçe `A0J`, varsayılan 20000 ms), değiştirilir, yeniden denenir |
+| Retry'lenebilir HTTP durumu | `QKS.A08`: < 400 evet; 400-499 hayır, flag **13748** ile 408 hariç; >= 500 evet, 505 ve 507 hariç |
+| Proxy | bir kullanıcı proxy'si ve flag **4073** ile medya authority'si `proxy_media_port`'tan (varsayılan 587) proxy host ve port'u olur |
+| Sağlık kontrolü | `MediaHealthChecker`: `POST https://<proxy>:<port>/mms/HEALTHCHECK`, `Host: mmg.whatsapp.net`, bağlantı 15000 ms, okuma 30000 ms |
 
 ---
 
@@ -313,41 +313,41 @@ https://<route authority><directPath>?direct_ip=<0|1>[&auth=<..>][&hash=<..>][&_
 (no directPath)  https://<authority>/<surface>/<type>/<urlSafeFileEncSha256>?direct_ip=...
 ```
 
-Constructor bir medya hash'i, bir direct path veya bir cross reference ister (`media hash, direct path, or cross reference is required`). `mode`, `auto` veya `manual`dır. `_nc_map=whatsapp-nofna`, sunucu listesi `LOW_CACHE_HIT_RATE_MEDIA_TYPES` içindeki türler için eklenir (AB prop, flag **4836**). `auth` query'si bir flag'li yolda eklenir (`PTU.A03`) ve mevcut bir `auth` parametresinin yerine geçer. Profil resimleri `ppic` türünü kullanır; statik varlıklar `_nc_cat` ile `/wa/static` kullanır.
+Constructor bir medya hash'i, bir direct path veya bir çapraz referans gerektirir (`media hash, direct path, or cross reference is required`). `mode`, `auto` veya `manual`'dır. `_nc_map=whatsapp-nofna`, sunucu listesindeki `LOW_CACHE_HIT_RATE_MEDIA_TYPES`'taki (AB prop, flag **4836**) tipler için eklenir. `auth` query'si, flaglenmiş bir path'te (`PTU.A03`) eklenir ve mevcut bir `auth` parametresinin yerini alır. Profil resimleri `ppic` tipini kullanır; statik asset'ler `_nc_cat` ile `/wa/static`'i kullanır.
 
-### 9.2 Bucket ve host seçimi (decompile edilmiş control flow, kısmen karışık)
+### 9.2 Bucket ve host seçimi (decompile edilmiş kontrol akışı, kısmen bozuk)
 
-- Host'lar `download` capability'sine ve bucket string'ini içeren `download_buckets`'a göre filtrelenir.
-- Direct path, flag **2136**'daki pencereden daha genç bir `_nc_hot=<seconds>` taşıyorsa bucket `1`; aksi halde flag **2134** ve `max_buckets > 0` ile: `100 + (base64decode(fileEncSha256) mod max_buckets)` (`BigInteger`); fallback bucket `0`.
-- Newsletter türleri ve flag'li durumlar hot / hash mantığını atlar.
+- Host'lar `download` yeteneğine ve bucket string'ini içeren `download_buckets`'a göre filtrelenir.
+- Direct path, flag **2136**'daki pencereden daha genç bir `_nc_hot=<seconds>` taşıdığında bucket `1`; aksi halde, flag **2134** ve `max_buckets > 0` ile: `100 + (base64decode(fileEncSha256) mod max_buckets)` (`BigInteger`); fallback bucket `0`.
+- Newsletter tipleri ve flaglenmiş durumlar hot / hash mantığını atlar.
 - Seçilen bucket `_nc_cat` olarak gider.
 
 ### 9.3 HTTP isteği (found, `C17660kC`, `C43481Ixw`, `PlainDownloadTransfer`)
 
 | Öğe | Değer |
-|-----|-------|
-| Method | GET (Tigon veya `HttpURLConnection`) |
-| Header'lar | `Host: <route hostname>`, `Accept-Encoding: identity`, `Range: bytes=<start>-<end>`, `User-Agent`, `X-FB-Socket-Option: TCP_CONGESTION=bbr` (flag'e bağlı), `X-FB-nc-oc`, `X-FB-Pad`, `If-None-Match` (ETag biliniyorsa) |
+|------|------|
+| Metod | GET (Tigon veya `HttpURLConnection`) |
+| Header'lar | `Host: <route hostname>`, `Accept-Encoding: identity`, `Range: bytes=<start>-<end>`, `User-Agent`, `X-FB-Socket-Option: TCP_CONGESTION=bbr` (flag-gated), `X-FB-nc-oc`, `X-FB-Pad`, `If-None-Match` (bir ETag bilindiğinde) |
 | Kabul edilen | HTTP 200 ve 206 |
-| Kısmi | önizlemeler 262144 baytlık bir önek kullanır (`Range: bytes=0-262143`) |
-| 416 | `Content-Range` `*/<size>` ise ve yerel boyuta eşitse tamamlanmış sayılır; aksi halde yeniden başlat (flag **29305**) veya hata |
-| İzin listesi | flag sembolü `PTU.A04` ile host, URL `category=PSA` içermedikçe `whatsapp.net`, `whatsapp.com`, `facebook.net`, `facebook.com`, `instagram.net`, `instagram.com`, `fbcdn.net`, `fbcdn.com`, `cdninstagram.net`, `cdninstagram.com` içinde olmalıdır (sonek eşleşmesi); aksi halde `invalid_url` (8) / log `host not in media CDN allow-list` |
+| Kısmi | önizlemeler 262144 byte'lık bir önek kullanır (`Range: bytes=0-262143`) |
+| 416 | `Content-Range` `*/<size>` olduğunda ve yerel boyuta eşit olduğunda tamamlanmış olarak ele alınır; aksi halde yeniden başlat (flag **29305**) veya hata |
+| Allow-list | flag sembolü `PTU.A04` ile, URL'de `category=PSA` yoksa host `whatsapp.net`, `whatsapp.com`, `facebook.net`, `facebook.com`, `instagram.net`, `instagram.com`, `fbcdn.net`, `fbcdn.com`, `cdninstagram.net`, `cdninstagram.com` içinde olmalıdır (suffix eşleşmesi); aksi halde `invalid_url` (8) / log `host not in media CDN allow-list` |
 
 ### 9.4 Doğrulama (found)
 
-Çözme stream'i MAC'i kontrol eder; hash aşamaları 7 `hash_mismatch`, 31 `failed_hash_verification`, 32 `enc_hash_mismatch` durumlarına eşlenir; eksik girdiler 26-30'a eşlenir (bölüm 10.2).
+Decrypt stream'i MAC'i kontrol eder; hash aşamaları durumlara eşlenir 7 `hash_mismatch`, 31 `failed_hash_verification`, 32 `enc_hash_mismatch`; eksik girdiler 26-30'a eşlenir (bölüm 10.2).
 
 ---
 
 ## 10. Hata kodları
 
-### 10.1 HTTP durumu işleme
+### 10.1 HTTP durum işleme
 
 | Durum | Davranış |
-|-------|----------|
-| 401, 403 | `media_conn`'u yenile, auth'u değiştir, yeniden dene (en fazla 2 değişim) |
-| 408 | yalnızca flag **13748** ile yeniden dene |
-| 416 | bkz. 9.3 |
+|--------|-----------|
+| 401, 403 | `media_conn`'u yenile, auth'u değiştir, yeniden dene (maks 2 değişim) |
+| 408 | sadece flag **13748** ile yeniden dene |
+| 416 | bkz 9.3 |
 | 507 | indirme durumu 12 `throttle`, yeniden denenmez |
 | 505 | yeniden denenmez |
 | diğer 4xx | yeniden denenmez |
@@ -356,7 +356,7 @@ Constructor bir medya hash'i, bir direct path veya bir cross reference ister (`m
 ### 10.2 İndirme durumu (found, `QKK` `A03`)
 
 | Kod | Ad | Kod | Ad |
-|-----|----|-----|----|
+|------|------|------|------|
 | 0 | success | 17 | wamsys_failed |
 | 1 | failed_generic | 18 | failed_network |
 | 2 | dns_failure | 19 | failed_connect |
@@ -374,12 +374,12 @@ Constructor bir medya hash'i, bir direct path veya bir cross reference ister (`m
 | 15 | watls_error | 32 | enc_hash_mismatch |
 | 16 | server_error | 34 | deduped |
 
-10, 22, 33 kodları ve diğer her şey `invalid` yazdırır. `QKK.A04`; 1, 2, 3, 11, 15, 16, 18, 19, 20 ve 25'i gruplar (ağ türü hatalar; etiket inferred).
+Kodlar 10, 22, 33 ve başka herhangi bir şey `invalid` yazdırır. `QKK.A04`, 1, 2, 3, 11, 15, 16, 18, 19, 20 ve 25'i (ağ-tipi başarısızlıklar; etiket inferred) gruplar.
 
 ### 10.3 Yükleme sonucu (found, metrik adları `media_upload_<NAME>`)
 
 | Kod | Ad | Kod | Ad |
-|-----|----|-----|----|
+|------|------|------|------|
 | 1 | CANCEL | 22 | FAILED_DNS_LOOKUP |
 | 2 | FAILED_INSUFFICIENT_SPACE | 23 | FAILED_WAMSYS |
 | 3 | FAILED_IO | 24 | FAILED_TOO_LARGE |
@@ -400,24 +400,24 @@ Constructor bir medya hash'i, bir direct path veya bir cross reference ister (`m
 | 18 | FAILED_WATLS | 39 | FAILED_MUSIC_REPORTING |
 | 19 | FAILED_URL | 20 / 21 | FAILED_TRANSCODING_UNKNOWN / FAILED_FILE_FORMAT_UNSUPPORTED |
 
-`QBE.A00` içindeki exception eşlemesi (found): `FileNotFoundException` 7, `NoSuchAlgorithmException` 16, `SocketTimeoutException` 10, `UnknownHostException` 22, diğer `IOException` 18 (ağ kapalı) veya 3, `CancellationException` 1, `C7CL` 21, geri kalan her şey 31. 5, 21, 24, 34, 35 veya 36 ile başarısız bir sonuçtan sonra önbellekteki anahtar ve hash (`A0B`, `A0C`) temizlenir.
+`QBE.A00`'da exception eşlemesi (found): `FileNotFoundException` 7, `NoSuchAlgorithmException` 16, `SocketTimeoutException` 10, `UnknownHostException` 22, diğer `IOException` 18 (ağ kapalı) veya 3, `CancellationException` 1, `C7CL` 21, başka herhangi bir şey 31. 5, 21, 24, 34, 35 veya 36 ile bir başarısız-olmayan sonuçtan sonra cache'lenmiş key ve hash (`A0B`, `A0C`) temizlenir.
 
 ---
 
-## 11. Medya retry (yeniden yükleme isteği)
+## 11. Medya retry'i (yeniden-yükleme isteği)
 
-Bir indirme, nesne artık mevcut olmadığı için başarısız olduğunda (tipik olarak durum 5 `too_old` veya 404 sınıfı bir yanıt), alıcı göndericinin telefonundan yeniden yükleme yapmasını ister.
+Bir indirme nesne gittiği için başarısız olduğunda (tipik olarak durum 5 `too_old`, veya bir 404-sınıfı yanıt), alıcı gönderenin telefonundan yeniden yüklemesini ister.
 
 ### 11.1 İstek: receipt `server-error` (found, `SendMediaErrorReceiptJob`)
 
 | Varyant | Writer | Wire |
 |---------|--------|------|
-| Multi-device (kendi primary'si) | case 327 | `<receipt to=<own primary jid> id=<stanza id> type="server-error"><encrypt><enc_p>..</enc_p><enc_iv>..</enc_iv></encrypt><rmr jid=<chat> from_me="true\|false" [participant=..]/></receipt>` |
-| Eski (legacy) | case 77 | `<receipt to=<chat jid> id type="server-error" [participant] category="peer">[<encrypt>..</encrypt>]</receipt>` (`rmr` yok) |
+| Multi-device (kendi primary'si) | durum 327 | `<receipt to=<own primary jid> id=<stanza id> type="server-error"><encrypt><enc_p>..</enc_p><enc_iv>..</enc_iv></encrypt><rmr jid=<chat> from_me="true\|false" [participant=..]/></receipt>` |
+| Legacy | durum 77 | `<receipt to=<chat jid> id type="server-error" [participant] category="peer">[<encrypt>..</encrypt>]</receipt>` (`rmr` yok) |
 
-`enc_iv` 12 rastgele bayttır; `enc_p`, stanza id'sini taşıyan bir mesajdan native olarak üretilir (`JniBridge.jvidispatchOOOOO(0, stanzaId, model, mediaKey, iv)`). Native kütüphane HKDF info'su `WhatsApp Media Retry Notification`'ı tutar; stanza id'si AAD olarak AES-GCM ve 32 baytlık HKDF anahtarı, 12 baytlık IV'den ve Baileys implementasyonundan inferred. Sunucu prop'ları `mms4_media_retry_notification_encryption_enabled` ve `mms4_server_error_receipt_encryption_enabled` dictionary token'larıdır (etki inferred: `<encrypt>` gönderilip gönderilmeyeceğini belirler).
+`enc_iv`, 12 rastgele byte'tır; `enc_p`, stanza id'sini taşıyan bir mesajdan native olarak üretilir (`JniBridge.jvidispatchOOOOO(0, stanzaId, model, mediaKey, iv)`). Native kütüphane, HKDF info `WhatsApp Media Retry Notification`'ı tutar; stanza id AAD olarak ve 32-byte'lık bir HKDF key ile AES-GCM, 12-byte'lık IV'den ve Baileys uygulamasından inferred'dir. Sunucu prop'ları `mms4_media_retry_notification_encryption_enabled` ve `mms4_server_error_receipt_encryption_enabled` dictionary token'larıdır (etki inferred: `<encrypt>`'in gönderilip gönderilmediğini gater).
 
-### 11.2 Yanıt: bildirim `mediaretry` (found, `MediaRetryNotificationHandler`)
+### 11.2 Cevap: bildirim `mediaretry` (found, `MediaRetryNotificationHandler`)
 
 ```
 <notification type="mediaretry" id=<stanza id> t=..>
@@ -427,159 +427,175 @@ Bir indirme, nesne artık mevcut olmadığı için başarısız olduğunda (tipi
 </notification>
 ```
 
-| Adım | Ayrıntı |
-|------|---------|
-| Hesap kontrolü | başka bir hesaptan gelen `rmr`, `cross-account-rmr` loglar ve flag sembolü `PTV.A0F` açık değilse atılır |
-| Arama | `(chat, id, from_me)` ile mesaj; medya olmayan mesajlar `message is null or not media` loglar |
-| Çözme | native (`jvidispatchOOOOO(3, stanzaId, enc_p, mediaKey, enc_iv)`); sonuç modeli `directPath` verir (mesaja kaydedilir) ve bir sonuç int'i |
-| Sonuç | `<error code>` sonucu geçersiz kılar; handler değeri 2 ve 3 ile karşılaştırır (genel proto numaralandırmasıyla `NOT_FOUND` = 2, `DECRYPTION_ERROR` = 3, inferred) |
-| Devam | indirici yeni direct path'i alır (`resume reuploading download`); aktif indirici yoksa mesaj otomatik indirme için kuyruğa alınır |
+| Adım | Detay |
+|------|------|
+| Hesap kontrolü | başka bir hesaptan `rmr`, `cross-account-rmr` loglar ve flag sembolü `PTV.A0F` açık olmadıkça düşürülür |
+| Arama | `(chat, id, from_me)` ile mesaj; medya-olmayan mesajlar `message is null or not media` loglar |
+| Çözme | native (`jvidispatchOOOOO(3, stanzaId, enc_p, mediaKey, enc_iv)`); sonuç modeli `directPath`'i (mesaja saklanır) ve bir sonuç int'i verir |
+| Sonuç | `<error code>`, sonucu override eder; handler değeri 2 ve 3 ile karşılaştırır (kamuya açık proto numaralandırmasıyla `NOT_FOUND` = 2, `DECRYPTION_ERROR` = 3, inferred) |
+| Devam | indirici yeni direct path'i alır (`resume reuploading download`); aktif bir indirici yoksa mesaj otomatik indirme için kuyruklanır |
 | Raporlama | flag **5718** ile `reporting_token` mesaj için saklanır |
 
 ---
 
 ## 12. View-once ve status medyası
 
-| Konu | Olgu (found) |
-|------|--------------|
-| Crypto / taşıma | normal medya ile aynı: aynı `MmsType`, aynı HKDF, aynı URL'ler; tabloda view-once türü yoktur |
-| Flag | `viewOnce`, `ImageMessage` (**25**), `VideoMessage` (**20**), `AudioMessage` (**21**) içinde bir alandır; container `viewOnceMessage` (**37**), `viewOnceMessageV2` (**55**), `viewOnceMessageV2Extension` (**59**) |
-| Yerel kurallar | gönderen kendi view-once medyasını açamaz (`senders can not view their own media`); view-once thumbnail'leri `EphemeralUpdateRunnable/deleteViewOnceThumbnails` tarafından silinir; medya anahtarı olmayan view-once ses gönderilmez (`unable to send encrypted media message due to missing mediaKey`) |
-| Sunucunun nesneyi görüntülemeden sonra silip silmediği | unknown |
-| Status (`status@broadcast`) | kendi sayısal id'leriyle normal `MmsType` satırlarını kullanır (image, video, gif, audio); `status` HKDF info'su yoktur; tek `*-status` türleri newsletter olanlardır (bölüm 13) |
+| Konu | Gerçek (found) |
+|-------|--------------|
+| Kripto / transport | normal medya ile özdeş: aynı `MmsType`, aynı HKDF, aynı URL'ler; tabloda bir view-once tipi yok |
+| Flag | `viewOnce`, `ImageMessage`'da (**25**), `VideoMessage`'da (**20**), `AudioMessage`'da (**21**) bir alandır; konteyner `viewOnceMessage` (**37**), `viewOnceMessageV2` (**55**), `viewOnceMessageV2Extension` (**59**) |
+| Yerel kurallar | gönderen kendi view-once medyasını açamaz (`senders can not view their own media`); view-once küçük resimleri `EphemeralUpdateRunnable/deleteViewOnceThumbnails` tarafından silinir; medya key'i olmayan bir view-once ses gönderilmez (`unable to send encrypted media message due to missing mediaKey`) |
+| Sunucunun görüntülemeden sonra nesneyi silip silmediği | unknown |
+| Status (`status@broadcast`) | kendi sayısal id'leriyle normal `MmsType` satırlarını kullanır (görüntü, video, gif, ses); hiçbir `status` HKDF info'su yok; sadece `*-status` tipleri newsletter olanlardır (bölüm 13) |
 | Status limitleri | dictionary token'ları `status_video_max_duration`, `status_video_max_bitrate`, `status_image_max_edge`, `status_image_quality` sunucu prop'larıdır (değerler: unknown) |
-| Status indirme | `C59526QnY` bir `MediaDownload` ve bir `StatusMediaDownload` varyantı tutar; ikisi de URL'yi aynı generator ile kurar |
+| Status indirme | `C59526QnY`, bir `MediaDownload` ve bir `StatusMediaDownload` varyantı tutar; her ikisi de URL'i aynı generator ile inşa eder |
 
 ---
 
 ## 13. Newsletter (kanal) medyası
 
-| Yön | Newsletter | Normal |
-|-----|-----------|--------|
+| Açı | Newsletter | Normal |
+|--------|-----------|---------|
 | URL'deki surface | `newsletter` | `mms` |
-| `MmsType` | `newsletter-image`, `-video`, `-ptt`, `-ptv`, `-audio`, `-document`, `-gif`, `-sticker`, `-sticker-pack`, `-music-artwork`, `-image-status`, `-video-status`, `-gif-status`, `-audio-status`, `-thumbnail-*` | düz adlar |
-| Şifreleme | yok: artwork indirici `artworkEncSha256`'yı yalnızca newsletter olmayan içerik için ister (`required fields missing - artworkEncSha256 is null for encrypted content`); diğer türler için passthrough stream'i `C59535Qnh` (identity) vardır. `MmsType` satırları yine de HKDF info baytlarını taşır (kullanılmaz, inferred) |
-| Yükleme token'ı | rastgele, hash'e bağlı değil (bölüm 8.2) | kurulum başına sır + hash |
-| Route filtresi | `newsletter` ile başlayan adlar için hot / hash bucket mantığı yok | bucket mantığı (9.2) |
-| `media_conn` ip token | `ip_token`, `set_ip_token`'dan bağımsız olarak newsletter için uygulanır (flag **12149**) | yalnızca `set_ip_token` true ise |
-| Sunucu işi | `server_thumb_gen=1` (flag'ler **11191**, **11192**), video için `server_transcode=1` (flag **9096**) | ayarlanmaz |
-| Flag **27920** | `C15490gQ`'nun newsletter yolunda okunur; etkisi unknown | |
+| `MmsType` | `newsletter-image`, `-video`, `-ptt`, `-ptv`, `-audio`, `-document`, `-gif`, `-sticker`, `-sticker-pack`, `-music-artwork`, `-image-status`, `-video-status`, `-gif-status`, `-audio-status`, `-thumbnail-*` | düz isimler |
+| Şifreleme | yok: artwork indirici, `artworkEncSha256`'yı sadece newsletter-olmayan içerik için gerektirir (`required fields missing - artworkEncSha256 is null for encrypted content`); diğer tipler için passthrough stream'i `C59535Qnh` (identity) mevcut. `MmsType` satırları hâlâ HKDF info byte'larını taşır (kullanılmıyor, inferred) |
+| Yükleme token'ı | rastgele, hash-bağlı değil (bölüm 8.2) | kurulum-başına sır + hash |
+| Route filtresi | `newsletter` ile başlayan isimler için hot / hash bucket mantığı yok | bucket mantığı (9.2) |
+| `media_conn` ip token'ı | `ip_token`, `set_ip_token`'dan bağımsız olarak newsletter için uygulanır (flag **12149**) | sadece `set_ip_token` doğruyken |
+| Sunucu işi | video için `server_thumb_gen=1` (flag'ler **11191**, **11192**), `server_transcode=1` | ayarlanmaz |
+| Flag **27920** | `C15490gQ`'nin newsletter path'inde okunur; etkisi unknown | |
 
 ---
 
 ## 14. Express path ve diğer yükleme varyantları
 
 | Varyant | Kanıt |
-|---------|-------|
-| Express path | E2E mesaj olarak gönderilen `MediaNotifyMessage` (`expressPathUrl`, `fileEncSha256`, `fileLength`) (`FMessageMediaExpressPathNotify`, url, hash ve uzunluk ister); `ExpressPathDownload` `EP gain <ms> <bytes>` loglar; yükleme logu `Use static route supplier for express path upload`; yükleme sonucu 27 `SKIPPED_EP_NO_PRIMARY_HOST`. Sunucu tarafı davranış: unknown |
-| İyimser (optimistic) yükleme | surface `optimistic`; hash yeniden kontrolü sonuç 12; protokol: unknown |
-| History / app state | `md-msg-hist`, `md-app-state` kendi info string'leriyle normal pipeline'ı kullanır |
-| Group history | `group-history`, info `Group History`, alıcı tarafından kontrol edilen mime `application/protobuf` (`C34677F2y`); path bölüm 8.1'i izler (`/mms/group-history/...`, genel kompozisyondan inferred) |
+|---------|---------|
+| Express path | bir E2E mesajı olarak gönderilen `MediaNotifyMessage` (`expressPathUrl`, `fileEncSha256`, `fileLength`) (`FMessageMediaExpressPathNotify`, url, hash ve length gerektirir); `ExpressPathDownload`, `EP gain <ms> <bytes>` loglar; yükleme logu `Use static route supplier for express path upload`; yükleme sonucu 27 `SKIPPED_EP_NO_PRIMARY_HOST`. Sunucu-tarafı davranış: unknown |
+| Optimistic upload | surface `optimistic`; hash yeniden-kontrolü sonuçları 12; protokol: unknown |
+| History / app state | `md-msg-hist`, `md-app-state`, kendi info string'leriyle normal pipeline'ı kullanır |
+| Group history | `group-history`, info `Group History`, alıcı tarafından kontrol edilen mime `application/protobuf` (`C34677F2y`); path, bölüm 8.1'i izler (`/mms/group-history/...`, genel bileşimden inferred) |
+
+### 14.1 Sohbet-teması wallpaper gönderimi (2.26.45.10'da yeni, found)
+
+Sohbet-başına bir tema "sohbete gönder" akışı, değiştirilmeden bu genel pipeline'a biner. Giriş noktası: `ChatThemeViewModel.sendThemeToChat` (Kotlin coroutine; korunan debug metadata'sından `targetJid`, `sentBundle`, `sharedTheme` local'leri), seçilen wallpaper kaynağını (`DOWNLOADED`, `USER_PROVIDED`, `ANIMATED`, `GRADIENT`, `DEFAULT`, `NONE`) çözümler ve `ChatThemeSettingSenderImpl.A06` → `A01`'i çağırır.
+
+| Adım | Detay (found) |
+|------|-----------------|
+| Yerel kopya | kaynak wallpaper `File`'ı, uygulama depolamasına `chat_theme_sent_wallpapers/<uuid>.jpg` altına kopyalanır |
+| Yükleme | `ChatWallpaperUploader.A00`, `MediaUploadCoordinatorImpl.A0G`'i sarar (yukarıdaki bölüm 1-8'deki aynı `media_conn` → HKDF → AES-CBC → HMAC → POST pipeline'ı), `value` alanı literal string `"E2EE"` olan şifreleme modu `LX/8cp;->A02`'yi talep ederek |
+| Sonuç kopyası | yükleme sonucu (`SGq`), alan-alan genel bir medya-eki tanımlayıcısına (`LX/8cr`) kopyalanır: yükleme-sonucu string'i → direct path, medya-key byte'ları, bir zaman damgası ve üç ek hash/HMAC byte dizisi |
+| Setter yüzeyi | tanımlayıcı, sıradan görüntü-mesajı builder'larının kullandığı **aynı genel medya-eki setter arayüzü** olan `LX/1iA` (`LX/19i`'yi extend eder) üzerinden push edilir; alanları `imageMessage`'ın `directPath` (**11**), `mediaKey` (**8**) ve `fileSha256`/`fileEncSha256` byte alanlarıyla (**9**/**12**, bölüm 6) pozisyonel olarak hizalanır |
+| Mimetype | aynı çağrıda `image/jpeg` açıkça ayarlanır |
+
+Bu, yerel-sadece bir görüntü-tercih senkronizasyonu değil, gerçek bir sohbet eşine (`targetJid`) gönderilir: görüntü-destekli temalar için wallpaper bitmap'inin kendisi yeniden kodlanır ve standart E2EE medya yolu üzerinden yüklenir, böylece alıcı istemci bilinen bir tema preset'i uygulamak yerine gerçek bir görüntüyü indirir ve çözer. Bu akış için (group-history'nin `/mms/group-history`'sinin aksine, bölüm 14) özel bir yükleme medya-tipi veya HTTP-path override'ı bulunmadı — mevcut bir `MmsType`'ı yeniden kullandığı görünüyor (muhtemelen `image`, ayrı olarak doğrulanmamış).
+
+**Unknown**: bu eki sonunda taşıyan tam `Message` oneof alanı — `LX/19i`/`LX/1iA`, birçok çıkış mesajı tipi tarafından kullanılan büyük paylaşımlı temel sınıflardır, ve setter'larının ötesindeki somut tahsis noktasına bu geçişte ulaşılmadı. Ayrıca unknown: düz-renk/wallpaper-yok bir tema seçiminin (`DEFAULT`/`NONE`) hiç gönderilip gönderilmediği, yoksa yerel-sadece kalıp kalmadığı. Bu özellik için yeni bir protobuf mesaj tipi veya GraphQL/MEX operasyonu bulunamadı (2.26.41.6→2.26.45.10 proto ve query diff'lerine karşı kontrol edildi); en savunulabilir okuma, bunun mevcut bir medya-mesajı alanına bindiğidir, en olası olarak `imageMessage`'ın kendisine — **inferred**, doğrulanmamış.
 
 ---
 
-## 15. Medya parser'larının native sertleştirmesi (found, açılmış kütüphanelerin string'leri ve export'ları)
+## 15. Medya parser'larının native sağlamlaştırılması (found, açılmış kütüphanelerin string'leri ve export'ları)
 
-81 shared object superpack arşivinden açılır. Saldırgan kontrollü baytları ayrıştıran bellek-güvensiz parser'lar ya sandbox'a alınır ya da Rust ile değiştirilir.
+Superpack arşivinden 81 paylaşımlı nesne açılır. Saldırgan-kontrollü byte'ların bellek-güvensiz parser'ları sandbox'lanmış veya Rust ile değiştirilmiştir.
 
-| Girdi | Bileşen | Sertleştirme |
-|-------|---------|--------------|
-| WebP | `libstatic-webp.so` (43 KB) | WebAssembly'ye derlenmiş ve wasm2c ile C'ye indirgenmiş libwebp (`w2c_$webp.wasm_webp_decode_premul_helper`, `wasm2c_$webp.wasm_instantiate`), thread-local sandbox içinde `whatsapp::security::LibwebpSandbox` wrapper'ı; Java flag'i `sWebPSandboxEnabled`; hata logu `sandboxed WebP decode failed: status=%d`; koruma `Malloc returned pointer outside the sandbox memory` |
-| GIF | `libwa_sandboxed_gifimage.so` | wasm2c / WASI-minrt sandbox'ında giflib (`GiflibSandbox`, `wasi::minrt`); JNI sınıfları `SandboxedGifImage`, `SandboxedGifFrame`; koruma `Called memcpy for memory larger than the sandbox` |
+| Girdi | Bileşen | Sağlamlaştırma |
+|-------|-----------|-----------|
+| WebP | `libstatic-webp.so` (43 KB) | WebAssembly'ye derlenmiş ve wasm2c tarafından C'ye düşürülmüş libwebp (`w2c_$webp.wasm_webp_decode_premul_helper`, `wasm2c_$webp.wasm_instantiate`), thread-local bir sandbox'ta wrapper `whatsapp::security::LibwebpSandbox`; Java flag'i `sWebPSandboxEnabled`; başarısızlık logu `sandboxed WebP decode failed: status=%d`; korumalar `Malloc returned pointer outside the sandbox memory` |
+| GIF | `libwa_sandboxed_gifimage.so` | bir wasm2c / WASI-minrt sandbox'ında giflib (`GiflibSandbox`, `wasi::minrt`); JNI sınıfları `SandboxedGifImage`, `SandboxedGifFrame`; koruma `Called memcpy for memory larger than the sandbox` |
 | Ogg / Opus dosyaları | `libwhatsapp.so` | `libogg.wasm` ve `opusfile.wasm` için RLBox wasm2c sandbox'ları (`rlbox_wasm2c_sandbox`), `SandboxedOpusMultistreamDecoder`, `wa_ogg_opus::SandboxedOggFile`; JNI `opusSetSandboxingEnabled`; trap logu `wasm2c sandbox trap: %s (code=%d)` |
-| Container ve stream ayrıştırma | `libwhatsapp.so` Rust crate'leri | `libmp4operations-rs` (tkhd, mvhd, mdhd, stsc, stts, stz2, ctts, hvcc, clap, sidx, emsg, mfhd, hdlr, DASH segmenter, edit list'ler), `libwamediastreams-rs` (amr, av1 OBU, flac, h264, h265, mp3 / ID3, ogg, opus, qcelp, speex, theora, vorbis, vp8, xmp, avc SPS), `libwaimageoperations-rs` (exif, gif, jpeg, png, webp), `libwamediacommon-rs` (`jpegrepair.rs`, `errorcodes.rs`), `libwamediaprovenance-rs` (`trainedAlgorithmicMedia` gibi IPTC digital-source-type değerleri, C2PA) |
-| AV1 decode | `libdav1d.so` | dav1d **1.5.1** (sürüm string'i); `dav1d_*` API'sini export eder |
-| AV1 encode | `libwzav1.so` | sürüm 2.3.1; yalnızca `wz_encoder_*` ve `wz_codec_version*` export eder; decoder sembolü yok, dolayısıyla uzak bitstream'leri ayrıştırmaz |
-| H.264 / H.265 kareleri | platform `MediaCodec` | uygulamanın dışında |
+| Konteyner ve stream ayrıştırma | `libwhatsapp.so` Rust crate'leri | `libmp4operations-rs` (tkhd, mvhd, mdhd, stsc, stts, stz2, ctts, hvcc, clap, sidx, emsg, mfhd, hdlr, DASH segmenter, edit list'ler), `libwamediastreams-rs` (amr, av1 OBU, flac, h264, h265, mp3 / ID3, ogg, opus, qcelp, speex, theora, vorbis, vp8, xmp, avc SPS), `libwaimageoperations-rs` (exif, gif, jpeg, png, webp), `libwamediacommon-rs` (`jpegrepair.rs`, `errorcodes.rs`), `libwamediaprovenance-rs` (IPTC digital-source-type değerleri, `trainedAlgorithmicMedia` gibi, C2PA) |
+| AV1 çözme | `libdav1d.so` | dav1d **1.5.1** (versiyon string'i); `dav1d_*` API'sini export eder |
+| AV1 kodlama | `libwzav1.so` | versiyon 2.3.1; sadece `wz_encoder_*` ve `wz_codec_version*` export eder; decoder sembolü yok, bu yüzden uzak bitstream'leri ayrıştırmaz |
+| H.264 / H.265 frame'leri | platform `MediaCodec` | uygulamanın dışında |
 
-Rust'taki parser'lar bellek bozulması yerine panic ile başarısız olur (`assertion failed: ...`, `While parsing field '...' in ...`): string olarak found, etki inferred. `rlbox` sandbox'ı `libwhatsapp.so` içindeki libogg ve opusfile'ı kapsar; diğer kütüphaneler RLBox wrapper'ı olmadan wasm2c kullanır (semboller üzerinden inferred). Her gelen medya yolunun kullanıcı etkileşiminden önce bu parser'lara ulaşıp ulaşmadığı: unknown. Dinamik davranış (fuzzing, çalışma zamanı çökmeleri): tested değil.
+Rust'taki parser'lar bellek bozulması yerine panic'lerle başarısız olur (`assertion failed: ...`, `While parsing field '...' in ...`): string olarak found, etki inferred. `rlbox` sandbox'ı `libwhatsapp.so`'daki libogg ve opusfile'ı kapsar; diğer kütüphaneler RLBox wrapper'ı olmadan wasm2c kullanır (sembollerden inferred). Her gelen medya yolunun kullanıcı etkileşiminden önce bu parser'lara ulaşıp ulaşmadığı: unknown. Dinamik davranış (fuzzing, çalışma-zamanı çökmeleri): test edilmedi.
 
 ---
 
-## 16. Feature flag'leri (id'ler çağrı noktalarında okunduğu gibi; adlar çözülmedi)
+## 16. Feature flag'leri (çağrı noktalarında okunan id'ler; isimler çözülmemiş)
 
-| Flag | Nerede | Neyi kontrol eder |
-|------|--------|-------------------|
-| **149** | `RouteSelector`, `C43951qe` | `media_conn`'u preferences içinde kalıcı yap ve yeniden yükle |
+| Flag | Nerede | Kontrol ettiği |
+|------|-------|----------|
+| **149** | `RouteSelector`, `C43951qe` | `media_conn`'u tercihlerde kalıcı hale getir ve yeniden yükle |
 | **257** | `Mms4RouteSupplier` ctor | üstel backoff nesnesi |
 | **258** | `Mms4RouteSupplier.A03` | int: mod 0 için ek denemeler |
-| **2134** | `A02` | hash tabanlı indirme bucket'ı |
-| **2136** | `A02` | hot-content penceresi (long) |
+| **2134** | `A02` | hash-tabanlı indirme bucket'ı |
+| **2136** | `A02` | hot-içerik penceresi (long) |
 | **4073** | `A00` | medyayı kullanıcı proxy'si üzerinden yönlendir |
-| **4836** | `Mms4DownloadUrlGenerator` | düşük isabet oranlı türlerin listesi (`_nc_map=whatsapp-nofna`) |
+| **4836** | `Mms4DownloadUrlGenerator` | düşük-hit-oranlı tipler listesi (`_nc_map=whatsapp-nofna`) |
 | **5718** | `MediaRetryNotificationHandler` | reporting token işleme |
 | **9096** | `QBE` | `server_transcode=1` (newsletter video) |
-| **11191** / **11192** | `C14210e6.A08` | newsletter image / video için `server_thumb_gen=1` |
+| **11191** / **11192** | `C14210e6.A08` | newsletter görüntü / video için `server_thumb_gen=1` |
 | **12149** | `RouteSelector.A0L`, `A03` | `ip_token` kullan |
-| **12545** / **12446** | `A05` | 3. denemeden sonra deneme limitini geçersiz kıl |
+| **12545** / **12446** | `A05` | deneme limitini deneme 3'ten sonra override et |
 | **13748** | `QKS.A08` | HTTP 408'i yeniden dene |
 | **17404** | `QBE` | `_nc_cbep=1` |
-| **21807** | `RouteSelector` giriş noktaları | route seçimine yükleme flag'i olarak verilen boolean (semantik çözülmedi) |
-| **24661** | `MediaCryptoProvider` | non-E2EE anahtar domain doğrulaması |
+| **21807** | `RouteSelector` giriş noktaları | route seçimine yükleme flag'i olarak verilen boolean (semantik çözülmemiş) |
+| **24661** | `MediaCryptoProvider` | non-E2EE key domain doğrulaması |
 | **29305** | `PlainDownloadTransfer` | 416 işleme |
-| **37982**, **38437** | `C43481Ixw` | Tigon özelliği, istek timeout'u |
+| **37982**, **38437** | `C43481Ixw` | Tigon prop'u, istek timeout'u |
 
 ---
 
 ## 17. Baileys (`baron-baileys-v2`, kaynak okundu, hiçbir şey test edilmedi)
 
-| Yön | Baileys | Android 2.26.41.6 |
-|-----|---------|-------------------|
-| `media_conn` isteği | `<media_conn/>`, `w:m`, `set`, `s.whatsapp.net`; `Socket/chats.js` isteğe bağlı bir `last_id` varyantına sahiptir | her zaman `<media_conn>`, önceki bir id varsa `last_id` ile |
-| Ayrıştırılan alanlar | `hostname`, `maxContentLengthBytes`, `auth`, `ttl` | `maxContentLengthBytes` okunmaz; `auth_ttl`, `max_buckets`, `is_new`, `id`, fallback alanları, capability alt öğeleri, retry sayıları, `ip_token` eklenir |
-| HKDF uzunluğu | `hkdf(key, 112, {info})`, bayt 0-79'u kullanır | 80 bayt; bir HKDF çıktısının ilk 80 baytı istenen uzunluğa bağlı değildir, dolayısıyla IV, cipher key ve MAC key aynıdır |
+| Açı | Baileys | Android 2.26.41.6 |
+|--------|---------|-------------------|
+| `media_conn` isteği | `<media_conn/>`, `w:m`, `set`, `s.whatsapp.net`; `Socket/chats.js`'de opsiyonel bir `last_id` varyantı var | her zaman `<media_conn>`, önceki bir id varsa `last_id` ile |
+| Ayrıştırılan alanlar | `hostname`, `maxContentLengthBytes`, `auth`, `ttl` | `maxContentLengthBytes` okunmaz; `auth_ttl`, `max_buckets`, `is_new`, `id`, fallback alanları, yetenek çocukları, retry sayıları, `ip_token` ekler |
+| HKDF uzunluğu | `hkdf(key, 112, {info})`, 0-79 byte'ları kullanır | 80 byte; bir HKDF çıktısının ilk 80 byte'ı istenen uzunluğa bağlı değildir, bu yüzden IV, cipher key ve MAC key özdeştir |
 | Info string'leri | `WhatsApp <X> Keys`; `gif` ve `ptv` Video'ya, `ptt` Audio'ya, `sticker` Image'a eşlenir | aynı string'ler ve eşlemeler |
-| Cipher, MAC, hash'ler | AES-256-CBC, eklenen `HMAC-SHA256(macKey, iv + ct)[0:10]`, `fileSha256`, `ct + mac` üzerinde `fileEncSha256` | aynı |
-| Yükleme URL'si | `https://{host}{MEDIA_PATH_MAP[type]}/{hash}?auth={auth}&token={hash}` | `https://{host}/{surface}/{type}/{hash}?direct_ip=..&token=..&auth=..` |
-| Hash kodlaması | url-safe base64, `=` dolgusu çıkarılmış, ardından `encodeURIComponent` | url-safe base64, `=` dolgusu korunmuş |
+| Cipher, MAC, hash'ler | AES-256-CBC, eklenen `HMAC-SHA256(macKey, iv + ct)[0:10]`, `ct + mac` üzerinde `fileSha256`, `fileEncSha256` | aynı |
+| Yükleme URL'i | `https://{host}{MEDIA_PATH_MAP[type]}/{hash}?auth={auth}&token={hash}` | `https://{host}/{surface}/{type}/{hash}?direct_ip=..&token=..&auth=..` |
+| Hash kodlaması | url-safe base64, `=` padding çıkarılmış, sonra `encodeURIComponent` | url-safe base64, `=` padding korunmuş |
 | Token | url-safe `fileEncSha256` | `SHA-256(installSecret || fileEncSha256)` (newsletter: rastgele) |
-| Path tablosu | `sticker` ve `thumbnail-link` `/mms/image`'e, `ptv` `/mms/video`'ya, `md-msg-hist` `/mms/md-app-state`'e, `ptt` yok | `MmsType` string'i path segmentidir: `sticker`, `thumbnail-link`, `ptv`, `md-msg-hist`, `ptt` |
-| Header'lar | `Content-Type: application/octet-stream`, `Origin: https://web.whatsapp.com` | `Origin` bulunmadı; `Host`, `Accept-Encoding: identity`, `User-Agent`, `X-FB-*` |
-| Retry | her host'u sırayla bir kez dener | denemeli route supplier, 401 / 403 token değişimi, resume probe |
-| Resume | bulunmadı (`resume=1`, `Content-Range` yok) | `resume=1` probe'u ve `Content-Range` |
-| Sidecar'lar | `src` içinde `streamingSidecar`, `firstScanSidecar` veya `scansSidecar` üretimi bulunmadı | video, ses, aşamalı görüntüler için üretilir |
+| Path tablosu | `sticker` ve `thumbnail-link`, `/mms/image`'a, `ptv`, `/mms/video`'ya, `md-msg-hist`, `/mms/md-app-state`'e, `ptt` yok | `MmsType` string'i path segmentidir: `sticker`, `thumbnail-link`, `ptv`, `md-msg-hist`, `ptt` |
+| Header'lar | `Content-Type: application/octet-stream`, `Origin: https://web.whatsapp.com` | `Origin` bulunamadı; `Host`, `Accept-Encoding: identity`, `User-Agent`, `X-FB-*` |
+| Retry | her host'u sırayla bir kez dener | denemeleriyle route sağlayıcısı, 401 / 403 token değişimi, resume probe'u |
+| Resume | bulunamadı (`resume=1`, `Content-Range` yok) | `resume=1` probe'u ve `Content-Range` |
+| Sidecar'lar | `src`'de `streamingSidecar`, `firstScanSidecar` veya `scansSidecar` üretimi bulunamadı | video, ses, progressive görüntüler için üretilir |
 | `mediaKeyTimestamp` | `unixTimestampSeconds()` | dahili olarak milisaniye, proto'da saniye |
-| Retry receipt | `<receipt id to=<own jid> type="server-error"><encrypt>..</encrypt><rmr jid from_me [participant]/></receipt>`, GCM, AAD = stanza id, IV 12 bayt, HKDF info `WhatsApp Media Retry Notification` | writer case 327 aynı node düzenine sahiptir; IV 12 bayt ve info string'i found; GCM / AAD inferred |
-| Retry sonuç haritası | `SUCCESS` 200, `DECRYPTION_ERROR` 412, `NOT_FOUND` 404, `GENERAL_ERROR` 418 | uygulanamaz (2 ve 3 değerlerini karşılaştırır) |
+| Retry receipt'i | `<receipt id to=<own jid> type="server-error"><encrypt>..</encrypt><rmr jid from_me [participant]/></receipt>`, GCM, AAD = stanza id, IV 12 byte, HKDF info `WhatsApp Media Retry Notification` | writer durumu 327 aynı node düzenine sahip; IV 12 byte ve info string'i found'dur; GCM / AAD inferred'dir |
+| Retry sonuç eşlemesi | `SUCCESS` 200, `DECRYPTION_ERROR` 412, `NOT_FOUND` 404, `GENERAL_ERROR` 418 | uygulanamaz (2 ve 3 değerlerini karşılaştırır) |
 
-Pratik sonuçlar (yalnızca kod okuma): bir `md-msg-hist` nesnesinin Baileys ile yüklenmesi Android istemcisinden farklı bir path string'i kullanır; path'te dolgulu base64 görünür bir farktır; bu varyantlara karşı herhangi bir sunucu toleransı unknown.
+Pratik sonuçlar (sadece kod okundu): bir `md-msg-hist` nesnesinin Baileys yüklemesi, Android istemcisinden farklı bir path string'i kullanır; path'teki padded base64 görünür bir farktır; bu varyantlar için herhangi bir sunucu toleransı unknown'dır.
 
 ---
 
 ## 18. Hata durumları
 
-| Belirti | Neden | Çözüm |
-|---------|-------|-------|
-| Yükleme 401 / 403 | `auth` süresi doldu veya değiştirildi | `media_conn`'u yenile, yeni `auth` ile tekrar gönder |
-| Yükleme `direct_path` döndürmüyor | yükleme reddedildi veya eksik | durumu kontrol et; `resume=1` ile resume probe |
-| İndirme 404 / durum 5 `too_old` | nesnenin CDN'deki süresi doldu | `server-error` receipt'ini gönder (bölüm 11) |
-| `hash_mismatch` (7) / `enc_hash_mismatch` (32) | bozuk baytlar veya yanlış `fileEncSha256` | yeniden çek; hash kaynağını doğrula |
-| MAC kontrolü başarısız | yanlış medya anahtarı, yanlış HKDF info (tür karışıklığı) veya kesilmiş dosya | doğru `MmsType`'ın info string'ini kullan; `sticker-pack` veya `ptt` satırları için Image info'sunu yeniden kullanma |
-| `invalid_url` (8) | host CDN izin listesinin dışında | yalnızca listelenen sonekleri kabul et |
-| `throttle` (12), HTTP 507 | sunucu throttle'ı | `backoff` saniye bekle (en fazla 10800) |
-| `no_route` (11) | tür için kullanılabilir `media_conn` host'u yok | `media_conn` iste, capability etiketlerini kontrol et |
-| `failed_no_media_key` (29), `no_sidecar` (30) | proto alanı eksik | `mediaKey` zorunlu kıl; sidecar yalnızca streaming için |
+| Belirti | Neden | Düzeltme |
+|---------|-------|-----|
+| Yükleme 401 / 403 | `auth` süresi dolmuş veya değiştirilmiş | `media_conn`'u yenile, yeni `auth` ile yeniden gönder |
+| Yükleme `direct_path` döndürmüyor | yükleme reddedildi veya tamamlanmadı | durumu kontrol et; `resume=1` ile resume probe'u |
+| İndirme 404 / durum 5 `too_old` | nesne CDN'de süresi dolmuş | `server-error` receipt'ini gönder (bölüm 11) |
+| `hash_mismatch` (7) / `enc_hash_mismatch` (32) | bozuk byte'lar veya yanlış `fileEncSha256` | yeniden getir; hash kaynağını doğrula |
+| MAC kontrolü başarısız | yanlış medya key'i, yanlış HKDF info'su (tip karışıklığı) veya kesilmiş dosya | doğru `MmsType`'ın info string'ini kullan; Image info'yu `sticker-pack` veya `ptt` satırları için yeniden kullanma |
+| `invalid_url` (8) | host CDN allow-list'inin dışında | sadece listelenen suffix'leri kabul et |
+| `throttle` (12), HTTP 507 | sunucu throttle'ı | `backoff` saniye kadar bekle (maks 10800) |
+| `no_route` (11) | tip için kullanılabilir `media_conn` host'u yok | `media_conn` iste, yetenek tag'lerini kontrol et |
+| `failed_no_media_key` (29), `no_sidecar` (30) | proto alanı eksik | `mediaKey`'i gerektir; sidecar sadece streaming için |
 
 ---
 
-## 19. Temel ayrımlar
+## 19. Ayırt edilmesi gereken noktalar
 
-| Karıştırma | Olgu |
-|------------|------|
-| `media_conn` host listesi ve yükleme URL'si | IQ host'ları ve tek bir `auth` verir; URL path'i, token ve query aktarım başına kurulur |
-| `auth` ve `token` | `auth`, `media_conn`'dan gelen hesap düzeyi token'dır; `token` dosya başınadır |
-| HKDF 80 ve 112 bayt | aynı anahtarlar; Android 80 türetir |
-| `fileSha256` ve `fileEncSha256` | düz metin hash'i ve `ciphertext + mac10` hash'i |
-| path'teki `fileEncSha256` ve `directPath` | yükleme path'i hash'i kullanır; indirme sunucunun döndürdüğü `directPath`'i kullanır |
-| `mediaKeyTimestamp` ve anahtar yeniden kullanım penceresi | wire'da saniye cinsinden zaman damgası; gönderende 2-3 günlük yeniden kullanım penceresi |
-| Streaming sidecar ve `fileEncSha256` | chunk başına 10 baytlık MAC'ler ve tüm dosya hash'i |
-| Medya retry ve yeniden gönderim | gönderen aynı nesneyi yeniden yükler ve yeni bir `directPath` ile yanıtlar; mesaj yeniden gönderilmez |
-| Newsletter medyası ve normal medya | şifrelenmemiş, surface `newsletter`, rastgele token |
-| `libwzav1` ve `libdav1d` | encoder ve decoder; yalnızca decoder uzak veriyi ayrıştırır |
+| Karıştırılmaması gereken | Gerçek |
+|----------------|------|
+| `media_conn` host listesi vs yükleme URL'i | IQ host'ları ve bir `auth` verir; URL path'i, token'ı ve query'si transfer-başına inşa edilir |
+| `auth` vs `token` | `auth`, `media_conn`'dan hesap-seviyesi token'dır; `token` dosya-başınadır |
+| HKDF 80 vs 112 byte | aynı key'ler; Android 80 türetir |
+| `fileSha256` vs `fileEncSha256` | plaintext hash'i vs `ciphertext + mac10`'un hash'i |
+| Path'teki `fileEncSha256` vs `directPath` | yükleme path'i hash'i kullanır; indirme sunucunun döndürdüğü `directPath`'i kullanır |
+| `mediaKeyTimestamp` vs key yeniden-kullanım penceresi | wire'da saniye cinsinden zaman damgası; gönderende 2-3 günlük yeniden-kullanım penceresi |
+| Streaming sidecar'ı vs `fileEncSha256` | parça-başına 10-byte'lık MAC'ler vs tüm-dosya hash'i |
+| Medya retry'i vs yeniden gönderme | gönderen aynı nesneyi yeniden yükler ve yeni bir `directPath` ile cevaplar; mesaj yeniden gönderilmez |
+| Newsletter medyası vs normal medya | şifrelenmemiş, surface `newsletter`, rastgele token |
+| `libwzav1` vs `libdav1d` | encoder vs decoder; sadece decoder uzak veriyi ayrıştırır |
 
 ---
 
-## 20. Tam akış (bir resmi gönder ve al)
+## 20. Tam akış (bir görüntüyü gönderme ve alma)
 
 ```
 [Sender app]  pick file → process (resize, strip) → MmsType "image"
@@ -621,14 +637,14 @@ Pratik sonuçlar (yalnızca kod okuma): bir `md-msg-hist` nesnesinin Baileys ile
 ## 21. Bilinmeyenler
 
 | Öğe | Durum |
-|-----|-------|
+|------|--------|
 | Sunucu davranışı (token doğrulama, dedupe, nesne ömrü, view-once silme) | sunucu tarafı |
-| Query adları `_nc_cbep`, `_nc_rmr`, `type`; flag **21807** ve `PTU.*` id'leri | adlar veya anlam çözülmedi |
-| `MmsType` içindeki sayısal id'ler (1, 20, 23, 25, 37, 42, 44, 57, ...) | anlam çözülmedi |
-| Native media-retry cipher'ı (AES-GCM, AAD, anahtar uzunluğu) | info string'i found; algoritma inferred |
-| `ip_token` tüketimi, `X-FB-nc-oc` değeri, `Companion_User_Secret` kaynağı | çözülmedi |
-| NON_E2EE medya anahtarı domain'inin kullanımı | çözülmedi |
-| Express path ve optimistic yükleme protokolleri | çözülmedi |
-| Denemeler arasındaki kesin host sırası ve moda bağlı deneme sayıları | decompile edilmiş control flow karışık |
-| Hangi gelen medyanın kullanıcı etkileşiminden önce hangi sandbox'lı parser'a ulaştığı | haritalanmadı |
+| Query adları `_nc_cbep`, `_nc_rmr`, `type`; flag **21807** ve `PTU.*` id'leri | isimler veya anlam çözülmemiş |
+| `MmsType`'taki sayısal id'ler (1, 20, 23, 25, 37, 42, 44, 57, ...) | anlam çözülmemiş |
+| Native medya-retry cipher'ı (AES-GCM, AAD, key uzunluğu) | info string'i found; algoritma inferred |
+| `ip_token` tüketimi, `X-FB-nc-oc` değeri, `Companion_User_Secret` kaynağı | çözülmemiş |
+| NON_E2EE medya key domain'inin kullanımı | çözülmemiş |
+| Express path ve optimistic upload protokolleri | çözülmemiş |
+| Denemeler arasındaki tam host sırası ve moda-bağlı deneme sayıları | decompile edilmiş kontrol akışı bozuk |
+| Hangi gelen medyanın kullanıcı etkileşiminden önce hangi sandbox'lanmış parser'a ulaştığı | eşlenmemiş |
 | Trafik | hiçbir şey yakalanmadı; dinamik test yok |
