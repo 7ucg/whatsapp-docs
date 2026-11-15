@@ -330,6 +330,26 @@ Profile record `C199348dm`: bot type (`C1XY`), jid, display name (`A09`), descri
 - `MetaAiIncognitoSessionManager`: present at `com.whatsapp.metaai.incognito.infra` (found).
 - Separate storage of Meta AI chats outside `msgstore.db` (2.26.26.4, not re-verified): no chat-store class found; `meta_ai_memory` holds memory facts only, so the claim is neither supported nor refuted.
 
+### 7.1 Private Search as a bot-chat thread kind (new in 2.26.45.10, found)
+
+New classes (`com.whatsapp.privateai.privatesearch`, `com.whatsapp.searchui.search.psisearch`):
+
+| Class | Role |
+|-------|------|
+| `PrivateSearchSessionManager` | Tracks the single active/most-recent Private Search thread; refuses to resume a thread superseded by a newer search |
+| `PrivateSearchThreadsManager` | Creates a bot thread of kind `PRIVATE_SEARCH`; extends `LX/1gu`, the same `BotThreadsManager` base `IncognitoAiThreadsManager` (above) already uses |
+| `PsiSearchManager` (obfuscated `LX/JjA`) | Owns the query send/follow-up ("echo") flow |
+| `PsiSearchDialogFragment` | Dialog UI; a `"kind"` arg of `"TURN_ON_PRIVATE_PROCESSING"` surfaces the Private Processing opt-in gate inline |
+| `PsiSearchUnifiedResponseRenderer` | Renders the bot's reply |
+
+Private Search is implemented as one more **bot-chat thread kind**, not a new network primitive. `PrivateSearchThreadsManager` calls the shared bot-thread constructor `LX/1gv;->A00(LX/2p4, ...)` with a 5-value enum `LX/2p4`: `UNKNOWN`(0) / `DEFAULT`(1) / `INCOGNITO`(2) / `SIDE_CHAT`(3) / `PRIVATE_SEARCH`(4). `PsiSearchManager` re-validates a thread's kind against this discriminator before sending, rejecting a blank query or a non-`PRIVATE_SEARCH` thread.
+
+**Query send path (found).** `PsiSearchManager.onEchoSelected` builds the outgoing message via the same generic message-creation utility other chat sends use, `LX/D1D;->A05(...)`, then dispatches the result through the ordinary outgoing-message queue (`LX/JjA;->A0H:LX/0JB;->D2A`). No GraphQL/MEX/IQ call appears anywhere in this path — it is the same `botInvokeMessage` (field 67) wrapping-to-bot-JID mechanism documented in §11 ("Chat message to the bot"), reused verbatim and not re-derived here.
+
+**What stays native (cross-ref).** The PSI/TEE retrieval pipeline that actually answers the query — `TeeClientToolOrchestrator`, `PsiSearchToolHandler` (`wa_search` client tool), `IplsdHandshakeExecutor`, backed by native `libpsi.so`/`libxplat_psi.so` — is unchanged from 2.26.41.6 and documented in the brain's Labyrinth/TEE research (not re-derived here); none of it is touched by the five classes above, which only build the outgoing message and render the reply.
+
+**Reachability verdict: reachable send, unreachable value.** The search-initiation send is reachable by a third-party client in exactly the sense Meta AI chat already is (§8, §11) — nothing new to defeat. What is not reachable is the feature's actual privacy-preserving value: the on-device PSI search over the local chat DB and the attested-enclave round-trip are native, and the outgoing `Message` carries no pre-computed PSI material. A third-party client that sends plain text to the Private Search bot JID would get whatever the server-side bot does with an un-PSI'd plaintext query, not WhatsApp's own private-search semantics (unknown, not verified either way).
+
 ---
 
 ## 8. Why Baileys doesn't get a response
