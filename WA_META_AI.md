@@ -350,6 +350,14 @@ Private Search is implemented as one more **bot-chat thread kind**, not a new ne
 
 **Reachability verdict: reachable send, unreachable value.** The search-initiation send is reachable by a third-party client in exactly the sense Meta AI chat already is (§8, §11) — nothing new to defeat. What is not reachable is the feature's actual privacy-preserving value: the on-device PSI search over the local chat DB and the attested-enclave round-trip are native, and the outgoing `Message` carries no pre-computed PSI material. A third-party client that sends plain text to the Private Search bot JID would get whatever the server-side bot does with an un-PSI'd plaintext query, not WhatsApp's own private-search semantics (unknown, not verified either way).
 
+### 7.2 Stop-generation moved off the wire-message path (new in 2.26.45.10)
+
+The `promptMessageKey` error string (present since 2.26.35.8, tied to `FMessageStopGeneration` / `ProtocolMessage.extraJson_`, type 26) has **zero hits** across all 14 DEX files in 2.26.45.10 (found, exhaustive string scan). The underlying field `extraJson_` is still declared on `LX/DHC;` (the `ProtocolMessage` host class) but is referenced only inside that class's own field declaration and reflection array — no getter, no other class in the app reads it (found). D8 fully stripped debug info in this build (zero recoverable `DBG_SET_FILE` filenames across 34,255 methods in `classes6.dex`), so the obfuscated class that used to back `FMessageStopGeneration` could not be pinned down from debug metadata; the three `.kt` filename strings for it survive only as orphaned string-pool entries, not as reachable code (found).
+
+Found instead: a new, **unobfuscated** class `com/meta/metaai/stopgeneration/data/StopGenerationRepository` whose `A00(threadIdentifier, messageIdentifier, messageIdString, surface, mode, Continuation)` fires a Pando GraphQL mutation `MetaAIStopGenerationMutation` (op `xfb_genai_stop_generation`), with fields `thread_identifier`, `message_identifier`, `message_id_string`, `surface`, `mode`, validated by generic non-string-keyed null-checks (`LX/00m;->A09`) — no `promptMessageKey`-style error text.
+
+Best explanation (**inferred**, not proven): stop-generation moved to this GraphQL mutation for this surface, rather than the old wire-message check being renamed in place. Whether the legacy `protocolMessage`/type-26/`extraJson_` path is now dead code, kept for older-client compatibility, or still reachable from some untraced caller is **unknown** — no caller was found in this build, but a single-DEX static scan cannot prove removal.
+
 ---
 
 ## 8. Why Baileys doesn't get a response
