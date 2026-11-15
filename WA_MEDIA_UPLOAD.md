@@ -475,6 +475,22 @@ When a download fails because the object is gone (typically status 5 `too_old`, 
 | History / app state | `md-msg-hist`, `md-app-state` use the normal pipeline with their info strings |
 | Group history | `group-history`, info `Group History`, mime `application/protobuf` checked by the receiver (`C34677F2y`); path follows section 8.1 (`/mms/group-history/...`, inferred from the generic composition) |
 
+### 14.1 Chat-theme wallpaper send (new in 2.26.45.10, found)
+
+A per-chat theme "send to chat" flow rides this generic pipeline unmodified. Entry point: `ChatThemeViewModel.sendThemeToChat` (Kotlin coroutine; locals `targetJid`, `sentBundle`, `sharedTheme` from preserved debug metadata) resolves the chosen wallpaper source (`DOWNLOADED`, `USER_PROVIDED`, `ANIMATED`, `GRADIENT`, `DEFAULT`, `NONE`) and calls `ChatThemeSettingSenderImpl.A06` → `A01`.
+
+| Step | Detail (found) |
+|------|-----------------|
+| Local copy | the source wallpaper `File` is copied into app storage under `chat_theme_sent_wallpapers/<uuid>.jpg` |
+| Upload | `ChatWallpaperUploader.A00` wraps `MediaUploadCoordinatorImpl.A0G` (the same `media_conn` → HKDF → AES-CBC → HMAC → POST pipeline as section 1-8 above), requesting encryption mode `LX/8cp;->A02`, whose `value` field is the literal string `"E2EE"` |
+| Result copy | the upload result (`SGq`) is copied field-for-field into a generic media-attachment descriptor (`LX/8cr`): upload-result string → direct path, media-key bytes, a timestamp, and three more hash/HMAC byte arrays |
+| Setter surface | the descriptor is pushed through `LX/1iA` (extends `LX/19i`), the **same generic media-attachment setter interface** ordinary image-message builders use; its fields line up positionally with `imageMessage`'s `directPath` (**11**), `mediaKey` (**8**), and the `fileSha256`/`fileEncSha256` byte fields (**9**/**12**, section 6) |
+| Mimetype | `image/jpeg` is set explicitly on the same call |
+
+This is sent to a real chat peer (`targetJid`), not a local-only display-preference sync: for image-backed themes the wallpaper bitmap itself is re-encoded and uploaded through the standard E2EE media path, so the receiving client downloads and decrypts a real image rather than applying a known theme preset. No bespoke upload media-type or HTTP-path override (unlike group-history's `/mms/group-history`, section 14) was found for this flow — it appears to reuse an existing `MmsType` (likely `image`, not separately confirmed).
+
+**Unknown**: the exact `Message` oneof field that ends up carrying this attachment — `LX/19i`/`LX/1iA` are large shared base classes used by many outgoing message types, and the concrete allocation site past their setters was not reached this pass. Also unknown: whether a solid-color/no-wallpaper theme choice (`DEFAULT`/`NONE`) is sent at all, or stays local-only. No new protobuf message type or GraphQL/MEX op was found for this feature (checked against the 2.26.41.6→2.26.45.10 proto and query diffs); the most defensible read is that this rides an existing media-message field, most likely `imageMessage` itself — **inferred**, not confirmed.
+
 ---
 
 ## 15. Native hardening of media parsers (found, strings and exports of the unpacked libraries)
