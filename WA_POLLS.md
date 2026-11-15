@@ -206,6 +206,40 @@ Carried inside the generic `secretEncryptedMessage` wrapper (field 82), not a po
 
 A `"Couldn't edit poll"` toast string exists in resources, confirming poll editing is user-facing in this build, not merely a reserved protocol path.
 
+### 8.1 Poll-edit UI (new in 2.26.45.10) — wire op unresolved
+
+A new package `com.whatsapp.polls.ui.edit` ships `PollEditActivity` plus supporting
+dialogs (`PollEditDiscardChangesDialog`, `PollEditSendFailedDialog`,
+`PollOptionRemoveConfirmationDialog`), letting a sender rename an already-sent poll or
+add/remove options from it. Found and unknown, from static smali tracing (no decompile
+beyond reading existing smali):
+
+- **Found:** `PollEditActivity` is backed by a `SavedStateHandle`-held edit state (`LX/8kp`
+  view model, `LX/A4G` edit payload: name/id, poll name string, current option rows, a
+  `Set<Long>` of removed row ids). Option rows (`LX/JZ8`) carry no removal flag — an option
+  is simply absent from the final list diffed against live poll state
+  (`LX/8kp;->A03(LX/A4G;LX/9ei;LX/8kp;)LX/9oc;`). Option removal is gated by a staged
+  rollout check, `LX/Ihb;->getPollRemoveOptionRollout()LX/1yG;` — a client-side feature
+  gate, not evidence of a new wire op.
+- **Found:** the proto-schema diff between 2.26.41.6 and 2.26.45.10 contains **zero**
+  poll-related changes — no new or renamed field for rename or option removal appears
+  anywhere in the extracted schema for this version.
+- **Inferred:** adding an option from this UI most likely still rides the existing
+  `pollAddOptionMessage` (§6, field 121) — the UI's "add row" affordance matches that
+  message's shape and no replacement add-option primitive was introduced. Not confirmed by
+  tracing the save handler.
+- **Unknown:** rename and option removal have no confirmed wire primitive. Two
+  unconfirmed candidates, neither more likely than the other on current evidence: (1) a
+  full-poll replacement via `Message.editedMessage` (`FutureProofMessage` wrapping a fresh
+  `pollCreationMessage`), or (2) reuse of `pollUpdateMessage`'s opaque encrypted `vote`
+  field (`PollEncValue`, §7) for a non-vote update. The save button's actual network call
+  sits behind a shared, R8-merged `View.OnClickListener` dispatcher (`LX/A50`) whose
+  relevant `switch` branch could not be isolated from smali alone — this is the specific
+  blocker, not a scope choice.
+
+This is left open rather than resolved to a best guess; re-check once a proto diff against
+a later version shows a new field, or once the `LX/A50` dispatch branch is traced.
+
 ---
 
 ## 9. Vote matching internals

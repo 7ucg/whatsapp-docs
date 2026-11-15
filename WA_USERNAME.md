@@ -409,6 +409,60 @@ The three `*_on_primary` prefs are read only here; where they are written was no
 
 Visibility rules enforced by the server (who may resolve a username, key rate limits, reassignment) are unknown from the client.
 
+### 9a. Phone-number-sharing audience controls (new in 2.26.45.10, found)
+
+A separate `com.whatsapp.pnsharing` package controls who can see the account's phone number, independent of the username's own visibility rules in 9. Two new `whatsapp-android-mex` operations, both `found` from plain `const-string` literals in smali (no decompile needed, `PnSharingAudienceUpdater.smali` / `PnSharingListFetcher.smali` / `PnSharingListUpdater.smali`):
+
+| Operation | doc_id | Type |
+|-----------|--------|------|
+| `UsernamePhoneNumberPrivacyUpdateMutation` | `28835748819379698` | mutation |
+| `UsernamePhoneNumberPrivacyGetQuery` | `29264643203229836` | query |
+
+The audience setting is one of 4 values of the shared, non-pnsharing-specific enum `LX/BWW` (13 members total, only these 4 reachable from this call path):
+
+| ordinal | `LX/BWW` member | `setting` value |
+|---|---|---|
+| 0 | `A02` | `ALL` |
+| 1 | `A07` | `MYCONTACTS` |
+| 2 | `A08` | `MYCONTACTSEXCEPT` |
+| 3 | `A09` | `NONE` |
+
+**`UsernamePhoneNumberPrivacyUpdateMutation` is incremental, not full-replace.** Two call sites feed it:
+
+- `PnSharingAudienceUpdater.A00` — top-level setting change only, no list entries.
+- `PnSharingListUpdater.A01` — per-entry add/remove against one of the three audience lists.
+
+Top-level fields (found):
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `setting` | string | `ALL` / `MYCONTACTS` / `MYCONTACTSEXCEPT` / `NONE`, see table above |
+| `input` | object | nested payload, see below |
+
+`input` fields (found, nested under `allow_list` / `contact_exclude_list` / `deny_list` depending on which of the 3 non-`MYCONTACTS` settings is active — `MYCONTACTS` sends no list key):
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `dhash` | string | content hash of the audience list, used for cache invalidation / conflict detection (`"...changed since it was read"` log string next to it) |
+| `entries` | list of objects | incremental ADD/DEL entries, not a full list replacement |
+
+`entries[]` item fields (found, built by `PnSharingListUpdater.A00(Integer, Integer)`):
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `entry_type` | string | `USER` or `GROUP` |
+| `operation` | string | `ADD` or `DEL` |
+| `group_jid` | string, nullable | set only when `entry_type=GROUP` |
+| `pn_jid` | string, nullable | set when the entry is a bare phone number (`PhoneUserJid`) |
+| `user_jid` | string, nullable | set when the entry is a resolved contact `Jid` |
+| `username` | string, nullable | field exists on the schema but no observed call site populates it; `inferred` purpose: pairing a not-yet-a-contact phone number with a display name, consistent with `UsernameSet`-style exceptions — `unknown` whether any caller actually sets it |
+
+Exactly one of `group_jid` / `pn_jid` / `user_jid` is filled per entry (found); the other two stay null.
+
+`UsernamePhoneNumberPrivacyGetQuery` is the read-side counterpart (found, `PnSharingListFetcher.smali`): a single batched round trip that fetches all 3 audience lists at once, each keyed by its own `dhash` (locally cached hash, or the literal string `"none"` if absent) for cache validation.
+
+**Unresolved doc_id:** the persisted-query catalog also lists `PnSharingPhoneNumberFetch` (doc_id `29229648029980096`, type query). Grepping the full decoded 2.26.45.10 smali tree (all shards, not only `com/whatsapp/pnsharing/`) for this literal turns up no call site — only the shipped asset `whatsapp-android-mex_client_persist_ids.json` references it. What calls it and what it sends are **unknown**. Likely candidate by name only (**inferred**, not more): a per-contact/per-group phone-number-visibility fetch, i.e. the single-item counterpart to the batched 3-list query above — not confirmed.
+
 ---
 
 ## 10. Baileys notes

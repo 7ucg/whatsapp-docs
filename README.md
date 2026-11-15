@@ -29,7 +29,7 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA Reporting](./WA_REPORTING.md) | 2.26.41.6 | Report types, SMAX `spam_list`, spam_flow entry points, reporting tokens, block, server errors |
 | [WA Client Integrity](./WA_CLIENT_INTEGRITY.md) | 2.26.41.6 | Keystore attestation, Play Integrity, WASafe, root/emulator telemetry, what the client sends |
 | [WA Linked-Device Pairing](./WA_LINKED_DEVICE_PAIRING.md) | 2.26.41.6 | QR and pair-code flows, pair-device / pair-success, ADV signed identity, device list, unlink |
-| [WA Username](./WA_USERNAME.md) | 2.26.41.6 | Username check/set/delete, username key, LID, w:mex operations and doc_ids |
+| [WA Username](./WA_USERNAME.md) | 2.26.41.6 | Username check/set/delete, username key, LID, w:mex operations and doc_ids, phone-number-sharing audience controls (2.26.45.10) |
 | [WA Account Security](./WA_ACCOUNT_SECURITY.md) | 2.26.41.6 | Password login (#PWD_WA envelope), PIN, recovery email, passkeys, trusted devices, native OPAQUE |
 | [WA App-State Sync](./WA_APPSTATE_SYNC.md) | 2.26.41.6 | syncd collections, patches/snapshots, MACs and LTHash, key sharing, 96 sync actions |
 | [WA Noise Transport](./WA_NOISE_TRANSPORT.md) | 2.26.41.6 | chatd over TCP, Noise XX handshake, ClientPayload, binary node encoding, reconnect, Tigon |
@@ -56,6 +56,7 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA Events](./WA_EVENTS.md) | 2.26.41.6 | calendar-style events, encrypted RSVP responses, lifecycle, visibility model |
 | [WA Call Links](./WA_CALL_LINKS.md) | 2.26.41.6 | guest call links, link_query/link_join handshake, waiting room, guest JID allocation, relay/key handoff |
 | [WA Groups & Communities](./WA_GROUPS_AND_COMMUNITIES.md) | 2.26.41.6 | parent/linked/default sub-groups, addressing, w:g2/w:gp2, group+community MEX ops, invites, admin settings, community join approval |
+| [WA Org Accounts](./WA_ORG_ACCOUNTS.md) | 2.26.45.10 | org_id/member directory membership model, invite-link + email-OTP join flow, `GraphQlOrgApi`/`OrgEmailCodeClient` ops, distinction from Managed Account and Business API delegation |
 
 ## Scope
 
