@@ -392,7 +392,7 @@ All attributes and children are accumulated in `EZV` by the handlers `F6K` calls
 
 ### 12.2 Parsed on receive (found)
 
-`<meta>` inputs the client reads: `polltype`, `event_type`, `target_id`, `target_sender_jid`, `target_chat_jid`, `target_chat_jid_lid`, `from`, `capi` (group chats only), `thread_msg_id`, `message_association_type`, `status_mentioned`, `push_eligible`, `session_scope`, `content_type`, `tm_csat_exp_ts`, `tm_csat_cooldown` (seconds, stored in ms), `is_wamo_sub`, `original_msg_t`, `msg_edit_t`, and children `mention_source/to`, `mentioned_users/to`. Newsletter metas add `admin_profile`, `paid_partnership`, `ai_content` (listed from the earlier catalogue; not re-read here, unverified). `deprecated_lid_session` was not found in 2.26.41.6.
+`<meta>` inputs the client reads: `polltype`, `event_type`, `target_id`, `target_sender_jid`, `target_chat_jid`, `target_chat_jid_lid`, `from`, `capi` (group chats only), `thread_msg_id`, `message_association_type`, `status_mentioned`, `push_eligible`, `session_scope`, `content_type`, `tm_csat_exp_ts`, `tm_csat_cooldown` (seconds, stored in ms), `is_wamo_sub`, `original_msg_t`, `msg_edit_t`, and children `mention_source/to`, `mentioned_users/to`. Newsletter metas add `admin_profile`, `paid_partnership`, `ai_content` (listed from the earlier catalogue; not re-read here, unverified). `deprecated_lid_session` is confirmed absent as of 2.26.45.10: exhaustive case-insensitive grep across the full decoded 2.26.45.10 tree and WA Business 2.26.45.7 found no exact or near match (`found`); inferred to be an intentional removal of the transitional PN→LID migration flag, not a rename (`inferred`).
 
 ---
 
@@ -548,4 +548,5 @@ Consequence read from the code: Baileys can decrypt follow-ups it receives but t
 | Meaning of `acp="2"`, serialization flag `A09`, second poll-add-option stanza field | unresolved |
 | Consumer of `decrypt-fail="hide"` on the parsed envelope | flag carried into the envelope, effect not traced |
 | User-visible result of a permanently undecryptable add-on | no fallback text found |
-| `unavailable`, `bypassed`, `deprecated_lid_session` | not re-verified in 2.26.41.6 |
+| `unavailable`, `bypassed` | not re-verified in 2.26.41.6 |
+| `deprecated_lid_session` | confirmed absent as of 2.26.45.10 (exhaustive grep, both WhatsApp and WA Business trees); removal vs. rename is `inferred`, not proven |
