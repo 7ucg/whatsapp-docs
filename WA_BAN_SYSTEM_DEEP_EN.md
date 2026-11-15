@@ -583,6 +583,20 @@ The four trigger conditions of the earlier report (`is_suspicious == 1`, `is_sus
 
 Trigger (changed): `Main.A5D()` is gone; its equivalent is `Main.A5W()`, which reads `wfac_ban_state` at start (switch on "UNBANNED" / "BANNED" / "CHECKPOINTED", registration state 21, log "main/me/wfac ban") and starts `WfacBanActivity` through `HBC`. No SharedPreferences change listener was found. `wfac_ban_state` is written by the ban-status fetch handler and by `WfacBanActivity.onCreate` (2.3). The login-failure path (403) opens the older `com.whatsapp.userban.ui.BanAppealActivity` (`HBB`) instead. 2.26.41.6: classes now in `com.whatsapp.waffle.wfac.ui` (also `WfacBanBaseFragment`); activity opened via `HBC` intent helper and `I1T` screen transition (`transitionToScreen`).
 
+#### 7.3a Ban-appeal Play Integrity attestation prewarm (new in 2.26.45.10, found)
+
+`com.whatsapp.userban.ui.BanAppealActivity` (the login-failure-path appeal screen, above) now kicks off a **Play Integrity attestation prewarm** as part of its own lifecycle, ahead of the actual appeal submission — three new classes under `com.whatsapp.userban.signals`:
+
+| Class | Role |
+|-------|------|
+| `BanAppealPlayIntegrityPrewarmer` (`$prewarm$1` coroutine body) | Requests/prepares a Google Play Integrity token early, before the user finishes the appeal form |
+| `BanAppealSignalsAggregator` | Combines the prewarmed token with other async signal sources (each resolved via its own `LX/05b;`-typed deferred) into one aggregate |
+| `BanAppealExistRequester` | Checks appeal/ban existence and is where `appeal_token`, `backup_token` and the `ban_appeal` request itself live (`no_appeal_token` as a logged failure case) |
+
+`BanAppealActivity` constructs `BanAppealPlayIntegrityPrewarmer$prewarm$1` directly inside its resume-path method (smali-renamed `A44`) and launches it on a coroutine scope — i.e. the prewarm starts as soon as the appeal screen opens, not at submit time, so the token is already prepared by the time `BanAppealExistRequester` posts the appeal. The prewarmer logs four named failure outcomes as plain strings: `"BanAppealPlayIntegrityPrewarmer/prewarm nonpositive_timeout"`, `"...prepare_failed"`, `"...api_error"`, `"...unavailable"` — the only structured evidence of its own failure modes; no corresponding success-path string literal was found (likely just a cached token object with no log line).
+
+**Not independently reachable**: Play Integrity issues a Google-attested, per-device/per-app token that a third-party client cannot forge or replay for another device — this raises the bar for appeal automation, it does not open a new appeal surface. The `unbanReasonData`/`IN_REVIEW` ban states and the rest of the appeal flow (7.3, 7.3's table) are unchanged in kind; only the submission path gained this attestation step.
+
 ### 7.4 SMB Soft Enforcement
 
 Changed: the trigger is not `is_suspicious=true` + `integrity_tags` containing `"business_policy_violation"` (that string does not exist in 2.26.41.6). It is an XMPP business notification (handler `AnonymousClass142`, notification id 202) with child `biz_integrity_warning_notification > violation`:
