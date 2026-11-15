@@ -424,6 +424,32 @@ JID device id **99** (`device_id should be 99 for hosted device`), registration/
 
 `retry-with-method` can list `shortcake-with-passkeys`; the app then stores a handoff key and switches UI. `ShortcakeJni` exposes `nativeMlkem768GenerateKeypair/Encapsulate/Decapsulate` and `nativeResponderStart/Finish` (found). The handshake transcript is native and was not decompiled here: unknown.
 
+#### 9.3a Silent linking — tethered/peripheral companion pairing + epoch migration (new in 2.26.45.10, found)
+
+A **fourth** pairing mechanism, narrower than the three above (classic ADV/QR, pair-code/CRSC, hosted device): silent linking of **tethered/peripheral companions** — wearables and smart glasses, `DeviceProps.platformType` `WEAR_OS` / `AR_WRIST` / `AR_DEVICE` / `SMARTGLASSES`. Package `com.whatsapp.instrumentation.product.silentlinking` (`SilentLinkingNativeRegistration`, `SilentLinkingSessionManager$Session`).
+
+**"Silent" means no QR scan, not no user interaction.** Telemetry strings (found) show a short-code confirmation flow: `"code displayed to user"` → `"user confirmed code on primary"` → `"companion registration start"`. The peripheral displays a short code and the user confirms it on the phone — same user-presence model as the pair-code flow (§4), just without the QR image. Entry point is the post-call wearable upsell UI (`PostCallWearableUpsellBottomSheet`, `com.whatsapp.calling.wearableupsell`) feeding `SilentLinkingVerificationActivity` (`android:exported="false"`, internal-only, no deep link). Trigger is client-UI only: no `AlarmManager`/`WorkManager`/server-push entry point was found in either class, and no `unlink`/`unpair`/"existing device" logic appears anywhere in them — this establishes a link, it does not silently remove one.
+
+`SilentLinkingNativeRegistration` leases a registration slot from the existing CRSC v2/v3 side channel (`CompanionRegOverSideChannelV2Manager`/`V3Manager`, same infrastructure as §4) to transport the resulting identity registration. The actual companion key exchange is a separate, previously-undocumented protobuf family:
+
+**Shortcake RPC envelope family** (found, field names/numbers from smali, not independently decompiled to Java):
+
+| Class | Role |
+|-------|------|
+| `LX/R9f` | Top-level `oneof` envelope: `protocolVersion`(1), `bootstrapAndHello`(2), `finishAndReady`(3), `peripheralAck`(4), `postCommitProofEnvelope`(5), `readinessRequestEnvelope`(6), `readinessResponseEnvelope`(7), `exactCleanupRequest`(8), `exactCleanupReceipt`(9) |
+| `LX/RAN` | Bootstrap&Hello: `linkId`(1), `setupAttemptId`(2), `epochId`(3), `purpose`(4), `hnSignPub`(5), `hnEpoch1EphPub`(6, classical ECDH ephemeral), `hnMlkemPub`(7, ML-KEM-768 pubkey), `protocolVersion`(8), `selectedCapabilities`(9), `migrationContextHash`(10), `hnDeviceSerial`(11) |
+| `LX/RA1` | Signal-ciphertext-wrapped envelope: `signalCiphertext`(1), `signalMessageType`(2), `peripheralHello`(3), `signalRequestId`(4), `companionAdvFingerprint`(5), `primarySignalPeerFingerprint`(6) — ties the handshake to the companion's own ADV identity fingerprint (§5) |
+| `LX/RAW` | Second `oneof` envelope, epoch-migration side: `rpcRequest`(1), `rpcResponse`(2), `primaryReady`(3), `peripheralAck`(4), `rotationControl`(5), `requestStatus`(6), `migrationPostCommitProof`(7), `migrationStatusRequest`(8), `migrationStatusResponse`(9), `migrationProbeRequest`(10), `migrationProbeResponse`(11) |
+| `LX/RUe` | Enum `PERIPHERAL_PROPS_PLATFORM_{UNKNOWN,IOS,ANDROID}` — the peripheral's own OS |
+
+`RAN.hnEpoch1EphPub` (classical) alongside `RAN.hnMlkemPub` (ML-KEM-768) confirms a **hybrid classical-ECDH + post-quantum key exchange**, not PQ-only. This is the **first post-quantum crypto mechanism documented in this report**: ML-KEM-768 (FIPS 203 / Kyber-768), run through native `ShortcakeJni` (liboqs `OQS_KEM_ml_kem_768`, wrapped by libsignal's `KEMPublicKey`/`KEMSecretKey` — found by native decompilation in a separate pass, see brain `research/2.26.36.1/shortcake-kem-native.md`). This Java-side schema is the transcript framing that native analysis alone had left unknown; the byte-level Responder-Start/Finish handshake itself remains native-only and unknown.
+
+**HKDF context labels** (found, literal strings in `LX/SdB`, KDF = HMAC-SHA256 / HKDF-SHA256, same primitive as the link-code-wrap KDF in §4.3): `WA_TETHERED_EPOCH1_PERIPHERAL_HELLO_V1`, `WA_TETHERED_EPOCH1_HN_KEY_POP_V1`, `WA_TETHERED_EPOCH1_PERIPHERAL_HELLO_HASH_V1`, `WA_TETHERED_EPOCH1_PRIMARY_FINISH_V1`, `WA_TETHERED_EPOCH1_WA_KEY_POP_V1`, `WA_TETHERED_EPOCH1_HYBRID_KX_V1`, `WA_TETHERED_LINK_IDENTITY_CONTEXT_V1`. ("HN" = the primary/phone side; not expanded anywhere in-tree, likely "Host/Home Network".)
+
+**Epoch rotation/migration (found strings, inferred role).** `LX/TIR` carries an extensive migration-error vocabulary (`"Invalid migration frame version"`, `"Migration epoch mismatch"`, `"Migration shadow serial mismatch"`, `migration_shadow`, etc.), combined with `RAN.epochId` and `RAW`'s rotation/migration-probe/status/post-commit-proof fields. Read together this is a background **key-epoch rotation protocol for an already-established tethered link** — `SilentLinkingSessionManager$Session` periodically re-invoking `SilentLinkingNativeRegistration` to roll the Shortcake keys under a new `epochId`, with probe/status/promotion/replay and a "shadow"-record rollback path. This is inferred narrative over found strings/fields; it is not a recovery mechanism for a lost classic companion session and not a server-pushed unlink. The concrete trigger condition for a rotation cycle, and the exact wire transport for `R9f`/`RAW` (CRSC side-channel payload vs. a dedicated stanza/IQ), are unknown.
+
+**Zero Baileys/velowa relevance.** Gated behind native `ShortcakeJni` crypto and an internal (`exported="false"`) activity reachable only from in-app UI, scoped entirely to WhatsApp's own wearable/smart-glasses companion category. It does not touch classic ADV/CRSC companion pairing (§2-§4, what a third-party multi-device client implements), and no mechanism was found by which it would unlink or silently re-link a Web/Desktop companion.
+
 ### 9.4 Friction / defense mode
 
 `pair-device` advertises supported challenges and returns `completed` ones on retry. The primary decides locally to require friction when defense mode is on (`C271211x.A0N()`) and the friction challenge is not yet completed; this decision is made before the first IQ (`defense mode friction triggered`). Server-side policy that sends `retry-after-challenges` is not visible (unknown).
