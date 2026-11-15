@@ -56,6 +56,7 @@ English is the original. Full translations: Deutsch, Español, Português (BR), 
 | [WA Events](./WA_EVENTS.md) | 2.26.41.6 | calendar-style events, encrypted RSVP responses, lifecycle, visibility model |
 | [WA Call Links](./WA_CALL_LINKS.md) | 2.26.41.6 | guest call links, link_query/link_join handshake, waiting room, guest JID allocation, relay/key handoff |
 | [WA Groups & Communities](./WA_GROUPS_AND_COMMUNITIES.md) | 2.26.41.6 | parent/linked/default sub-groups, addressing, w:g2/w:gp2, group+community MEX ops, invites, admin settings, community join approval |
+| [WA Hatch/Muse AI Agent](./WA_HATCH_MUSE.md) | 2.26.41.6 | attested Noise-gateway VM transport, native carrier + SEV-SNP attestation, agent-browser noVNC stream, workspace (spaces, feed, goals, ideas, approvals, connectors), Vesta OPAQUE identity/PIN recovery, paid tier, reachability verdict |
 | [WA Org Accounts](./WA_ORG_ACCOUNTS.md) | 2.26.45.10 | org_id/member directory membership model, invite-link + email-OTP join flow, `GraphQlOrgApi`/`OrgEmailCodeClient` ops, distinction from Managed Account and Business API delegation |
 
 ## Scope
